@@ -1,0 +1,243 @@
+/* SECTION: Login View Layout */
+.login-view {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 24px 20px 36px;
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* SECTION: Header & Branding */
+.login-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: auto;
+  padding-bottom: 30px;
+}
+
+.login-avatar-circle {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #19212d, #10151f);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin: 28px auto 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    inset 0 1px 2px rgba(255, 255, 255, 0.15),
+    0 10px 24px rgba(0, 0, 0, 0.5);
+}
+
+.login-avatar-circle svg {
+  color: #94a3b8;
+}
+
+.login-title {
+  font-size: 27px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  color: var(--text-white);
+  text-align: center;
+  margin-bottom: 6px;
+}
+
+.login-subtitle {
+  font-size: 14px;
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* SECTION: Form & Fieldset */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: auto;
+}
+
+.login-fieldset {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* SECTION: Inputs & Controls */
+.field-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.field-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: var(--text-label);
+  margin-bottom: 7px;
+}
+
+.field-input-box {
+  display: flex;
+  align-items: center;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-input);
+  border-radius: var(--radius-input);
+  height: 54px;
+  padding: 0 16px;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field-input-box:focus-within {
+  background-color: var(--bg-input-focus);
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 3px rgba(47, 128, 237, 0.2);
+}
+
+.field-input-box.has-error {
+  border-color: var(--accent-error);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.field-icon-left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.field-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--text-white);
+  font-family: inherit;
+  width: 100%;
+}
+
+.field-input::placeholder {
+  color: #4b5563;
+  font-weight: 400;
+}
+
+.field-btn-action {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  border-radius: 6px;
+  margin-left: 6px;
+  flex-shrink: 0;
+  transition: color 0.15s ease;
+}
+
+.field-btn-action:hover {
+  color: var(--text-white);
+}
+
+.field-error-text {
+  font-size: 12px;
+  color: var(--accent-error);
+  margin-top: 4px;
+  padding-left: 2px;
+  display: none;
+}
+
+.field-error-text.is-visible {
+  display: block;
+}
+
+/* SECTION: Submit Actions & Spinner */
+.form-actions {
+  display: flex;
+  flex-direction: column;
+  margin-top: 8px;
+}
+
+.btn-login {
+  width: 100%;
+  height: 54px;
+  background-color: var(--primary-blue);
+  color: #ffffff;
+  border: none;
+  border-radius: var(--radius-btn);
+  font-size: 16px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+  box-shadow: 0 4px 18px var(--primary-blue-shadow);
+  transition: background-color 0.2s ease, transform 0.1s ease;
+  position: relative;
+}
+
+.btn-login:hover {
+  background-color: var(--primary-blue-hover);
+}
+
+.btn-login:active {
+  background-color: var(--primary-blue-active);
+  transform: scale(0.985);
+}
+
+.btn-arrow-icon {
+  display: flex;
+  align-items: center;
+  transition: transform 0.2s ease;
+}
+
+.btn-login:hover .btn-arrow-icon {
+  transform: translateX(3px);
+}
+
+.btn-spinner {
+  display: none;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin-loader 0.7s linear infinite;
+}
+
+@keyframes spin-loader {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.btn-login.is-loading .btn-text,
+.btn-login.is-loading .btn-arrow-icon {
+  display: none;
+}
+
+.btn-login.is-loading .btn-spinner {
+  display: block;
+}
+
+.btn-login.is-loading {
+  pointer-events: none;
+  opacity: 0.85;
+}
+
+/* TODO / FUTURE: Add styles for biometric action sheet modal and recovery links */
