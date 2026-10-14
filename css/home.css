@@ -299,12 +299,20 @@ body {
     font-weight: 600;
 }
 
+.box-income .box-label {
+    color: #4cd964;
+}
+
+.box-expense .box-label {
+    color: #EF4444;
+}
+
 .box-income .box-value {
     color: #4cd964;
 }
 
 .box-expense .box-value {
-    color: var(--error);
+    color: #EF4444;
 }
 
 /* --- MOVEMENTS LIST --- */
