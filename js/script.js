@@ -5,19 +5,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleBalanceBtn = document.querySelector('.btn-icon');
     const balanceAmountEl = document.querySelector('.balance-amount');
     
-    let balanceHidden = false;
-    const originalBalanceHTML = balanceAmountEl.innerHTML;
+    if (toggleBalanceBtn && balanceAmountEl) {
+        let balanceHidden = false;
+        const originalBalanceHTML = balanceAmountEl.innerHTML;
 
-    toggleBalanceBtn.addEventListener('click', () => {
-        balanceHidden = !balanceHidden;
-        if (balanceHidden) {
-            balanceAmountEl.textContent = '••••••';
-            toggleBalanceBtn.textContent = '🔒';
-        } else {
-            balanceAmountEl.innerHTML = originalBalanceHTML;
-            toggleBalanceBtn.textContent = '👁️';
-        }
-    });
+        toggleBalanceBtn.addEventListener('click', () => {
+            balanceHidden = !balanceHidden;
+            if (balanceHidden) {
+                balanceAmountEl.textContent = '••••••';
+                toggleBalanceBtn.textContent = '🔒';
+            } else {
+                balanceAmountEl.innerHTML = originalBalanceHTML;
+                toggleBalanceBtn.textContent = '👁️';
+            }
+        });
+    }
 
     // 2. Control de navegación activa de la App
     const navItems = document.querySelectorAll('.nav-item');
