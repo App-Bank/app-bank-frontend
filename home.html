@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Banco - Inicio</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://googleapis.com">
+    <link rel="preconnect" href="https://gstatic.com" crossorigin>
+    <link href="https://googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="CSS/home.css">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="brand-logo"></div>
+                <div class="brand-info">
+                    <span class="brand-name">AURA NEO-BANKING</span>
+                    <span class="brand-page">Inicio</span>
+                </div>
+            </div>
+            <div class="user-welcome">
+                <h1>Hola, Mateo <span class="hand-emoji">👋</span></h1>
+                <p class="current-date">Martes, 24 de Octubre</p>
+            </div>
+            <div class="header-toggle">
+                <div class="toggle-track"></div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="app-main">
+            
+            <!-- Section: Mi Cuenta -->
+            <section class="account-section">
+                <h2 class="section-title">Mi Cuenta</h2>
+                
+                <div class="card position-card">
+                    <div class="card-header">
+                        <span class="position-label">POSICIÓN GLOBAL</span>
+                        <div class="iban-container">
+                            <span class="iban-label">IBAN</span>
+                            <span class="iban-value">ES91 •••• 4820</span>
+                        </div>
+                        <button class="btn-icon" aria-label="Ver balance">👁️</button>
+                    </div>
+                    
+                    <div class="balance-display">
+                        <span class="balance-amount">34.850<span class="balance-decimals">,40</span></span>
+                        <span class="balance-currency">€</span>
+                    </div>
+                    <p class="balance-subtitle">Patrimonio total disponible</p>
+                    
+                    <div class="metrics-pills">
+                        <div class="pill pill-positive">📈 +3.4% este mes</div>
+                        <div class="pill pill-generated">+1.140,20 € generados</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Métricas del Mes -->
+            <section class="metrics-section">
+                <div class="section-header-inline">
+                    <h2 class="section-title">📊 Métricas del Mes</h2>
+                    <span class="month-label">Octubre</span>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric-box box-income">
+                        <span class="box-label">↑ Ingresos</span>
+                        <span class="box-value">+4.200,00 €</span>
+                    </div>
+                    <div class="metric-box box-expense">
+                        <span class="box-label">↓ Gastos</span>
+                        <span class="box-value">-1.860,50 €</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section: Últimos Movimientos -->
+            <section class="movements-section">
+                <div class="section-header-inline">
+                    <h2 class="section-title">Últimos Movimientos</h2>
+                    <a href="#" class="see-all">Ver todo ➔</a>
+                </div>
+                
+                <div class="movements-list">
+                    <!-- Item 1 -->
+                    <div class="movement-item">
+                        <div class="movement-icon icon-salary">💵</div>
+                        <div class="movement-details">
+                            <h3>Nómina TechCorp</h3>
+                            <p>Ayer • Abono directo</p>
+                        </div>
+                        <div class="movement-amount positive">
+                            <span>+3.200,00 €</span>
+                            <span class="status">Completado</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Item 2 -->
+                    <div class="movement-item">
+                        <div class="movement-icon icon-shopping">🛒</div>
+                        <div class="movement-details">
+                            <h3>Supermercado Mercadona</h3>
+                            <p>22 Oct • Tarjeta física</p>
+                        </div>
+                        <div class="movement-amount negative">
+                            <span>-64,20 €</span>
+                            <span class="status">Completado</span>
+                        </div>
+                    </div>
+                    
+                    <!-- Item 3 -->
+                    <div class="movement-item">
+                        <div class="movement-icon icon-transfer">⇆</div>
+                        <div class="movement-details">
+                            <h3>Transferencia a Sofía</h3>
+                            <p>21 Oct • Bizum instantáneo</p>
+                        </div>
+                        <div class="movement-amount negative">
+                            <span>-150,00 €</span>
+                            <span class="status">Completado</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Bottom Navigation Bar -->
+        <nav class="bottom-nav">
+            <button class="nav-item active">
+                <span class="nav-icon">⚃</span>
+                <span class="nav-text">Inicio</span>
+            </button>
+            <button class="nav-item">
+                <span class="nav-icon">⇆</span>
+                <span class="nav-text">Transferir</span>
+            </button>
+            <button class="nav-item">
+                <span class="nav-icon">📋</span>
+                <span class="nav-text">Historial</span>
+            </button>
+        </nav>
+    </div>
+
+    <script src="JS/script.js"></script>
+</body>
+</html>

@@ -1,0 +1,427 @@
+/* --- DESIGN SYSTEM TOKENS --- */
+:root {
+    /* Colors */
+    --surface: #10131a;
+    --surface-dim: #10131a;
+    --surface-bright: #363940;
+    --surface-container-lowest: #0b0e14;
+    --surface-container-low: #181c22;
+    --surface-container: #1c2026;
+    --surface-container-high: #272a31;
+    --surface-container-highest: #31353c;
+    --on-surface: #e0e2eb;
+    --on-surface-variant: #c1c6d5;
+    --outline: #8b919f;
+    --outline-variant: #414753;
+    --primary: #a9c7ff;
+    --primary-container: #3a90ff;
+    --on-primary-container: #002956;
+    --secondary-container: #2c4770;
+    --on-secondary-container: #9cb6e6;
+    --error: #ffb4ab;
+    --background: #10131a;
+    --on-background: #e0e2eb;
+
+    /* Functional Semantic Colors */
+    --brand-success: #0378E6; /* Primary Cobalt specified in system */
+    --brand-negative: #EF4444; /* Destructive Crimson specified in system */
+    --pill-bg-positive: rgba(3, 120, 230, 0.15);
+    --pill-bg-generated: rgba(49, 53, 60, 0.4);
+
+    /* Border Radius */
+    --rounded-sm: 0.25rem;
+    --rounded-default: 0.5rem;
+    --rounded-md: 0.75rem;
+    --rounded-lg: 1rem;
+    --rounded-xl: 1.5rem;
+    --rounded-full: 9999px;
+
+    /* Spacing & Layout */
+    --margin-mobile: 1rem;
+    --space-xs: 0.25rem;
+    --space-sm: 0.5rem;
+    --space-md: 1rem;
+    --space-lg: 1.5rem;
+    --space-xl: 2rem;
+}
+
+/* --- BASE STYLES --- */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    background-color: var(--surface-container-lowest);
+    color: var(--on-background);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* App Viewport Container (Simulating Mobile-First Responsive Shell) */
+.app-container {
+    width: 100%;
+    max-width: 412px;
+    height: 100vh;
+    max-height: 892px;
+    background-color: var(--background);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.8);
+    border-radius: var(--rounded-xl);
+    padding-bottom: calc(60px + max(var(--margin-mobile), env(safe-area-inset-bottom)));
+}
+
+/* Tabular numbers formatting rule for metrics & currency balance lists */
+.balance-amount, .box-value, .movement-amount, .iban-value {
+    font-feature-settings: 'tnum' 1, 'cv05' 1;
+}
+
+/* --- HEADER --- */
+.app-header {
+    padding: var(--space-lg) var(--margin-mobile) var(--space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.brand-logo {
+    width: 20px;
+    height: 20px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-container));
+    clip-path: polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%);
+}
+
+.brand-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-name {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--on-surface-variant);
+}
+
+.brand-page {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--on-surface);
+}
+
+.user-welcome h1 {
+    font-size: 30px; /* display-lg-mobile */
+    font-weight: 700;
+    letter-spacing: -0.025em;
+    color: var(--on-surface);
+}
+
+.current-date {
+    font-size: 13px; /* body-sm */
+    color: var(--on-surface-variant);
+    margin-top: 2px;
+}
+
+/* --- MAIN LAYOUT & SECTIONS --- */
+.app-main {
+    padding: 0 var(--margin-mobile);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+}
+
+.section-title {
+    font-size: 18px; /* headline-sm */
+    font-weight: 600;
+    color: var(--on-surface);
+    margin-bottom: var(--space-md);
+}
+
+.section-header-inline {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--space-md);
+}
+
+.section-header-inline .section-title {
+    margin-bottom: 0;
+}
+
+/* --- MAIN BALANCE CARD --- */
+.card {
+    background-color: var(--surface-container-low);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: var(--rounded-lg);
+    padding: var(--space-lg);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
+}
+
+.position-label {
+    font-size: 11px; /* label-sm */
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: var(--on-surface-variant);
+}
+
+.iban-container {
+    background-color: var(--surface-container-high);
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--rounded-sm);
+    display: flex;
+    gap: var(--space-xs);
+    font-size: 11px;
+}
+
+.iban-label {
+    color: var(--outline);
+}
+
+.iban-value {
+    color: var(--on-surface);
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    color: var(--on-surface-variant);
+    cursor: pointer;
+    margin-left: auto;
+    font-size: 14px;
+}
+
+.balance-display {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-xs);
+}
+
+.balance-amount {
+    font-size: 36px; /* metric-balance */
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--on-surface);
+}
+
+.balance-decimals {
+    font-size: 22px; /* fractional layout requirement */
+    font-weight: 500;
+}
+
+.balance-currency {
+    font-size: 28px;
+    font-weight: 500;
+    color: var(--on-surface);
+    opacity: 0.85;
+}
+
+.balance-subtitle {
+    font-size: 13px; /* body-sm */
+    color: var(--outline);
+    margin-top: var(--space-xs);
+    margin-bottom: var(--space-lg);
+}
+
+.metrics-pills {
+    display: flex;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+}
+
+.pill {
+    font-size: 12px; /* label-md */
+    font-weight: 500;
+    padding: var(--space-xs) var(--space-sm);
+    border-radius: var(--rounded-full);
+}
+
+.pill-positive {
+    background-color: var(--pill-bg-positive);
+    color: var(--primary);
+}
+
+.pill-generated {
+    background-color: var(--pill-bg-generated);
+    color: #4cd964; /* Luminous yield indicator */
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+/* --- MONTHLY METRICS GRID --- */
+.month-label {
+    font-size: 13px;
+    color: var(--outline);
+}
+
+.metrics-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-md);
+}
+
+.metric-box {
+    background-color: var(--surface-container-low);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    padding: var(--space-md);
+    border-radius: var(--rounded-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.box-label {
+    font-size: 13px;
+    color: var(--outline);
+}
+
+.box-value {
+    font-size: 16px; /* body-lg */
+    font-weight: 600;
+}
+
+.box-income .box-value {
+    color: #4cd964;
+}
+
+.box-expense .box-value {
+    color: var(--error);
+}
+
+/* --- MOVEMENTS LIST --- */
+.see-all {
+    font-size: 13px;
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.movements-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.movement-item {
+    background-color: var(--surface-container-low);
+    padding: var(--space-md);
+    border-radius: var(--rounded-md);
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.movement-icon {
+    width: 40px;
+    height: 40px;
+    background-color: var(--surface-container-high);
+    border-radius: var(--rounded-default);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 18px;
+}
+
+.movement-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.movement-details h3 {
+    font-size: 14px; /* body-md */
+    font-weight: 500;
+    color: var(--on-surface);
+}
+
+.movement-details p {
+    font-size: 12px;
+    color: var(--outline);
+}
+
+.movement-amount {
+    margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+}
+
+.movement-amount span:first-child {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.movement-amount.positive span:first-child {
+    color: #4cd964;
+}
+
+.movement-amount.negative span:first-child {
+    color: var(--on-surface);
+}
+
+.movement-amount .status {
+    font-size: 11px;
+    color: #3b82f6; /* Sync blue */
+    opacity: 0.8;
+}
+
+/* --- BOTTOM NAVIGATION BAR --- */
+.bottom-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background-color: var(--surface-container-low);
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 10;
+}
+
+.nav-item {
+    background: none;
+    border: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    color: var(--outline);
+    cursor: pointer;
+    width: 33.33%;
+}
+
+.nav-icon {
+    font-size: 20px;
+}
+
+.nav-text {
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.nav-item.active {
+    color: var(--primary);
+}
