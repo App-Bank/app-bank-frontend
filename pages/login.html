@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta name="theme-color" content="#0c1017">
   <title>Inicia sesión - Sovereign Vault</title>
-  <link rel="stylesheet" href="css/styles.css">
-  <link rel="stylesheet" href="css/login.css">
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="stylesheet" href="../css/login.css">
 </head>
 <body>
 
@@ -173,6 +173,10 @@
 
   </main>
 
-  <script src="js/login.js"></script>
+  <script src="../js/controllers/loginController.js"></script>
+  <script>
+    // Standalone auto-mount on DOM ready
+    document.addEventListener('DOMContentLoaded', () => initLogin());
+  </script>
 </body>
 </html>

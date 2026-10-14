@@ -146,10 +146,3 @@ function initLogin(options = {}) {
     });
   }
 }
-
-// SECTION: Standalone Initialization
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => initLogin());
-} else {
-  initLogin();
-}
