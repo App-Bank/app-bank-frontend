@@ -104,6 +104,10 @@ function renderHistoryView(container) {
 
           <div class="modal-details-grid">
             <div class="modal-detail-row">
+              <span class="modal-detail-label">Concepto</span>
+              <span id="modal-tx-concept" class="modal-detail-value">-</span>
+            </div>
+            <div class="modal-detail-row">
               <span class="modal-detail-label">Fecha y hora</span>
               <span id="modal-tx-date" class="modal-detail-value">-</span>
             </div>
@@ -117,9 +121,8 @@ function renderHistoryView(container) {
             </div>
           </div>
 
-          <div style="display: flex; gap: 10px;">
-            <button type="button" id="btn-delete-modal-tx" class="modal-btn-cancel" style="color: #f87171; border-color: rgba(248, 113, 113, 0.3);">Eliminar</button>
-            <button type="button" id="btn-close-modal" class="modal-btn-save" style="background: rgba(255,255,255,0.08);">Cerrar</button>
+          <div style="display: flex;">
+            <button type="button" id="btn-close-modal" class="modal-btn-save" style="width: 100%; background: rgba(255,255,255,0.08);">Cerrar</button>
           </div>
         </div>
       </div>
@@ -139,7 +142,6 @@ function renderHistoryView(container) {
   const filterChips = container.querySelectorAll('.filter-chip-option[data-filter]');
   const txModal = document.getElementById('transaction-modal');
   const btnCloseModal = document.getElementById('btn-close-modal');
-  const btnDeleteModalTx = document.getElementById('btn-delete-modal-tx');
 
   let activeModalTxId = null;
 
@@ -250,6 +252,10 @@ function renderHistoryView(container) {
     const amountElem = document.getElementById('modal-tx-amount');
     amountElem.textContent = formatAmount(foundItem.amount);
     amountElem.style.color = foundItem.type === 'expense' ? '#f87171' : '#34d399';
+    // Set Concept
+    const concept = foundItem.subtitle ? foundItem.subtitle.split(' · ')[0] : (foundItem.category || '-');
+    document.getElementById('modal-tx-concept').textContent = concept;
+
     document.getElementById('modal-tx-date').textContent = new Date(foundItem.date).toLocaleDateString('es-ES', {
       day: 'numeric',
       month: 'long',
@@ -273,16 +279,6 @@ function renderHistoryView(container) {
   if (txModal) {
     txModal.addEventListener('click', (e) => {
       if (e.target === txModal) closeTransactionModal();
-    });
-  }
-
-  if (btnDeleteModalTx) {
-    btnDeleteModalTx.addEventListener('click', async () => {
-      if (activeModalTxId) {
-        await TransactionService.deleteTransaction(activeModalTxId);
-        closeTransactionModal();
-        loadTransactions();
-      }
     });
   }
 
