@@ -376,7 +376,7 @@ body {
 }
 
 .movement-amount.negative span:first-child {
-    color: var(--on-surface);
+    color: #EF4444;
 }
 
 .movement-amount .status {
