@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0c1017">
+  <title>Sovereign Vault - Bank App</title>
+  <link rel="stylesheet" href="css/home.css">
+  <link rel="stylesheet" href="css/login.css">
+  <link rel="stylesheet" href="CSS/botton-nav.css">
+</head>
+<body>
+
+  <!-- SECTION: SPA View Container -->
+  <main id="app" class="mobile-app-container">
+    <!-- TODO / FUTURE: Dynamic views will mount here (#/login, #/dashboard, #/transfer, #/cards) -->
+  </main>
+
+  <!-- SECTION: Global UI Feedback -->
+  <div id="toast" class="mobile-toast" role="status" aria-live="polite">
+    <span id="toast-text">Message</span>
+  </div>
+
+  <!-- SECTION: Scripts -->
+  <script src="JS/login.js"></script>
+  <script src="JS/views/loginView.js"></script>
+  <script src="JS/views/dashboardView.js"></script>
+  <script src="JS/router.js"></script>
+  <script src="JS/app.js"></script>
+  <script src="JS/script.js"></script>
+</body>
+</html>
