@@ -8,9 +8,11 @@ const AppState = {
 
 // SECTION: SPA Application Bootstrapper
 document.addEventListener('DOMContentLoaded', () => {
-  // TODO / FUTURE: Register additional bank routes: /transfers, /cards, /activity, /settings
+  // TODO / FUTURE: Partner will integrate the home dashboard (/dashboard or /)
   window.appRouter = new Router({
     '/login': renderLoginView,
-    '/dashboard': renderDashboardView
+    '/dashboard': renderDashboardView,
+    '/history': renderHistoryView,
+    '/historial': renderHistoryView
   }, 'app');
 });
