@@ -414,16 +414,21 @@
 .modal-detail-row {
   display: flex;
   justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
   font-size: 13px;
 }
 
 .modal-detail-label {
   color: var(--text-muted);
+  flex-shrink: 0;
 }
 
 .modal-detail-value {
   color: var(--text-white);
   font-weight: 500;
+  text-align: right;
+  word-break: break-word;
 }
 
 .modal-close-btn {
