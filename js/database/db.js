@@ -1,6 +1,8 @@
 // SECTION: Temporary Test Database (Local Storage & JSON-backed)
 const TempDB = {
   storageKey: 'novabank_test_transactions',
+  versionKey: 'novabank_test_db_version',
+  dbVersion: 3,
 
   // Initial seed dataset for the test database
   defaultRecords: [
@@ -11,6 +13,7 @@ const TempDB = {
       amount: 1850.00,
       type: 'income',
       category: 'Nómina',
+      accountNumber: 'ES91 2100 0418 4502 0005 1324',
       date: '2026-10-24T09:00:00',
       status: 'completed',
       reference: 'TX-NOM-20261024'
@@ -22,6 +25,7 @@ const TempDB = {
       amount: -84.35,
       type: 'expense',
       category: 'Alimentación',
+      accountNumber: 'ES34 0049 1500 0512 3456 7890',
       date: '2026-10-24T13:45:00',
       status: 'completed',
       reference: 'TX-SUP-20261024'
@@ -33,6 +37,7 @@ const TempDB = {
       amount: -62.40,
       type: 'expense',
       category: 'Suministros',
+      accountNumber: 'ES21 0182 2370 4502 0152 4689',
       date: '2026-10-23T10:15:00',
       status: 'completed',
       reference: 'TX-ELEC-20261023'
@@ -44,6 +49,7 @@ const TempDB = {
       amount: 25.00,
       type: 'income',
       category: 'Bizum',
+      accountNumber: 'ES88 2038 5778 9130 0012 3456',
       date: '2026-10-23T22:30:00',
       status: 'completed',
       reference: 'TX-BIZ-20261023'
@@ -55,6 +61,7 @@ const TempDB = {
       amount: -55.00,
       type: 'expense',
       category: 'Transporte',
+      accountNumber: 'ES55 0081 0540 1100 0123 4567',
       date: '2026-10-21T18:20:00',
       status: 'completed',
       reference: 'TX-GAS-20261021'
@@ -64,9 +71,11 @@ const TempDB = {
   // SECTION: Database Initialization
   init() {
     try {
+      const currentVersion = localStorage.getItem(this.versionKey);
       const existing = localStorage.getItem(this.storageKey);
-      if (!existing) {
+      if (!existing || currentVersion !== String(this.dbVersion)) {
         localStorage.setItem(this.storageKey, JSON.stringify(this.defaultRecords));
+        localStorage.setItem(this.versionKey, String(this.dbVersion));
       }
     } catch (e) {
       console.warn('LocalStorage unavailable, running in-memory', e);
@@ -98,6 +107,7 @@ const TempDB = {
       amount: parseFloat(transaction.amount) || 0,
       type: transaction.type || (transaction.amount < 0 ? 'expense' : 'income'),
       category: transaction.category || 'Varios',
+      accountNumber: transaction.accountNumber || `ES${Math.floor(10 + Math.random() * 89)} 2100 0418 4502 0005 ${Math.floor(1000 + Math.random() * 8999)}`,
       date: transaction.date || new Date().toISOString(),
       status: 'completed',
       reference: transaction.reference || `TX-${Math.floor(100000 + Math.random() * 900000)}`

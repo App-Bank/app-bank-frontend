@@ -6,7 +6,12 @@ class Router {
     this.currentRoute = null;
 
     window.addEventListener('hashchange', () => this.handleRouting());
-    window.addEventListener('load', () => this.handleRouting());
+
+    if (document.readyState !== 'loading') {
+      this.handleRouting();
+    } else {
+      window.addEventListener('DOMContentLoaded', () => this.handleRouting());
+    }
   }
 
   addRoute(path, handler) {

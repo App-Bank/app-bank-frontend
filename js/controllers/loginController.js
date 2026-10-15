@@ -32,6 +32,9 @@ function initLogin(options = {}) {
     }, 3200);
   }
 
+  // Expose as global utility to avoid duplicate toast implementations in other views
+  window.showToast = showToast;
+
   // SECTION: Input Field Controls
   function updateClearButton() {
     if (!btnClearEmail || !emailInput) return;

@@ -103,6 +103,10 @@ function renderHistoryView(container) {
           </header>
 
           <div class="modal-details-grid">
+            <div class="modal-detail-row" id="modal-tx-account-row">
+              <span class="modal-detail-label">Número de cuenta</span>
+              <span id="modal-tx-account" class="modal-detail-value">-</span>
+            </div>
             <div class="modal-detail-row">
               <span class="modal-detail-label">Concepto</span>
               <span id="modal-tx-concept" class="modal-detail-value">-</span>
@@ -115,15 +119,9 @@ function renderHistoryView(container) {
               <span class="modal-detail-label">Estado</span>
               <span class="modal-detail-value" style="color: #34d399;">● Completado</span>
             </div>
-            <div class="modal-detail-row">
-              <span class="modal-detail-label">Referencia</span>
-              <span id="modal-tx-ref" class="modal-detail-value">TX-892147</span>
-            </div>
           </div>
 
-          <div style="display: flex;">
-            <button type="button" id="btn-close-modal" class="modal-btn-save" style="width: 100%; background: rgba(255,255,255,0.08);">Cerrar</button>
-          </div>
+          <button type="button" id="btn-close-modal" class="modal-close-btn">Cerrar</button>
         </div>
       </div>
 
@@ -142,8 +140,6 @@ function renderHistoryView(container) {
   const filterChips = container.querySelectorAll('.filter-chip-option[data-filter]');
   const txModal = document.getElementById('transaction-modal');
   const btnCloseModal = document.getElementById('btn-close-modal');
-
-  let activeModalTxId = null;
 
   // SECTION: Render Transactions from Database
   async function loadTransactions() {
@@ -244,7 +240,6 @@ function renderHistoryView(container) {
 
   // SECTION: Details Modal Logic
   function openTransactionModal(txId) {
-    activeModalTxId = txId;
     const foundItem = TempDB.getById(txId);
     if (!foundItem) return;
 
@@ -252,6 +247,14 @@ function renderHistoryView(container) {
     const amountElem = document.getElementById('modal-tx-amount');
     amountElem.textContent = formatAmount(foundItem.amount);
     amountElem.style.color = foundItem.type === 'expense' ? '#f87171' : '#34d399';
+
+    // Set Account Number
+    const accountRow = document.getElementById('modal-tx-account-row');
+    const accountElem = document.getElementById('modal-tx-account');
+    const accountNumber = foundItem.accountNumber || `ES91 2100 0418 4502 000${(foundItem.id || '0000').slice(-4)}`;
+    accountElem.textContent = accountNumber;
+    accountRow.classList.remove('is-hidden');
+
     // Set Concept
     const concept = foundItem.subtitle ? foundItem.subtitle.split(' · ')[0] : (foundItem.category || '-');
     document.getElementById('modal-tx-concept').textContent = concept;
@@ -263,7 +266,6 @@ function renderHistoryView(container) {
       hour: '2-digit',
       minute: '2-digit'
     });
-    document.getElementById('modal-tx-ref').textContent = foundItem.reference || `TX-${foundItem.id.toUpperCase()}`;
 
     txModal.classList.add('show');
     txModal.setAttribute('aria-hidden', 'false');
@@ -272,7 +274,6 @@ function renderHistoryView(container) {
   function closeTransactionModal() {
     txModal.classList.remove('show');
     txModal.setAttribute('aria-hidden', 'true');
-    activeModalTxId = null;
   }
 
   if (btnCloseModal) btnCloseModal.addEventListener('click', closeTransactionModal);
