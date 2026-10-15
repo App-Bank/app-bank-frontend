@@ -2,18 +2,7 @@
 const TempDB = {
   storageKey: 'novabank_test_transactions',
   versionKey: 'novabank_test_db_version',
-  dbVersion: 2,
-
-  // Saved accounts dictionary (simulates user's address book / saved contacts)
-  savedAccounts: {
-    'ES91 2100 0418 4502 0005 1324': 'TechCorp Solutions S.L.',
-    'ES88 2038 5778 9130 0012 3456': 'Carlos Mendoza Silva'
-  },
-
-  getSavedName(accountNumber) {
-    if (!accountNumber) return null;
-    return this.savedAccounts[accountNumber] || null;
-  },
+  dbVersion: 3,
 
   // Initial seed dataset for the test database
   defaultRecords: [
@@ -24,7 +13,6 @@ const TempDB = {
       amount: 1850.00,
       type: 'income',
       category: 'Nómina',
-      fullName: 'TechCorp Solutions S.L.',
       accountNumber: 'ES91 2100 0418 4502 0005 1324',
       date: '2026-10-24T09:00:00',
       status: 'completed',
@@ -37,7 +25,6 @@ const TempDB = {
       amount: -84.35,
       type: 'expense',
       category: 'Alimentación',
-      fullName: null,
       accountNumber: 'ES34 0049 1500 0512 3456 7890',
       date: '2026-10-24T13:45:00',
       status: 'completed',
@@ -50,7 +37,6 @@ const TempDB = {
       amount: -62.40,
       type: 'expense',
       category: 'Suministros',
-      fullName: null,
       accountNumber: 'ES21 0182 2370 4502 0152 4689',
       date: '2026-10-23T10:15:00',
       status: 'completed',
@@ -63,7 +49,6 @@ const TempDB = {
       amount: 25.00,
       type: 'income',
       category: 'Bizum',
-      fullName: 'Carlos Mendoza Silva',
       accountNumber: 'ES88 2038 5778 9130 0012 3456',
       date: '2026-10-23T22:30:00',
       status: 'completed',
@@ -76,7 +61,6 @@ const TempDB = {
       amount: -55.00,
       type: 'expense',
       category: 'Transporte',
-      fullName: null,
       accountNumber: 'ES55 0081 0540 1100 0123 4567',
       date: '2026-10-21T18:20:00',
       status: 'completed',
@@ -123,7 +107,6 @@ const TempDB = {
       amount: parseFloat(transaction.amount) || 0,
       type: transaction.type || (transaction.amount < 0 ? 'expense' : 'income'),
       category: transaction.category || 'Varios',
-      fullName: transaction.fullName || null,
       accountNumber: transaction.accountNumber || `ES${Math.floor(10 + Math.random() * 89)} 2100 0418 4502 0005 ${Math.floor(1000 + Math.random() * 8999)}`,
       date: transaction.date || new Date().toISOString(),
       status: 'completed',
