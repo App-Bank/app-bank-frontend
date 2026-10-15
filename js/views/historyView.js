@@ -121,9 +121,7 @@ function renderHistoryView(container) {
             </div>
           </div>
 
-          <div style="display: flex;">
-            <button type="button" id="btn-close-modal" class="modal-btn-save" style="width: 100%; background: rgba(255,255,255,0.08);">Cerrar</button>
-          </div>
+          <button type="button" id="btn-close-modal" class="modal-close-btn">Cerrar</button>
         </div>
       </div>
 
@@ -142,8 +140,6 @@ function renderHistoryView(container) {
   const filterChips = container.querySelectorAll('.filter-chip-option[data-filter]');
   const txModal = document.getElementById('transaction-modal');
   const btnCloseModal = document.getElementById('btn-close-modal');
-
-  let activeModalTxId = null;
 
   // SECTION: Render Transactions from Database
   async function loadTransactions() {
@@ -244,7 +240,6 @@ function renderHistoryView(container) {
 
   // SECTION: Details Modal Logic
   function openTransactionModal(txId) {
-    activeModalTxId = txId;
     const foundItem = TempDB.getById(txId);
     if (!foundItem) return;
 
@@ -279,7 +274,6 @@ function renderHistoryView(container) {
   function closeTransactionModal() {
     txModal.classList.remove('show');
     txModal.setAttribute('aria-hidden', 'true');
-    activeModalTxId = null;
   }
 
   if (btnCloseModal) btnCloseModal.addEventListener('click', closeTransactionModal);

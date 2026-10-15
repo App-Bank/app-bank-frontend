@@ -140,9 +140,15 @@ function renderLoginView(container) {
 
   initLogin({
     onSuccess: (data) => {
-      AppState.user = data.email;
-      AppState.isAuthenticated = true;
-      window.appRouter.navigate('/dashboard');
+      if (typeof AppState !== 'undefined') {
+        AppState.user = data.email;
+        AppState.isAuthenticated = true;
+      }
+      if (window.appRouter) {
+        window.appRouter.navigate('/dashboard');
+      } else {
+        window.location.href = '../index.html#/dashboard';
+      }
     }
   });
 }

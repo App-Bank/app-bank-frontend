@@ -7,7 +7,7 @@ const AppState = {
 };
 
 // SECTION: SPA Application Bootstrapper
-document.addEventListener('DOMContentLoaded', () => {
+function initSPA() {
   // TODO / FUTURE: Partner will integrate the home dashboard (/dashboard or /)
   window.appRouter = new Router({
     '/login': renderLoginView,
@@ -15,4 +15,10 @@ document.addEventListener('DOMContentLoaded', () => {
     '/history': renderHistoryView,
     '/historial': renderHistoryView
   }, 'app');
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initSPA);
+} else {
+  initSPA();
+}
