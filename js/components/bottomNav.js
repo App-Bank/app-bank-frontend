@@ -26,25 +26,11 @@ const BottomNavComponent = {
     </nav>
   `,
 
-  async render(target, activePage = '') {
+  render(target, activePage = '') {
     const el = typeof target === 'string' ? document.querySelector(target) : target;
     if (!el) return;
 
-    let html = this.template;
-    const paths = ['components/bottom-nav.html', '../components/bottom-nav.html'];
-    for (const path of paths) {
-      try {
-        const response = await fetch(path);
-        if (response.ok) {
-          html = await response.text();
-          break;
-        }
-      } catch (_) {
-        // Try next path or fallback
-      }
-    }
-
-    el.innerHTML = html;
+    el.innerHTML = this.template;
 
     if (activePage) {
       const activeLink = el.querySelector(`.bottom-nav-item[data-page="${activePage}"]`);
