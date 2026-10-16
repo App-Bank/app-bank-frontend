@@ -58,9 +58,8 @@ ul { list-style: none; padding: 0; }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; color: inherit; cursor: pointer; }
 svg { display: block; }
-.ic { width: 18px; height: 18px; flex: none; }
 
-.balance, .metric-value, .tx-amount, .iban, .chip { font-feature-settings: 'tnum' 1, 'cv05' 1; font-variant-numeric: tabular-nums lining-nums; }
+.source-balance, .amount-field, .total-row strong, #recipient-iban { font-feature-settings: 'tnum' 1, 'cv05' 1; font-variant-numeric: tabular-nums lining-nums; }
 
 .app {
     width: 100%;
@@ -191,8 +190,7 @@ svg { display: block; }
     letter-spacing: 0.02em;
 }
 
-.field { display: grid; gap: var(--space-xs); }
-.field-input {
+.transfer .field-input {
     width: 100%;
     height: 46px;
     padding-inline: var(--space-md);
@@ -204,8 +202,8 @@ svg { display: block; }
     outline: none;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-.field-input::placeholder { color: var(--text-muted); }
-.field-input:focus {
+.transfer .field-input::placeholder { color: var(--text-muted); }
+.transfer .field-input:focus {
     border-color: var(--cobalt);
     box-shadow: 0 0 0 3px rgba(3, 120, 230, 0.15);
 }

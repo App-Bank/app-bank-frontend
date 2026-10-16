@@ -90,13 +90,5 @@ const TransactionService = {
     */
 
     return TempDB.insert(transactionData);
-  },
-
-  async deleteTransaction(id) {
-    return TempDB.delete(id);
-  },
-
-  async resetToDefaults() {
-    return TempDB.reset();
   }
 };
