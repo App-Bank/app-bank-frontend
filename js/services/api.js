@@ -1,62 +1,129 @@
-const API_URL = "http://127.0.0.1:8000/api";
-
-export const api = {
-    // Log-in Logic
-    // TODO: match current router URL in backend repo
-    // NOTE: Backend's `user` expects the following:
-        // {
-        //   "email": "STRING",
-        //   "password": "STRING"
-        // }
-    // NOTE: its call should be the following:
-        // const loginResult = await api.login({
-        //     email,
-        //     password
-        // }) 
-    async login(credentials) {
-        const response = await axios.post(
-            `${API_URL}/login`,
-            credentials
-        );
-
-        return response.data;
-    },
-    
-    // Transfer Creation Logic
-    // TODO: find a way to determine user's timezone when creating a transfer, otherwise keep a default or remove `timezone` altogether
-    // NOTE: `transfer`'s form expects the following:
-        // {
-        //   "amount": INTEGER,
-        //   "concept": "STRING",
-        //   "recipient_account_id": INTEGER,
-        //   "timezone_id": INTEGER
-        // }
-    // NOTE: its call should be the following:
-        // const transferResult = await api.createTransfer({
-        //     recipientId,
-        //     amount,
-        //     concept
-        // });
-    async createTransfer(transferData) {
-        const response = await axios.post(
-            `${API_URL}/transfers`,
-            transferData
-        );
-
-        return response.data;
-    },
-
-    // Activity History Fetch Logic
-    // NOTE: because the project lacks an auth process, `{params: { userId }}` is used instead
-    // NOTE: because filter's logic has been implemented via JS, Axios calls for the **whole** JSON list from the backend, which then the frontend filters the given data
-    // NOTE: its call should be the following:
-        // const activityResult = await api.getActivities(user.id);
-    async getActivities(userId) {
-        const response = await axios.get(
-            `${API_URL}/activities`,
-            {params: { userId }}
-        );
-
-        return response.data;
-    },
+// SECTION: Backend API Service Client (Axios)
+// Connects the frontend to the FastAPI / SQLite backend (app-bank-backend)
+const API_CONFIG = {
+  baseUrl: 'http://127.0.0.1:8000',
+  defaultUserId: 1,
+  defaultAccountId: 1,
+  defaultTimezoneId: 1
 };
+
+const ApiService = {
+  config: API_CONFIG,
+
+  // Helper method: returns a configured Axios instance
+  getClient() {
+    if (typeof axios !== 'undefined') {
+      return axios.create({
+        baseURL: this.config.baseUrl,
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        timeout: 8000
+      });
+    }
+    return null;
+  },
+
+  // Centralized request handler using Axios
+  async request(method, endpoint, data = null, options = {}) {
+    const client = this.getClient();
+    const url = `${this.config.baseUrl}${endpoint}`;
+
+    if (client) {
+      try {
+        const response = await client({
+          method,
+          url: endpoint,
+          data,
+          ...options
+        });
+        return response.data;
+      } catch (error) {
+        const errorDetail = error.response?.data?.detail 
+          || error.response?.data?.message 
+          || error.message 
+          || 'Error de conexión con el backend';
+        console.warn(`[Axios API Error] ${method.toUpperCase()} ${endpoint}:`, errorDetail);
+        throw new Error(errorDetail);
+      }
+    }
+
+    // Resilient fallback to native fetch if Axios is not yet loaded
+    try {
+      const fetchOptions = {
+        method: method.toUpperCase(),
+        headers: {
+          'Content-Type': 'application/json',
+          ...(options.headers || {})
+        }
+      };
+      if (data && ['POST', 'PUT', 'PATCH'].includes(fetchOptions.method)) {
+        fetchOptions.body = JSON.stringify(data);
+      }
+      const res = await fetch(url, fetchOptions);
+      if (!res.ok) {
+        let errBody = null;
+        try { errBody = await res.json(); } catch (_) { errBody = { detail: res.statusText }; }
+        throw new Error((errBody && (errBody.detail || errBody.message)) || `Error ${res.status}`);
+      }
+      if (res.status === 204) return null;
+      return await res.json();
+    } catch (err) {
+      console.warn(`[API Fallback Error] ${method.toUpperCase()} ${url}:`, err.message);
+      throw err;
+    }
+  },
+
+  // Health check: verifies backend connectivity
+  async checkHealth() {
+    return this.request('get', '/');
+  },
+
+  // User details
+  async getUser(userId = API_CONFIG.defaultUserId) {
+    return this.request('get', `/user/${userId}`);
+  },
+
+  // List all bank accounts
+  async getAccounts() {
+    return this.request('get', '/accounts/');
+  },
+
+  // Get specific account (balance, iban)
+  async getAccount(accountId = API_CONFIG.defaultAccountId) {
+    return this.request('get', `/accounts/${accountId}`);
+  },
+
+  // Timezones list
+  async getTimezones() {
+    return this.request('get', '/timezones/');
+  },
+
+  // Fetch transfer history for current authenticated user
+  async getTransferHistory() {
+    return this.request('get', '/transfers/history');
+  },
+
+  // Create new transfer in backend database
+  async createTransfer(transferData) {
+    return this.request('post', '/transfers/', {
+      recipient_account_id: Number(transferData.recipient_account_id),
+      amount: parseFloat(transferData.amount),
+      concept: transferData.concept || 'Transferencia',
+      timezone_id: Number(transferData.timezone_id || API_CONFIG.defaultTimezoneId)
+    });
+  },
+
+  // Fetch all activities
+  async getActivities(skip = 0, limit = 50) {
+    return this.request('get', '/activity', null, { params: { skip, limit } });
+  }
+};
+
+// Global assignments for universal access across views
+window.ApiService = ApiService;
+window.api = ApiService;
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = ApiService;
+}

@@ -254,7 +254,9 @@ function renderHistoryView(container) {
 
   // SECTION: Details Modal Logic
   function openTransactionModal(txId) {
-    const foundItem = TempDB.getById(txId);
+    const foundItem = (typeof TransactionService !== 'undefined' && typeof TransactionService.getById === 'function')
+      ? TransactionService.getById(txId)
+      : null;
     if (!foundItem) return;
 
     document.getElementById('modal-tx-title').textContent = foundItem.title;

@@ -19,24 +19,11 @@ function renderHomeView(container) {
     ? window.formatCurrency(n).replace(' €', '')
     : Math.abs(n).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  // SECTION: Connect with History / Database (TempDB)
-  // Retrieve transactions directly from the database shared with Historial
-  const allRecords = (typeof TempDB !== 'undefined' && typeof TempDB.getAll === 'function') 
-    ? TempDB.getAll() 
-    : [];
-
-  // Take the 3 most recent movements that appear in Historial
-  const recentMovements = allRecords.slice(0, 3);
-
-  // Calculate monthly metrics dynamically from real database records
-  let monthlyIncome = 4200.00;
-  let monthlyExpense = 1860.50;
-  if (allRecords.length > 0) {
-    const inc = allRecords.filter(r => Number(r.amount) > 0).reduce((acc, r) => acc + Number(r.amount), 0);
-    const exp = allRecords.filter(r => Number(r.amount) < 0).reduce((acc, r) => acc + Math.abs(Number(r.amount)), 0);
-    if (inc > 0) monthlyIncome = inc;
-    if (exp > 0) monthlyExpense = exp;
-  }
+  // Initial fallback metrics and movements
+  const allRecords = [];
+  const recentMovements = [];
+  let monthlyIncome = 0;
+  let monthlyExpense = 0;
 
   // Icon classifier based on transaction category/title
   function getMovementIconInfo(item) {
@@ -115,7 +102,7 @@ function renderHomeView(container) {
           </button>
         </div>
         <div class="user-welcome">
-          <h1>Hola, ${displayName} <span class="hand-emoji">👋</span></h1>
+          <h1 id="home-welcome-title">Hola, <span id="home-welcome-name">${displayName}</span> <span class="hand-emoji">👋</span></h1>
           <p class="current-date" id="home-current-date">${formattedDate}</p>
         </div>
       </header>
@@ -143,8 +130,8 @@ function renderHomeView(container) {
             <p class="balance-subtitle">Patrimonio total disponible</p>
             
             <div class="metrics-pills">
-              <div class="pill pill-positive">📈 +3.4% este mes</div>
-              <div class="pill pill-generated">+1.140,20 € generados</div>
+              <div class="pill pill-positive" id="home-pill-badge">📈 Activo</div>
+              <div class="pill pill-generated" id="home-pill-count">Operativa conectada</div>
             </div>
           </div>
         </section>
@@ -159,23 +146,23 @@ function renderHomeView(container) {
           <div class="metrics-grid">
             <div class="metric-box box-income">
               <span class="box-label">↑ Ingresos</span>
-              <span class="box-value">${fmt(monthlyIncome)} €</span>
+              <span class="box-value" id="home-metric-income">${fmt(monthlyIncome)} €</span>
             </div>
             <div class="metric-box box-expense">
               <span class="box-label">↓ Gastos</span>
-              <span class="box-value">${fmt(monthlyExpense)} €</span>
+              <span class="box-value" id="home-metric-expense">${fmt(monthlyExpense)} €</span>
             </div>
           </div>
         </section>
 
-        <!-- Section: Últimos Movimientos (Connected with Historial) -->
+        <!-- Section: Últimos Movimientos (Connected with Backend) -->
         <section class="movements-section">
           <div class="section-header-inline">
             <h2 class="section-title">Últimos Movimientos</h2>
             <a href="#/history" class="see-all">Ver todo ➔</a>
           </div>
           
-          <div class="movements-list">
+          <div class="movements-list" id="home-movements-list">
             ${movementsHtml}
           </div>
         </section>
@@ -226,6 +213,93 @@ function renderHomeView(container) {
       }
     });
   }
+
+  // SECTION: Async Sync with Backend API
+  async function syncHomeWithBackend() {
+    if (typeof ApiService === 'undefined') return;
+
+    try {
+      // 1. Fetch real account data (balance & IBAN) from backend SQLite
+      const account = await ApiService.getAccount(1);
+      if (account) {
+        const balNum = Number(account.balance) || 0;
+        const balFormatted = balNum.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const balParts = balFormatted.split(',');
+
+        if (balanceAmountEl) {
+          balanceAmountEl.innerHTML = `${balParts[0]}<span class="balance-decimals">,${balParts[1]}</span>`;
+        }
+        const ibanEl = container.querySelector('#home-iban');
+        if (ibanEl && account.iban) {
+          ibanEl.textContent = `ES91 •••• ${account.iban.slice(-4)}`;
+        }
+        if (typeof AppState !== 'undefined') {
+          AppState.balance = balNum;
+        }
+      }
+    } catch (e) {
+      console.warn('[HomeView] Could not fetch account from backend:', e);
+    }
+
+    try {
+      // 2. Fetch real user profile from backend
+      const user = await ApiService.getUser(1);
+      if (user && user.name) {
+        const nameEl = container.querySelector('#home-welcome-name');
+        if (nameEl) nameEl.textContent = user.name;
+      }
+    } catch (e) {
+      console.warn('[HomeView] Could not fetch user from backend:', e);
+    }
+
+    try {
+      // 3. Fetch real transfer history from backend
+      if (typeof TransactionService !== 'undefined') {
+        const groups = await TransactionService.getTransactions();
+        const allItems = groups.flatMap(g => g.items || []);
+
+        if (allItems.length > 0) {
+          const recent = allItems.slice(0, 3);
+          const movementsContainer = container.querySelector('#home-movements-list');
+          if (movementsContainer) {
+            movementsContainer.innerHTML = recent.map(item => {
+              const num = Number(item.amount);
+              const isPositive = num > 0;
+              const formattedAmt = `${isPositive ? '+' : '-'}${fmt(num)} €`;
+              const amountClass = isPositive ? 'positive' : 'negative';
+              const iconInfo = getMovementIconInfo(item);
+
+              return `
+                <div class="movement-item" style="cursor: pointer;" onclick="window.location.hash='#/history'" aria-label="${item.title}: ${formattedAmt}">
+                  <div class="movement-icon ${iconInfo.cls}">${iconInfo.icon}</div>
+                  <div class="movement-details">
+                    <h3>${item.title}</h3>
+                    <p>${item.subtitle || 'Operación bancaria'}</p>
+                  </div>
+                  <div class="movement-amount ${amountClass}">
+                    <span>${formattedAmt}</span>
+                    <span class="status">Completado</span>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          }
+
+          // Recalculate monthly metrics dynamically from real backend records
+          const inc = allItems.filter(r => Number(r.amount) > 0).reduce((acc, r) => acc + Number(r.amount), 0);
+          const exp = allItems.filter(r => Number(r.amount) < 0).reduce((acc, r) => acc + Math.abs(Number(r.amount)), 0);
+          const incEl = container.querySelector('#home-metric-income');
+          const expEl = container.querySelector('#home-metric-expense');
+          if (incEl) incEl.textContent = `${fmt(inc)} €`;
+          if (expEl) expEl.textContent = `${fmt(exp)} €`;
+        }
+      }
+    } catch (e) {
+      console.warn('[HomeView] Could not fetch transfer history from backend:', e);
+    }
+  }
+
+  syncHomeWithBackend();
 
   // Mount Unified Bottom Navigation Component
   if (typeof BottomNavComponent !== 'undefined') {
