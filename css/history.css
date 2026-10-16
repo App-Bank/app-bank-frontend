@@ -11,49 +11,18 @@
 /* SECTION: Header & Branding */
 .history-header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 12px;
   margin-bottom: 22px;
 }
 
-.history-branding {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.history-brand-logo {
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.2));
-  border: 1px solid rgba(16, 185, 129, 0.4);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: #34d399;
-  box-shadow: 0 0 16px rgba(16, 185, 129, 0.2);
-}
-
-.history-brand-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.history-brand-name {
-  font-size: 11px;
+.history-header .screen-title {
+  font-size: 26px;
   font-weight: 700;
-  letter-spacing: 0.8px;
-  color: #7dd3fc;
-  text-transform: uppercase;
-}
-
-.history-title {
-  font-size: 22px;
-  font-weight: 700;
-  letter-spacing: -0.3px;
-  color: var(--text-white);
-  margin-top: 1px;
+  letter-spacing: -0.02em;
+  line-height: 34px;
+  color: var(--on-surface, #e0e2eb);
+  margin-top: 4px;
 }
 
 /* SECTION: Search & Filters */

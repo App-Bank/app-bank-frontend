@@ -113,6 +113,14 @@ svg { display: block; }
     font-weight: 600;
     letter-spacing: -0.01em;
     color: var(--on-surface-variant);
+    text-decoration: none;
+    transition: opacity 0.15s ease;
+}
+.app-brand:visited,
+.app-brand:hover,
+.app-brand:active {
+    color: var(--on-surface-variant);
+    text-decoration: none;
 }
 .logo-mark {
     width: 22px;
