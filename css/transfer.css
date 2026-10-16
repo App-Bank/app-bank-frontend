@@ -97,7 +97,7 @@ svg { display: block; }
 
 .app {
     width: 100%;
-    max-width: 520px;
+    max-width: 430px;
     margin-inline: auto;
     padding: calc(var(--space-lg) + env(safe-area-inset-top)) var(--margin)
              calc(96px + env(safe-area-inset-bottom));
@@ -606,48 +606,10 @@ select.field-input { appearance: none; cursor: pointer; }
     .greeting { font-size: 30px; line-height: 38px; }
 }
 
-/* Tablet: contenedor más ancho, sigue en una columna */
-@media (min-width: 720px) {
-    .app { max-width: 680px; --margin: 2rem; }
-    .tabbar { max-width: 680px; }
-    .metric-value { font-size: 22px; }
+/* Mobile-first responsive refinements */
+@media (min-width: 560px) {
+    .balance { font-size: 38px; line-height: 46px; }
 }
-
-/* Escritorio: reflow a 12 columnas (resumen + rail de movimientos) */
-@media (min-width: 1024px) {
-    :root { --margin: 3rem; }
-    .app {
-        max-width: 1160px;
-        padding-bottom: calc(140px + env(safe-area-inset-bottom));
-    }
-
-    .greeting { font-size: 32px; line-height: 40px; }
-    .app-date { font-size: 15px; }
-
-    .app-main.home {
-        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-        grid-template-areas:
-            "account movimientos"
-            "metrics movimientos";
-        gap: var(--space-lg);
-        margin-top: var(--space-xl);
-        align-items: start;
-    }
-    .account-card { grid-area: account; }
-    .metrics-card { grid-area: metrics; }
-    .movimientos { grid-area: movimientos; margin-top: 0; }
-
-    /* Transferir: columna centrada de ancho de lectura */
-    .app-main.transfer { max-width: 620px; margin-inline: auto; }
-    .amount-field { font-size: 52px; }
-
-    .account-card { padding: var(--space-xl); }
-    .metrics-card { padding: var(--space-xl); }
-    .balance { font-size: 44px; line-height: 52px; }
-    .metric-value { font-size: 24px; }
-    .mov-list { gap: var(--space-md); }
-    .mov-item { padding: var(--space-lg); }
-
     /* Barra inferior flotante tipo píldora */
     .tabbar {
         max-width: 460px;

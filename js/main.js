@@ -13,6 +13,8 @@
     'controllers/loginController.js',
     'views/loginView.js',
     'views/dashboardView.js',
+    'views/homeView.js',
+    'views/transferView.js',
     'views/historyView.js',
     'router.js',
     'app.js'
