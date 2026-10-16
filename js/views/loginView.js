@@ -3,7 +3,7 @@ function renderLoginView(container) {
   container.innerHTML = `
     <section class="login-view" aria-labelledby="login-heading">
       <header class="login-header">
-        <div class="login-avatar-circle" role="img" aria-label="Logo de Sovereign Vault">
+        <div class="login-avatar-circle" role="img" aria-label="Logo Aura Neo-Banking">
           <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
             <rect x="3" y="3" width="18" height="18" rx="4"></rect>
             <circle cx="12" cy="12" r="4"></circle>
