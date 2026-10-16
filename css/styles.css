@@ -119,4 +119,40 @@ html, body {
   border: 0;
 }
 
+/* SECTION: Global Brand Component (AURA NEO-BANKING) */
+.app-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.app-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: #c1c6d5;
+  text-decoration: none;
+  transition: opacity 0.15s ease;
+}
+
+.app-brand:visited,
+.app-brand:hover,
+.app-brand:active {
+  color: #c1c6d5;
+  text-decoration: none;
+}
+
+.logo-mark {
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  background: linear-gradient(135deg, #3a90ff, #ffb691);
+  box-shadow: 0 8px 24px -4px rgba(3, 120, 230, 0.25);
+  flex-shrink: 0;
+}
+
 /* TODO / FUTURE: Add desktop media queries (@media (min-width: 768px)) for responsive multi-device support */

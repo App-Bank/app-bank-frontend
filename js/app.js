@@ -27,12 +27,8 @@ function initSPA() {
   window.appRouter = new Router({
     '/login': renderLoginView,
     '/dashboard': renderHomeView,
-    '/home': renderHomeView,
-    '/inicio': renderHomeView,
     '/transfer': renderTransferView,
-    '/transferir': renderTransferView,
-    '/history': renderHistoryView,
-    '/historial': renderHistoryView
+    '/history': renderHistoryView
   }, 'app');
 }
 

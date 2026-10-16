@@ -17,24 +17,18 @@ function renderHistoryView(container) {
 
   // Render base shell structure
   container.innerHTML = `
+    <div class="aurora" aria-hidden="true"></div>
     <section class="history-view" aria-labelledby="history-heading">
 
       <!-- SECTION: Header (Branding & Titles) -->
       <header class="history-header">
-        <div class="history-branding">
-          <div class="history-brand-logo" role="img" aria-label="Logo Novabank">
-            <!-- Geometric Novabank Apex diamond SVG -->
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-              <polygon points="12 2 2 22 22 22"></polygon>
-              <line x1="12" y1="9" x2="12" y2="17"></line>
-              <line x1="9" y1="14" x2="15" y2="14"></line>
-            </svg>
-          </div>
-          <div class="history-brand-info">
-            <span class="history-brand-name">NOVABANK</span>
-            <h1 id="history-heading" class="history-title">Historial</h1>
-          </div>
+        <div class="app-top">
+          <a href="#/dashboard" class="app-brand">
+            <span class="logo-mark" aria-hidden="true"></span>
+            <span>AURA NEO-BANKING</span>
+          </a>
         </div>
+        <h1 id="history-heading" class="screen-title">Historial</h1>
       </header>
 
       <!-- SECTION: Search & Filters Bar -->

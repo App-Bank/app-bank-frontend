@@ -98,12 +98,11 @@ function renderHomeView(container) {
     <div class="app-container">
       <!-- Header -->
       <header class="app-header">
-        <div class="brand">
-          <div class="brand-logo"></div>
-          <div class="brand-info">
-            <span class="brand-name">AURA NEO-BANKING</span>
-            <span class="brand-page">Inicio</span>
-          </div>
+        <div class="app-top">
+          <a href="#/dashboard" class="app-brand">
+            <span class="logo-mark" aria-hidden="true"></span>
+            <span>AURA NEO-BANKING</span>
+          </a>
         </div>
         <div class="user-welcome">
           <h1>Hola, ${displayName} <span class="hand-emoji">👋</span></h1>
