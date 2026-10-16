@@ -69,6 +69,22 @@
   width: 100%;
 }
 
+/* Hide native browser clear button to prevent duplicate 'X' */
+.history-search-input::-webkit-search-decoration,
+.history-search-input::-webkit-search-cancel-button,
+.history-search-input::-webkit-search-results-button,
+.history-search-input::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+
+.history-search-input::-ms-clear {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
 .history-search-input::placeholder {
   color: #64748b;
   font-weight: 400;

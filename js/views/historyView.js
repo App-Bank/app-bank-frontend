@@ -316,6 +316,14 @@ function renderHistoryView(container) {
       }
       loadTransactions();
     });
+
+    searchInput.addEventListener('search', () => {
+      currentSearch = searchInput.value;
+      if (currentSearch.length === 0) {
+        btnClearSearch.classList.add('is-hidden');
+      }
+      loadTransactions();
+    });
   }
 
   if (btnClearSearch) {
