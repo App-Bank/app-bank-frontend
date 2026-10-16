@@ -32,8 +32,7 @@ function initSPA() {
     '/transfer': renderTransferView,
     '/transferir': renderTransferView,
     '/history': renderHistoryView,
-    '/historial': renderHistoryView,
-    '/dashboard-preview': renderDashboardView
+    '/historial': renderHistoryView
   }, 'app');
 }
 

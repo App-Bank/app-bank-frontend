@@ -14,26 +14,9 @@ function initLogin(options = {}) {
   const eyeHide = document.getElementById('eye-hide');
 
   const btnSubmit = document.getElementById('btn-submit');
-  const toast = document.getElementById('toast');
-  const toastText = document.getElementById('toast-text');
-
-  let toastTimer = null;
-
-  // SECTION: Toast Notification Utility
-  function showToast(message, type = 'info') {
-    if (!toast || !toastText) return;
-    if (toastTimer) clearTimeout(toastTimer);
-
-    toast.className = `mobile-toast ${type} show`;
-    toastText.textContent = message;
-
-    toastTimer = setTimeout(() => {
-      toast.classList.remove('show');
-    }, 3200);
-  }
-
-  // Expose as global utility to avoid duplicate toast implementations in other views
-  window.showToast = showToast;
+  const showToast = (msg, type) => {
+    if (typeof window.showToast === 'function') window.showToast(msg, type);
+  };
 
   // SECTION: Input Field Controls
   function updateClearButton() {
