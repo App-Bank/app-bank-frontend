@@ -2,6 +2,7 @@
 function renderHistoryView(container) {
   let currentSearch = '';
   let currentFilter = 'all'; // 'all', 'income', 'expense'
+  let currentPeriod = 'all'; // 'all', 'daily', 'weekly', 'monthly'
 
   // Helper: Format amount with +/- prefix and European currency notation
   function formatAmount(amount) {
@@ -79,9 +80,24 @@ function renderHistoryView(container) {
 
           <!-- Filter options hidden by default until toggled -->
           <div id="filter-options-container" class="filter-options-container is-hidden" role="group" aria-label="Opciones de filtro">
-            <button type="button" class="filter-chip-option active" data-filter="all">Todos</button>
-            <button type="button" class="filter-chip-option" data-filter="income">Ingresos (+)</button>
-            <button type="button" class="filter-chip-option" data-filter="expense">Gastos (-)</button>
+            <div class="filter-group-block">
+              <span class="filter-group-label">Periodo</span>
+              <div class="filter-chips-row">
+                <button type="button" class="filter-chip-option active" data-period="all">Todos</button>
+                <button type="button" class="filter-chip-option" data-period="daily">Diario</button>
+                <button type="button" class="filter-chip-option" data-period="weekly">Semanal</button>
+                <button type="button" class="filter-chip-option" data-period="monthly">Mensual</button>
+              </div>
+            </div>
+
+            <div class="filter-group-block">
+              <span class="filter-group-label">Tipo</span>
+              <div class="filter-chips-row">
+                <button type="button" class="filter-chip-option active" data-type="all">Todos</button>
+                <button type="button" class="filter-chip-option" data-type="income">Ingresos (+)</button>
+                <button type="button" class="filter-chip-option" data-type="expense">Gastos (-)</button>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -137,7 +153,8 @@ function renderHistoryView(container) {
   const btnClearSearch = document.getElementById('btn-history-clear-search');
   const btnToggleFilters = document.getElementById('btn-toggle-filters');
   const filterOptionsContainer = document.getElementById('filter-options-container');
-  const filterChips = container.querySelectorAll('.filter-chip-option[data-filter]');
+  const periodChips = container.querySelectorAll('.filter-chip-option[data-period]');
+  const typeChips = container.querySelectorAll('.filter-chip-option[data-type]');
   const txModal = document.getElementById('transaction-modal');
   const btnCloseModal = document.getElementById('btn-close-modal');
 
@@ -151,7 +168,8 @@ function renderHistoryView(container) {
 
     const groups = await TransactionService.getTransactions({
       search: currentSearch,
-      filter: currentFilter
+      filter: currentFilter,
+      period: currentPeriod
     });
 
     if (!groups || groups.length === 0) {
@@ -314,11 +332,20 @@ function renderHistoryView(container) {
     });
   }
 
-  filterChips.forEach(chip => {
+  periodChips.forEach(chip => {
     chip.addEventListener('click', () => {
-      filterChips.forEach(c => c.classList.remove('active'));
+      periodChips.forEach(c => c.classList.remove('active'));
       chip.classList.add('active');
-      currentFilter = chip.getAttribute('data-filter');
+      currentPeriod = chip.getAttribute('data-period');
+      loadTransactions();
+    });
+  });
+
+  typeChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      typeChips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      currentFilter = chip.getAttribute('data-type');
       loadTransactions();
     });
   });
