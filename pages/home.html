@@ -5,13 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Banco - Inicio</title>
     <!-- Google Fonts: Inter -->
-    <link rel="preconnect" href="https://googleapis.com">
-    <link rel="preconnect" href="https://gstatic.com" crossorigin>
-    <link href="https://googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/home.css">
-    <link rel="stylesheet" href="/css/botton-nav.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/home.css">
+    <link rel="stylesheet" href="../css/bottom-nav.css">
 </head>
 <body>
+    <div class="aurora" aria-hidden="true"></div>
 
     <div class="app-container">
         <!-- Header -->
@@ -27,14 +29,10 @@
                 <h1>Hola, Mateo <span class="hand-emoji">👋</span></h1>
                 <p class="current-date">Martes, 24 de Octubre</p>
             </div>
-            <div class="header-toggle">
-                <div class="toggle-track"></div>
-            </div>
         </header>
 
         <!-- Main Content -->
         <main class="app-main">
-            
             <!-- Section: Mi Cuenta -->
             <section class="account-section">
                 <h2 class="section-title">Mi Cuenta</h2>
@@ -46,7 +44,7 @@
                             <span class="iban-label">IBAN</span>
                             <span class="iban-value">ES91 •••• 4820</span>
                         </div>
-                        
+                        <button type="button" class="btn-icon" id="btn-toggle-balance" aria-label="Ocultar saldo">👁️</button>
                     </div>
                     
                     <div class="balance-display">
@@ -85,12 +83,12 @@
             <section class="movements-section">
                 <div class="section-header-inline">
                     <h2 class="section-title">Últimos Movimientos</h2>
-                    <a href="#" class="see-all">Ver todo ➔</a>
+                    <a href="history.html" class="see-all">Ver todo ➔</a>
                 </div>
                 
                 <div class="movements-list">
                     <!-- Item 1 -->
-                    <div class="movement-item">
+                    <div class="movement-item" onclick="window.location.href='history.html'">
                         <div class="movement-icon icon-salary">💵</div>
                         <div class="movement-details">
                             <h3>Nómina TechCorp</h3>
@@ -103,7 +101,7 @@
                     </div>
                     
                     <!-- Item 2 -->
-                    <div class="movement-item">
+                    <div class="movement-item" onclick="window.location.href='history.html'">
                         <div class="movement-icon icon-shopping">🛒</div>
                         <div class="movement-details">
                             <h3>Supermercado Mercadona</h3>
@@ -116,7 +114,7 @@
                     </div>
                     
                     <!-- Item 3 -->
-                    <div class="movement-item">
+                    <div class="movement-item" onclick="window.location.href='history.html'">
                         <div class="movement-icon icon-transfer">⇆</div>
                         <div class="movement-details">
                             <h3>Transferencia a Sofía</h3>
@@ -129,26 +127,25 @@
                     </div>
                 </div>
             </section>
-
         </main>
 
         <!-- Bottom Navigation Bar -->
-        <nav class="bottom-nav">
-            <button class="nav-item active">
-                <span class="nav-icon">⚃</span>
-                <span class="nav-text">Inicio</span>
-            </button>
-            <button class="nav-item">
-                <span class="nav-icon">⇆</span>
-                <span class="nav-text">Transferir</span>
-            </button>
-            <button class="nav-item">
-                <span class="nav-icon">📋</span>
-                <span class="nav-text">Historial</span>
-            </button>
+        <nav class="bottom-nav-bar" aria-label="Navegación principal">
+            <a href="home.html" class="bottom-nav-item active">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm10 0h6v6h-6v-6z"/></svg>
+                <span>Inicio</span>
+            </a>
+            <a href="transfer.html" class="bottom-nav-item">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.99 11L3 15l3.99 4v-3H14v-2H6.99v-3zM21 9l-3.99-4v3H10v2h7.01v3L21 9z"/></svg>
+                <span>Transferir</span>
+            </a>
+            <a href="history.html" class="bottom-nav-item">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
+                <span>Historial</span>
+            </a>
         </nav>
     </div>
 
-    <script src="js/views/home.js"></script>
+    <script src="../js/views/home.js"></script>
 </body>
 </html>

@@ -7,11 +7,15 @@
 /* 2. Authentication & Login Screen */
 @import url('login.css');
 
-/* 3. Dashboard Screen */
-@import url('dashboard.css');
+/* 3. Home Screen (Inicio) */
+@import url('home.css');
 
-/* 4. Transaction History Screen & Details Modal */
+/* 4. Transfer Screen (Transferir) */
+@import url('transfer.css');
+
+/* 5. Transaction History Screen & Details Modal */
 @import url('history.css');
 
-/* 5. Reusable Bottom Navigation Component */
+/* 6. Reusable Bottom Navigation Component */
 @import url('bottom-nav.css');
+
