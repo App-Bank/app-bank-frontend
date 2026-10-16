@@ -105,6 +105,14 @@ function renderHomeView(container) {
             <span class="logo-mark" aria-hidden="true"></span>
             <span>AURA NEO-BANKING</span>
           </a>
+          <button type="button" id="btn-home-logout" class="btn-logout" aria-label="Cerrar sesión" title="Cerrar sesión">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>Salir</span>
+          </button>
         </div>
         <div class="user-welcome">
           <h1>Hola, ${displayName} <span class="hand-emoji">👋</span></h1>
@@ -196,6 +204,25 @@ function renderHomeView(container) {
         balanceAmountEl.innerHTML = originalBalanceHTML;
         toggleBalanceBtn.textContent = '👁️';
         toggleBalanceBtn.setAttribute('aria-label', 'Ocultar saldo');
+      }
+    });
+  }
+
+  // Logout button: Clear auth state and redirect to login
+  const logoutBtn = container.querySelector('#btn-home-logout');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      if (typeof AppState !== 'undefined') {
+        AppState.user = null;
+        AppState.isAuthenticated = false;
+      }
+      if (typeof window.showToast === 'function') {
+        window.showToast('Sesión cerrada correctamente', 'info');
+      }
+      if (window.appRouter) {
+        window.appRouter.navigate('/login');
+      } else {
+        window.location.hash = '#/login';
       }
     });
   }
