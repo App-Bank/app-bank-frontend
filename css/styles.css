@@ -57,6 +57,19 @@ html, body {
   overflow-x: hidden;
 }
 
+/* SECTION: Aurora Ambient Lighting Background */
+.aurora {
+  position: fixed;
+  inset: -15% -20% auto -20%;
+  height: 55vh;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(50% 60% at 20% 0%, rgba(3, 120, 230, 0.20), transparent 70%),
+    radial-gradient(40% 50% at 90% 10%, rgba(200, 87, 3, 0.10), transparent 70%);
+  filter: blur(24px);
+}
+
 /* SECTION: Global Toast Notifications */
 .mobile-toast {
   position: fixed;

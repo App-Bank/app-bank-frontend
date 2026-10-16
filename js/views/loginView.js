@@ -147,7 +147,7 @@ function renderLoginView(container) {
       if (window.appRouter) {
         window.appRouter.navigate('/dashboard');
       } else {
-        window.location.href = '../index.html#/dashboard';
+        window.location.hash = '#/dashboard';
       }
     }
   });

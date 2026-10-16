@@ -6,13 +6,15 @@ function renderHistoryView(container) {
 
   // Helper: Format amount with +/- prefix and European currency notation
   function formatAmount(amount) {
+    if (typeof window.formatCurrency === 'function') {
+      return window.formatCurrency(amount, { includeSign: true });
+    }
     const num = Number(amount);
-    const isPositive = num > 0;
     const absVal = Math.abs(num).toLocaleString('es-ES', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2
     });
-    return `${isPositive ? '+' : '-'}${absVal} €`;
+    return `${num > 0 ? '+' : '-'}${absVal} €`;
   }
 
   // Render base shell structure

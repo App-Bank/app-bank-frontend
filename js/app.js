@@ -22,6 +22,19 @@ window.showToast = function(message, type = 'info') {
   }, 3200);
 };
 
+// SECTION: Global Formatters
+window.formatCurrency = function(amount, options = {}) {
+  const num = Number(amount) || 0;
+  const absVal = Math.abs(num).toLocaleString('es-ES', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+  if (options.includeSign) {
+    return `${num > 0 ? '+' : '-'}${absVal} €`;
+  }
+  return `${absVal} €`;
+};
+
 // SECTION: SPA Application Bootstrapper
 function initSPA() {
   window.appRouter = new Router({

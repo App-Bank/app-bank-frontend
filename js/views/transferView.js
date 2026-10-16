@@ -154,7 +154,9 @@ function initTransferLogic(ctx) {
     return isNaN(n) ? 0 : n;
   };
 
-  const fmt = (n) => n.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmt = (n) => (typeof window.formatCurrency === 'function')
+    ? window.formatCurrency(n).replace(' €', '')
+    : n.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   const syncTotal = () => {
     if (totalEl && field) {
@@ -197,17 +199,21 @@ function initTransferLogic(ctx) {
       confirmBtn.classList.add('is-done');
       confirmBtn.textContent = 'Transferencia enviada · ' + fmt(amountVal) + ' €';
 
-      // Insert transaction into database so it appears in history!
-      if (typeof TempDB !== 'undefined' && typeof TempDB.insert === 'function') {
-        TempDB.insert({
-          title: `Transferencia a ${recipientName || 'destinatario'}`,
-          subtitle: `${conceptVal || 'Transferencia'} · Hoy`,
-          amount: -amountVal,
-          type: 'expense',
-          category: 'Transferencia',
-          accountNumber: ibanEl ? ibanEl.value.trim() : 'ES88 2038 5778 9130 0012 3456',
-          date: new Date().toISOString()
-        });
+      // Insert transaction via TransactionService (or TempDB fallback) so it appears in history!
+      const newTxData = {
+        title: `Transferencia a ${recipientName || 'destinatario'}`,
+        subtitle: `${conceptVal || 'Transferencia'} · Hoy`,
+        amount: -amountVal,
+        type: 'expense',
+        category: 'Transferencia',
+        accountNumber: ibanEl ? ibanEl.value.trim() : 'ES88 2038 5778 9130 0012 3456',
+        date: new Date().toISOString()
+      };
+
+      if (typeof TransactionService !== 'undefined' && typeof TransactionService.createTransaction === 'function') {
+        TransactionService.createTransaction(newTxData);
+      } else if (typeof TempDB !== 'undefined' && typeof TempDB.insert === 'function') {
+        TempDB.insert(newTxData);
       }
 
       if (typeof window.showToast === 'function') {

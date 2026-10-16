@@ -23,19 +23,6 @@
   --border-medium: rgba(255, 255, 255, 0.12);
 }
 
-/* SECTION: Aurora Ambient Lighting Background */
-.aurora {
-  position: fixed;
-  inset: -15% -20% auto -20%;
-  height: 55vh;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(50% 60% at 20% 0%, rgba(3, 120, 230, 0.20), transparent 70%),
-    radial-gradient(40% 50% at 90% 10%, rgba(200, 87, 3, 0.10), transparent 70%);
-  filter: blur(24px);
-}
-
 /* SECTION: Mobile Container Shell */
 .app-container {
   width: 100%;
@@ -61,40 +48,6 @@
   flex-direction: column;
   gap: 12px;
   margin-bottom: 22px;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.brand-logo {
-  width: 22px;
-  height: 22px;
-  border-radius: 7px;
-  background: linear-gradient(135deg, var(--primary-container), #ffb691);
-  box-shadow: 0 8px 24px -4px rgba(3, 120, 230, 0.25);
-  flex-shrink: 0;
-}
-
-.brand-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.brand-name {
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.8px;
-  color: #7dd3fc;
-  text-transform: uppercase;
-}
-
-.brand-page {
-  font-size: 13.5px;
-  font-weight: 500;
-  color: var(--on-surface-variant);
 }
 
 .user-welcome h1 {

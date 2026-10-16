@@ -15,7 +15,9 @@ function renderHomeView(container) {
   const formattedMonth = currentMonth.charAt(0).toUpperCase() + currentMonth.slice(1);
 
   // Currency helper
-  const fmt = (n) => Math.abs(n).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmt = (n) => (typeof window.formatCurrency === 'function')
+    ? window.formatCurrency(n).replace(' €', '')
+    : Math.abs(n).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
   // SECTION: Connect with History / Database (TempDB)
   // Retrieve transactions directly from the database shared with Historial
