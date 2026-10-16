@@ -14,10 +14,6 @@ class Router {
     }
   }
 
-  addRoute(path, handler) {
-    this.routes[path] = handler;
-  }
-
   navigate(path) {
     window.location.hash = path.startsWith('/') ? path : `/${path}`;
   }

@@ -122,26 +122,6 @@ const TempDB = {
     return newRecord;
   },
 
-  delete(id) {
-    let list = this.getAll();
-    list = list.filter(item => item.id !== id);
-    try {
-      localStorage.setItem(this.storageKey, JSON.stringify(list));
-    } catch (e) {
-      console.warn('Failed to save to localStorage', e);
-    }
-    return list;
-  },
-
-  reset() {
-    try {
-      localStorage.setItem(this.storageKey, JSON.stringify(this.defaultRecords));
-    } catch (e) {
-      console.warn('Failed to reset localStorage', e);
-    }
-    return [...this.defaultRecords];
-  },
-
   // SECTION: Dynamic Grouping & Sum Computation
   groupTransactions(items) {
     const groupsMap = new Map();
