@@ -196,34 +196,62 @@ function initTransferLogic(ctx) {
         return;
       }
 
-      confirmBtn.classList.add('is-done');
-      confirmBtn.textContent = 'Transferencia enviada · ' + fmt(amountVal) + ' €';
+      confirmBtn.disabled = true;
 
-      // Insert transaction via TransactionService (or TempDB fallback) so it appears in history!
-      const newTxData = {
-        title: `Transferencia a ${recipientName || 'destinatario'}`,
-        subtitle: `${conceptVal || 'Transferencia'} · Hoy`,
-        amount: -amountVal,
-        type: 'expense',
-        category: 'Transferencia',
-        accountNumber: ibanEl ? ibanEl.value.trim() : 'ES88 2038 5778 9130 0012 3456',
-        date: new Date().toISOString()
+      // Execute transfer via Backend API
+      const rawIban = (ibanEl ? ibanEl.value : '').replace(/\s+/g, '').toUpperCase();
+
+      const executeTransfer = async () => {
+        let recipientAccountId = 2; // Default recipient account in backend seed (User Dos)
+        if (typeof ApiService !== 'undefined' && typeof ApiService.getAccounts === 'function') {
+          try {
+            const accounts = await ApiService.getAccounts();
+            if (Array.isArray(accounts)) {
+              const matched = accounts.find(a => a.iban.replace(/\s+/g, '').toUpperCase() === rawIban);
+              if (matched) {
+                recipientAccountId = matched.id;
+              }
+            }
+          } catch (e) {
+            console.warn('[TransferView] Accounts lookup fallback:', e);
+          }
+        }
+
+        try {
+          if (typeof ApiService !== 'undefined' && typeof ApiService.createTransfer === 'function') {
+            await ApiService.createTransfer({
+              recipient_account_id: recipientAccountId,
+              amount: amountVal,
+              concept: conceptVal || 'Transferencia',
+              timezone_id: 1
+            });
+          }
+
+          confirmBtn.classList.add('is-done');
+          confirmBtn.textContent = 'Transferencia enviada · ' + fmt(amountVal) + ' €';
+
+          if (typeof window.showToast === 'function') {
+            window.showToast(`Transferencia de ${fmt(amountVal)} € enviada con éxito`, 'success');
+          }
+
+          if (typeof AppState !== 'undefined' && AppState.balance != null) {
+            AppState.balance = Math.max(0, AppState.balance - amountVal);
+          }
+        } catch (err) {
+          console.error('[TransferView] Transfer failed:', err);
+          if (typeof window.showToast === 'function') {
+            window.showToast(`Error: ${err.message}`, 'error');
+          }
+        } finally {
+          setTimeout(() => {
+            confirmBtn.classList.remove('is-done');
+            confirmBtn.disabled = false;
+            confirmBtn.innerHTML = 'Confirmar Transferencia <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px; display: inline-block; vertical-align: middle;"><path d="M21.5 3.5 3 10.5l6.5 2.5M21.5 3.5l-3.6 15.4-5.4-4.4M21.5 3.5 9.5 13l1.4 5.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+          }, 2500);
+        }
       };
 
-      if (typeof TransactionService !== 'undefined' && typeof TransactionService.createTransaction === 'function') {
-        TransactionService.createTransaction(newTxData);
-      } else if (typeof TempDB !== 'undefined' && typeof TempDB.insert === 'function') {
-        TempDB.insert(newTxData);
-      }
-
-      if (typeof window.showToast === 'function') {
-        window.showToast(`Transferencia de ${fmt(amountVal)} € enviada con éxito`, 'success');
-      }
-
-      setTimeout(() => {
-        confirmBtn.classList.remove('is-done');
-        confirmBtn.innerHTML = 'Confirmar Transferencia <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px; display: inline-block; vertical-align: middle;"><path d="M21.5 3.5 3 10.5l6.5 2.5M21.5 3.5l-3.6 15.4-5.4-4.4M21.5 3.5 9.5 13l1.4 5.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
-      }, 2500);
+      executeTransfer();
     });
   }
 

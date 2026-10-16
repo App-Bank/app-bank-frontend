@@ -7,7 +7,7 @@
     : 'js/';
 
   const modules = [
-    'database/db.js',
+    'services/api.js',
     'services/transactionService.js',
     'components/bottomNav.js',
     'controllers/loginController.js',
