@@ -17,15 +17,78 @@ function renderHomeView(container) {
   // Currency helper
   const fmt = (n) => Math.abs(n).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  // Compute metrics dynamically from database if available
+  // SECTION: Connect with History / Database (TempDB)
+  // Retrieve transactions directly from the database shared with Historial
+  const allRecords = (typeof TempDB !== 'undefined' && typeof TempDB.getAll === 'function') 
+    ? TempDB.getAll() 
+    : [];
+
+  // Take the 3 most recent movements that appear in Historial
+  const recentMovements = allRecords.slice(0, 3);
+
+  // Calculate monthly metrics dynamically from real database records
   let monthlyIncome = 4200.00;
   let monthlyExpense = 1860.50;
-  if (typeof TempDB !== 'undefined' && typeof TempDB.getAll === 'function') {
-    const allRecords = TempDB.getAll();
+  if (allRecords.length > 0) {
     const inc = allRecords.filter(r => Number(r.amount) > 0).reduce((acc, r) => acc + Number(r.amount), 0);
     const exp = allRecords.filter(r => Number(r.amount) < 0).reduce((acc, r) => acc + Math.abs(Number(r.amount)), 0);
     if (inc > 0) monthlyIncome = inc;
     if (exp > 0) monthlyExpense = exp;
+  }
+
+  // Icon classifier based on transaction category/title
+  function getMovementIconInfo(item) {
+    const cat = (item.category || '').toLowerCase();
+    const title = (item.title || '').toLowerCase();
+    const isIncome = Number(item.amount) > 0 || item.type === 'income';
+
+    if (cat.includes('nómina') || title.includes('nómina') || cat.includes('salario')) {
+      return { icon: '💵', cls: 'icon-salary' };
+    } else if (cat.includes('super') || cat.includes('aliment') || title.includes('supermercado') || title.includes('mercadona') || title.includes('compra')) {
+      return { icon: '🛒', cls: 'icon-shopping' };
+    } else if (cat.includes('bizum') || cat.includes('transf') || title.includes('transferencia') || title.includes('bizum')) {
+      return { icon: '⇆', cls: 'icon-transfer' };
+    } else if (cat.includes('suministro') || cat.includes('electric') || title.includes('factura') || title.includes('luz')) {
+      return { icon: '⚡', cls: 'icon-shopping' };
+    } else if (cat.includes('transporte') || cat.includes('gasolina') || title.includes('gasolinera')) {
+      return { icon: '⛽', cls: 'icon-shopping' };
+    } else if (isIncome) {
+      return { icon: '💰', cls: 'icon-salary' };
+    } else {
+      return { icon: '💳', cls: 'icon-shopping' };
+    }
+  }
+
+  // Generate dynamic movements HTML
+  let movementsHtml = '';
+  if (recentMovements.length > 0) {
+    movementsHtml = recentMovements.map(item => {
+      const num = Number(item.amount);
+      const isPositive = num > 0;
+      const formattedAmount = `${isPositive ? '+' : '-'}${fmt(num)} €`;
+      const amountClass = isPositive ? 'positive' : 'negative';
+      const iconInfo = getMovementIconInfo(item);
+
+      return `
+        <div class="movement-item" style="cursor: pointer;" onclick="window.location.hash='#/history'" aria-label="${item.title}: ${formattedAmount}">
+          <div class="movement-icon ${iconInfo.cls}">${iconInfo.icon}</div>
+          <div class="movement-details">
+            <h3>${item.title}</h3>
+            <p>${item.subtitle || 'Operación bancaria'}</p>
+          </div>
+          <div class="movement-amount ${amountClass}">
+            <span>${formattedAmount}</span>
+            <span class="status">Completado</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } else {
+    movementsHtml = `
+      <div style="text-align: center; padding: 24px 16px; color: var(--text-muted); font-size: 13.5px;">
+        No hay movimientos registrados
+      </div>
+    `;
   }
 
   container.innerHTML = `
@@ -48,7 +111,7 @@ function renderHomeView(container) {
         </div>
       </header>
 
-      <!-- Main Content: Original vertical stack -->
+      <!-- Main Content: Original single-column vertical flow -->
       <main class="app-main">
         <!-- Section: Mi Cuenta -->
         <section class="account-section">
@@ -96,7 +159,7 @@ function renderHomeView(container) {
           </div>
         </section>
 
-        <!-- Section: Últimos Movimientos -->
+        <!-- Section: Últimos Movimientos (Connected with Historial) -->
         <section class="movements-section">
           <div class="section-header-inline">
             <h2 class="section-title">Últimos Movimientos</h2>
@@ -104,44 +167,7 @@ function renderHomeView(container) {
           </div>
           
           <div class="movements-list">
-            <!-- Item 1 -->
-            <div class="movement-item" style="cursor: pointer;" onclick="window.location.hash='#/history'">
-              <div class="movement-icon icon-salary">💵</div>
-              <div class="movement-details">
-                <h3>Nómina TechCorp</h3>
-                <p>Ayer • Abono directo</p>
-              </div>
-              <div class="movement-amount positive">
-                <span>+3.200,00 €</span>
-                <span class="status">Completado</span>
-              </div>
-            </div>
-            
-            <!-- Item 2 -->
-            <div class="movement-item" style="cursor: pointer;" onclick="window.location.hash='#/history'">
-              <div class="movement-icon icon-shopping">🛒</div>
-              <div class="movement-details">
-                <h3>Supermercado Mercadona</h3>
-                <p>22 Oct • Tarjeta física</p>
-              </div>
-              <div class="movement-amount negative">
-                <span>-64,20 €</span>
-                <span class="status">Completado</span>
-              </div>
-            </div>
-            
-            <!-- Item 3 -->
-            <div class="movement-item" style="cursor: pointer;" onclick="window.location.hash='#/history'">
-              <div class="movement-icon icon-transfer">⇆</div>
-              <div class="movement-details">
-                <h3>Transferencia a Sofía</h3>
-                <p>21 Oct • Bizum instantáneo</p>
-              </div>
-              <div class="movement-amount negative">
-                <span>-150,00 €</span>
-                <span class="status">Completado</span>
-              </div>
-            </div>
+            ${movementsHtml}
           </div>
         </section>
       </main>
