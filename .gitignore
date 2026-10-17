@@ -1,1 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+$py.class
+.so
+.Python
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.venv/
+
+# Database
+*.sqlite3
+*.db
+
+# Environment variables
+.env
+
+# IDE / Editor
+.vscode/
+.idea/
+.swp
+.swo
+.DS_Store
+
+# Frontend's Dependencies
 node_modules/
