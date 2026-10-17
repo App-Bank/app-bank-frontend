@@ -29,19 +29,24 @@ svg { display: block; }
 .app {
     width: 100%;
     max-width: 430px;
-    margin-inline: auto;
-    padding: calc(var(--space-lg) + env(safe-area-inset-top)) var(--margin)
-             calc(96px + env(safe-area-inset-bottom));
+    margin: 0 auto;
+    padding: 24px 16px 96px;
+    box-sizing: border-box;
 }
 
-.app-main { display: grid; gap: var(--space-md); margin-top: var(--space-xl); }
+.app-main.transfer { 
+    display: flex; 
+    flex-direction: column;
+    gap: var(--space-md); 
+    margin-top: 0; 
+}
 
 .screen-title {
     font-size: 26px;
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 34px;
-    margin-top: var(--space-lg);
+    margin: 0;
 }
 
 .source-account {
@@ -50,8 +55,8 @@ svg { display: block; }
     justify-content: space-between;
     flex-wrap: wrap;
     gap: var(--space-sm) var(--space-md);
-    margin-top: var(--space-md);
-    padding: var(--space-md) var(--space-lg);
+    margin-top: 4px;
+    padding: 12px 16px;
     border-radius: var(--r-lg);
     background: rgba(255, 255, 255, 0.03);
     border: 1px solid var(--border-soft);

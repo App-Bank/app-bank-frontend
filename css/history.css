@@ -3,7 +3,11 @@
   display: flex;
   flex-direction: column;
   flex: 1;
-  padding: 20px 20px 90px; /* Bottom padding so bottom nav doesn't overlap transactions */
+  width: 100%;
+  max-width: 430px;
+  margin: 0 auto;
+  padding: 24px 16px 96px;
+  box-sizing: border-box;
   min-height: 100vh;
   min-height: 100dvh;
 }
@@ -22,7 +26,7 @@
   letter-spacing: -0.02em;
   line-height: 34px;
   color: var(--on-surface, #e0e2eb);
-  margin-top: 4px;
+  margin: 0;
 }
 
 /* SECTION: Search & Filters */

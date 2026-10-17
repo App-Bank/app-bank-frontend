@@ -25,6 +25,10 @@ function renderHomeView(container) {
   let monthlyIncome = 0;
   let monthlyExpense = 0;
 
+  const currentBal = (typeof AppState !== 'undefined' && AppState.balance != null) ? Number(AppState.balance) : 0;
+  const initialBalFormatted = currentBal.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const initialBalParts = initialBalFormatted.split(',');
+
   // Icon classifier based on transaction category/title
   function getMovementIconInfo(item) {
     const cat = (item.category || '').toLowerCase();
@@ -118,13 +122,13 @@ function renderHomeView(container) {
               <span class="position-label">POSICIÓN GLOBAL</span>
               <div class="iban-container">
                 <span class="iban-label">IBAN</span>
-                <span class="iban-value" id="home-iban">ES91 •••• 4820</span>
+                <span class="iban-value" id="home-iban">ES91 •••• 1332</span>
               </div>
-              <button type="button" class="btn-icon" id="btn-toggle-home-balance" aria-label="Ocultar saldo">👁️</button>
+              <button type="button" class="btn-icon" id="btn-toggle-home-iban" aria-label="Mostrar IBAN completo" title="Mostrar IBAN completo">👁️</button>
             </div>
             
             <div class="balance-display">
-              <span class="balance-amount" id="home-balance-amount">34.850<span class="balance-decimals">,40</span></span>
+              <span class="balance-amount" id="home-balance-amount">${initialBalParts[0]}<span class="balance-decimals">,${initialBalParts[1]}</span></span>
               <span class="balance-currency">€</span>
             </div>
             <p class="balance-subtitle">Patrimonio total disponible</p>
@@ -173,25 +177,54 @@ function renderHomeView(container) {
     </div>
   `;
 
-  // Eye button: Toggle balance visibility
-  const toggleBalanceBtn = container.querySelector('#btn-toggle-home-balance');
+  // Balance amount element
   const balanceAmountEl = container.querySelector('#home-balance-amount');
+  let latestBalanceHTML = balanceAmountEl ? balanceAmountEl.innerHTML : '';
 
-  if (toggleBalanceBtn && balanceAmountEl) {
-    let balanceHidden = false;
-    const originalBalanceHTML = balanceAmountEl.innerHTML;
+  // Eye button: Toggle IBAN visibility (Masked by default)
+  const toggleIbanBtn = container.querySelector('#btn-toggle-home-iban') || container.querySelector('#btn-toggle-home-balance');
+  const ibanEl = container.querySelector('#home-iban');
 
-    toggleBalanceBtn.addEventListener('click', () => {
-      balanceHidden = !balanceHidden;
-      if (balanceHidden) {
-        balanceAmountEl.textContent = '••••••';
-        toggleBalanceBtn.textContent = '🔒';
-        toggleBalanceBtn.setAttribute('aria-label', 'Mostrar saldo');
-      } else {
-        balanceAmountEl.innerHTML = originalBalanceHTML;
-        toggleBalanceBtn.textContent = '👁️';
-        toggleBalanceBtn.setAttribute('aria-label', 'Ocultar saldo');
+  let isIbanHidden = true;
+  let currentRawIban = 'ES9121000418450200051332';
+
+  function formatFullIban(iban) {
+    if (!iban) return '';
+    const clean = iban.replace(/\s+/g, '');
+    return clean.match(/.{1,4}/g)?.join(' ') || clean;
+  }
+
+  function formatMaskedIban(iban) {
+    if (!iban) return 'ES-- •••• ----';
+    const clean = iban.replace(/\s+/g, '');
+    const prefix = clean.slice(0, 4) || 'ES91';
+    const suffix = clean.slice(-4) || '1332';
+    return `${prefix} •••• ${suffix}`;
+  }
+
+  function updateIbanDisplay() {
+    if (!ibanEl) return;
+    if (isIbanHidden) {
+      ibanEl.textContent = formatMaskedIban(currentRawIban);
+      if (toggleIbanBtn) {
+        toggleIbanBtn.textContent = '👁️';
+        toggleIbanBtn.setAttribute('aria-label', 'Mostrar IBAN completo');
+        toggleIbanBtn.setAttribute('title', 'Mostrar IBAN completo');
       }
+    } else {
+      ibanEl.textContent = formatFullIban(currentRawIban);
+      if (toggleIbanBtn) {
+        toggleIbanBtn.textContent = '🔒';
+        toggleIbanBtn.setAttribute('aria-label', 'Ocultar IBAN');
+        toggleIbanBtn.setAttribute('title', 'Ocultar IBAN');
+      }
+    }
+  }
+
+  if (toggleIbanBtn) {
+    toggleIbanBtn.addEventListener('click', () => {
+      isIbanHidden = !isIbanHidden;
+      updateIbanDisplay();
     });
   }
 
@@ -226,19 +259,34 @@ function renderHomeView(container) {
         const balFormatted = balNum.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         const balParts = balFormatted.split(',');
 
+        latestBalanceHTML = `${balParts[0]}<span class="balance-decimals">,${balParts[1]}</span>`;
         if (balanceAmountEl) {
-          balanceAmountEl.innerHTML = `${balParts[0]}<span class="balance-decimals">,${balParts[1]}</span>`;
+          balanceAmountEl.innerHTML = latestBalanceHTML;
         }
-        const ibanEl = container.querySelector('#home-iban');
-        if (ibanEl && account.iban) {
-          ibanEl.textContent = `ES91 •••• ${account.iban.slice(-4)}`;
+        if (account.iban) {
+          currentRawIban = account.iban;
+          updateIbanDisplay();
         }
         if (typeof AppState !== 'undefined') {
           AppState.balance = balNum;
         }
+      } else {
+        throw new Error('Cuenta no encontrada');
       }
     } catch (e) {
       console.warn('[HomeView] Could not fetch account from backend:', e);
+      latestBalanceHTML = '<span style="color: #f87171; font-weight: 700; font-size: 26px;">ERROR</span>';
+      if (balanceAmountEl) {
+        balanceAmountEl.innerHTML = latestBalanceHTML;
+      }
+      const pillBadge = container.querySelector('#home-pill-badge');
+      if (pillBadge) {
+        pillBadge.textContent = '⚠️ Sin conexión API';
+        pillBadge.style.color = '#f87171';
+        pillBadge.style.background = 'rgba(239, 68, 68, 0.12)';
+      }
+      currentRawIban = '';
+      updateIbanDisplay();
     }
 
     try {

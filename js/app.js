@@ -2,7 +2,7 @@
 const AppState = {
   user: null,
   isAuthenticated: false,
-  balance: 34850.40
+  balance: null
   // TODO / FUTURE: Add auth token persistence (sessionStorage / localStorage)
 };
 

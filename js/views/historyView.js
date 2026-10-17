@@ -272,7 +272,7 @@ function renderHistoryView(container) {
     accountRow.classList.remove('is-hidden');
 
     // Set Concept
-    const concept = foundItem.subtitle ? foundItem.subtitle.split(' · ')[0] : (foundItem.category || '-');
+    const concept = foundItem.concept || foundItem.title || (foundItem.category || '-');
     document.getElementById('modal-tx-concept').textContent = concept;
 
     document.getElementById('modal-tx-date').textContent = new Date(foundItem.date).toLocaleDateString('es-ES', {
