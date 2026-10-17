@@ -20,6 +20,7 @@ function renderTransferView(container) {
       </header>
 
       <main class="app-main transfer">
+        <form id="transfer-form" autocomplete="off">
         <!-- Step 1: Destinatario -->
         <section class="card step-card">
           <div class="step-head">
@@ -85,12 +86,13 @@ function renderTransferView(container) {
           </div>
         </section>
 
-        <button class="btn-confirm" id="confirmar" type="button">
+        <button class="btn-confirm" id="confirmar" type="submit">
           Confirmar Transferencia
           <svg viewBox="0 0 24 24" aria-hidden="true" style="width: 18px; height: 18px; display: inline-block; vertical-align: middle;">
             <path d="M21.5 3.5 3 10.5l6.5 2.5M21.5 3.5l-3.6 15.4-5.4-4.4M21.5 3.5 9.5 13l1.4 5.3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
+        </form>
       </main>
 
       <!-- SECTION: Bottom Navigation Bar Component Mount -->
@@ -119,6 +121,7 @@ function initTransferLogic(ctx) {
   const totalEl = $('#total');
   const confirmBtn = $('#confirmar');
   const conceptoEl = $('#concepto');
+  const form = $('#transfer-form');
 
   // Recipient name avatar
   if (nameEl && avatar) {
@@ -182,9 +185,11 @@ function initTransferLogic(ctx) {
     });
   });
 
-  // Confirm transfer button
-  if (confirmBtn) {
-    confirmBtn.addEventListener('click', () => {
+  // Confirm transfer via form submit
+  if (form) {
+    form.addEventListener('submit', (e) => {
+      e.preventDefault(); // evita que la página se recargue
+
       const amountVal = parseAmount(field ? field.value : '0');
       const recipientName = nameEl ? nameEl.value.trim() : 'Destinatario';
       const conceptVal = conceptoEl ? conceptoEl.value.trim() : 'Transferencia';
@@ -199,7 +204,6 @@ function initTransferLogic(ctx) {
       confirmBtn.classList.add('is-done');
       confirmBtn.textContent = 'Transferencia enviada · ' + fmt(amountVal) + ' €';
 
-      // Insert transaction via TransactionService (or TempDB fallback) so it appears in history!
       const newTxData = {
         title: `Transferencia a ${recipientName || 'destinatario'}`,
         subtitle: `${conceptVal || 'Transferencia'} · Hoy`,
