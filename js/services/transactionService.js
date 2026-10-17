@@ -2,15 +2,42 @@
 const TransactionService = {
   _cache: [],
 
+  // Helper to format IBAN into standard 4-character blocks
+  formatIban(iban) {
+    if (!iban) return '';
+    const clean = iban.replace(/\s+/g, '');
+    return clean.match(/.{1,4}/g)?.join(' ') || clean;
+  },
+
   // SECTION: Query Transactions (Loads from Backend API)
   async getTransactions(params = {}) {
     let rawTransfers = [];
+    const accountsMap = new Map();
 
-    if (typeof ApiService !== 'undefined' && typeof ApiService.getTransferHistory === 'function') {
-      try {
-        rawTransfers = await ApiService.getTransferHistory();
-      } catch (error) {
-        console.warn('[TransactionService] Failed to fetch transfers from backend:', error);
+    if (typeof ApiService !== 'undefined') {
+      // 1. Fetch user transfer history
+      if (typeof ApiService.getTransferHistory === 'function') {
+        try {
+          rawTransfers = await ApiService.getTransferHistory();
+        } catch (error) {
+          console.warn('[TransactionService] Failed to fetch transfers from backend:', error);
+        }
+      }
+
+      // 2. Fetch accounts list to map account IDs to real IBAN numbers
+      if (typeof ApiService.getAccounts === 'function') {
+        try {
+          const accountsList = await ApiService.getAccounts();
+          if (Array.isArray(accountsList)) {
+            accountsList.forEach(acc => {
+              if (acc && acc.id) {
+                accountsMap.set(Number(acc.id), acc.iban);
+              }
+            });
+          }
+        } catch (error) {
+          console.warn('[TransactionService] Failed to fetch accounts list:', error);
+        }
       }
     }
 
@@ -29,17 +56,25 @@ const TransactionService = {
         ? 'Hoy'
         : (!isNaN(d) ? d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : 'Reciente');
 
+      // Resolve actual account IBAN number for counterparty
+      const counterpartyId = isSender ? Number(tx.recipient_account_id) : Number(tx.sender_account_id);
+      const rawIban = accountsMap.get(counterpartyId);
+      const displayIban = rawIban ? this.formatIban(rawIban) : `ES91 2100 0418 4502 000${String(counterpartyId).padStart(4, '0')}`;
+
+      const conceptValue = (tx.concept && tx.concept.trim()) ? tx.concept.trim() : '';
+      const displayTitle = conceptValue || (isSender ? 'Transferencia enviada' : 'Transferencia recibida');
+      const displaySubtitle = `${isSender ? 'Transferencia emitida' : 'Transferencia recibida'} · ${dateSubtitle}`;
+
       return {
         id: `tx-${tx.id}`,
         backendId: tx.id,
-        title: isSender 
-          ? (tx.concept || `Transferencia a cuenta #${tx.recipient_account_id}`)
-          : `Transferencia recibida (cta #${tx.sender_account_id})`,
-        subtitle: `${tx.concept ? tx.concept + ' · ' : ''}${dateSubtitle}`,
+        concept: conceptValue || displayTitle,
+        title: displayTitle,
+        subtitle: displaySubtitle,
         amount: isSender ? -amountNum : amountNum,
         type: isSender ? 'expense' : 'income',
         category: 'Transferencia',
-        accountNumber: isSender ? `Cuenta #${tx.recipient_account_id}` : `Cuenta #${tx.sender_account_id}`,
+        accountNumber: displayIban,
         date: tx.created_at || new Date().toISOString(),
         status: 'completed',
         reference: `TX-${String(tx.id).padStart(6, '0')}`
@@ -55,12 +90,9 @@ const TransactionService = {
 
     // Filter backend records by search query, transaction type, and time period
     const filtered = allRecords.filter(item => {
-      // 1. Text search
-      const matchesSearch = !query ||
-        item.title.toLowerCase().includes(query) ||
-        (item.subtitle && item.subtitle.toLowerCase().includes(query)) ||
-        (item.category && item.category.toLowerCase().includes(query)) ||
-        (item.reference && item.reference.toLowerCase().includes(query));
+      // 1. Text search: strictly search by concept (not by date or subtitle)
+      const conceptText = (item.concept || item.title || '').toLowerCase().trim();
+      const matchesSearch = !query || conceptText.includes(query);
 
       // 2. Type filter (all, income, expense)
       const matchesType = filter === 'all' || item.type === filter;

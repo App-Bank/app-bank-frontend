@@ -1,8 +1,15 @@
 // SECTION: View - Transfer Screen (Transferir)
 function renderTransferView(container) {
+  const currentBal = (typeof AppState !== 'undefined' && AppState.balance != null)
+    ? Number(AppState.balance)
+    : 0;
+  const initialBalText = (typeof window.formatCurrency === 'function')
+    ? window.formatCurrency(currentBal)
+    : `${currentBal.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
+
   container.innerHTML = `
     <div class="aurora" aria-hidden="true"></div>
-    <div class="app" style="padding-bottom: 90px; max-width: 430px; margin: 0 auto;">
+    <div class="app">
       <header class="app-header" id="top">
         <div class="app-top">
           <a href="#/dashboard" class="app-brand">
@@ -15,7 +22,7 @@ function renderTransferView(container) {
 
         <div class="source-account">
           <p>Desde <strong>Cuenta Corriente</strong></p>
-          <p class="source-balance">Disponible <span id="transfer-source-balance">34.850,40 €</span></p>
+          <p class="source-balance">Disponible <span id="transfer-source-balance">${initialBalText}</span></p>
         </div>
       </header>
 
@@ -119,6 +126,30 @@ function initTransferLogic(ctx) {
   const totalEl = $('#total');
   const confirmBtn = $('#confirmar');
   const conceptoEl = $('#concepto');
+  const sourceBalanceEl = $('#transfer-source-balance');
+
+  // Sync available balance from backend SQLite
+  if (typeof ApiService !== 'undefined' && typeof ApiService.getAccount === 'function') {
+    ApiService.getAccount(1).then(account => {
+      if (account && account.balance != null) {
+        const balNum = Number(account.balance);
+        if (sourceBalanceEl) {
+          sourceBalanceEl.textContent = (typeof window.formatCurrency === 'function')
+            ? window.formatCurrency(balNum)
+            : `${balNum.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
+        }
+        if (typeof AppState !== 'undefined') {
+          AppState.balance = balNum;
+        }
+      }
+    }).catch(err => {
+      console.warn('[TransferView] Failed to fetch source balance from backend:', err);
+      if (sourceBalanceEl) {
+        sourceBalanceEl.textContent = 'ERROR';
+        sourceBalanceEl.style.color = '#f87171';
+      }
+    });
+  }
 
   // Recipient name avatar
   if (nameEl && avatar) {
@@ -236,6 +267,11 @@ function initTransferLogic(ctx) {
 
           if (typeof AppState !== 'undefined' && AppState.balance != null) {
             AppState.balance = Math.max(0, AppState.balance - amountVal);
+            if (sourceBalanceEl) {
+              sourceBalanceEl.textContent = (typeof window.formatCurrency === 'function')
+                ? window.formatCurrency(AppState.balance)
+                : `${AppState.balance.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
+            }
           }
         } catch (err) {
           console.error('[TransferView] Transfer failed:', err);
