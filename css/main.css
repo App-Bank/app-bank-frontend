@@ -1,0 +1,21 @@
+/* SECTION: Master Stylesheet Bundle */
+/* Centralized import file gathering all application styles into a single entry point */
+
+/* 1. Global Reset, Theme Variables, Utilities & Toast */
+@import url('styles.css');
+
+/* 2. Authentication & Login Screen */
+@import url('login.css');
+
+/* 3. Home Screen (Inicio) */
+@import url('home.css');
+
+/* 4. Transfer Screen (Transferir) */
+@import url('transfer.css');
+
+/* 5. Transaction History Screen & Details Modal */
+@import url('history.css');
+
+/* 6. Reusable Bottom Navigation Component */
+@import url('bottom-nav.css');
+

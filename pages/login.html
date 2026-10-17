@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0c1017">
+  <title>Inicia sesión - Sovereign Vault</title>
+  <link rel="stylesheet" href="../css/main.css">
+</head>
+<body>
+
+  <!-- SECTION: Mobile App Container -->
+  <main id="app" class="mobile-app-container">
+    <!-- View will be rendered dynamically by loginView.js -->
+  </main>
+
+  <!-- SECTION: Global UI Feedback -->
+  <div id="toast" class="mobile-toast" role="status" aria-live="polite">
+    <span id="toast-text">Message</span>
+  </div>
+
+  <!-- SECTION: Scripts -->
+  <script src="../js/controllers/loginController.js"></script>
+  <script src="../js/views/loginView.js"></script>
+  <script>
+    // Standalone auto-mount on DOM ready
+    document.addEventListener('DOMContentLoaded', () => {
+      const container = document.getElementById('app');
+      if (container && typeof renderLoginView === 'function') {
+        renderLoginView(container);
+      }
+    });
+  </script>
+</body>
+</html>
