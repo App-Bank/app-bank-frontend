@@ -18,7 +18,7 @@
 button { font: inherit; color: inherit; cursor: pointer; }
 svg { display: block; }
 
-.source-balance, .amount-field, .total-row strong, #recipient-iban { font-feature-settings: 'tnum' 1, 'cv05' 1; font-variant-numeric: tabular-nums lining-nums; }
+.source-balance, .amount-field, .total-row strong, .total-row output, #recipient-iban { font-feature-settings: 'tnum' 1, 'cv05' 1; font-variant-numeric: tabular-nums lining-nums; }
 
 .app {
     width: 100%;
@@ -28,7 +28,8 @@ svg { display: block; }
     box-sizing: border-box;
 }
 
-.app-main.transfer { 
+.app-main.transfer,
+.transfer-form { 
     display: flex; 
     flex-direction: column;
     gap: var(--space-md); 
@@ -206,7 +207,8 @@ svg { display: block; }
 /* SECTION: Confirmation Step */
 .total-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); }
 .total-row span { font-size: 14px; color: var(--on-surface-variant); }
-.total-row strong {
+.total-row strong,
+.total-row output {
     font-size: 20px;
     font-weight: 700;
     color: var(--primary);

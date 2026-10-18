@@ -39,7 +39,7 @@ function renderHomeView(container) {
         </div>
         <div class="user-welcome">
           <h1 id="home-welcome-title">Hola, <span id="home-welcome-name">${displayName}</span> <span class="hand-emoji">👋</span></h1>
-          <p class="current-date" id="home-current-date">${formattedDate}</p>
+          <time class="current-date" id="home-current-date" datetime="${now.toISOString().slice(0, 10)}">${formattedDate}</time>
         </div>
       </header>
 
@@ -170,6 +170,7 @@ function renderHomeView(container) {
       const account = accountRes.value;
       const balNum = Number(account.balance) || 0;
       const balFormatted = balNum.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      const balParts = balFormatted.split(',');
       if (balanceAmountEl) {
         balanceAmountEl.innerHTML = `${balParts[0]}<span class="balance-decimals">,${balParts[1]}</span>`;
       }
@@ -211,8 +212,8 @@ function renderHomeView(container) {
             const iconInfo = getMovementIconInfo(item);
 
             return `
-              <div class="movement-item" style="cursor: pointer;" onclick="window.location.hash='#/history'" aria-label="${item.title}: ${formattedAmt}">
-                <div class="movement-icon ${iconInfo.cls}">${iconInfo.icon}</div>
+              <a href="#/history" class="movement-item" aria-label="${item.title}: ${formattedAmt}">
+                <div class="movement-icon ${iconInfo.cls}" aria-hidden="true">${iconInfo.icon}</div>
                 <div class="movement-details">
                   <h3>${item.title}</h3>
                   <p>${item.subtitle || 'Operación bancaria'}</p>
@@ -221,7 +222,7 @@ function renderHomeView(container) {
                   <span>${formattedAmt}</span>
                   <span class="status">Completado</span>
                 </div>
-              </div>
+              </a>
             `;
           }).join('');
         }
