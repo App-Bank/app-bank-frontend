@@ -1,4 +1,3 @@
-// SECTION: Login Controller
 function initLogin(options = {}) {
   const form = document.getElementById('login-form');
   const emailInput = document.getElementById('email');
@@ -18,7 +17,6 @@ function initLogin(options = {}) {
     if (typeof window.showToast === 'function') window.showToast(msg, type);
   };
 
-  // SECTION: Input Field Controls
   function updateClearButton() {
     if (!btnClearEmail || !emailInput) return;
     if (emailInput.value.length > 0) {
@@ -70,7 +68,6 @@ function initLogin(options = {}) {
     });
   }
 
-  // SECTION: Form Validation & Authentication Handler
   if (form) {
     form.addEventListener('submit', (e) => {
       e.preventDefault();
@@ -116,7 +113,6 @@ function initLogin(options = {}) {
 
       showToast('Accediendo a la cuenta...', 'info');
 
-      // TODO / FUTURE: Replace simulation timeout with real backend API request (e.g., fetch('/api/v1/auth/login'))
       setTimeout(() => {
         btnSubmit.classList.remove('is-loading');
         if (emailInput) emailInput.disabled = false;
@@ -124,7 +120,6 @@ function initLogin(options = {}) {
 
         showToast('¡Inicio de sesión exitoso!', 'success');
 
-        // TODO / FUTURE: Store session authentication token (JWT / HttpOnly cookie)
         if (typeof options.onSuccess === 'function') {
           options.onSuccess({ email });
         }

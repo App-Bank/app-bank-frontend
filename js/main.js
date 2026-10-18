@@ -1,5 +1,3 @@
-// SECTION: Master Script Bundle Loader
-// Centralized loader dynamically importing all modular scripts in dependency order
 (function() {
   const currentScript = document.currentScript;
   const basePath = currentScript 
@@ -22,7 +20,7 @@
   modules.forEach(file => {
     const s = document.createElement('script');
     s.src = basePath + file;
-    s.async = false; // Preserves strict sequential execution order
+    s.async = false;
     document.head.appendChild(s);
   });
 })();

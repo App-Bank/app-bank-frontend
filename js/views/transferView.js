@@ -1,4 +1,3 @@
-// SECTION: View - Transfer Screen (Transferir)
 function renderTransferView(container) {
   const currentBal = (typeof AppState !== 'undefined' && AppState.balance != null)
     ? Number(AppState.balance)
@@ -105,10 +104,8 @@ function renderTransferView(container) {
     </div>
   `;
 
-  // Attach interactive logic
   initTransferLogic(container);
 
-  // Mount Unified Bottom Navigation Component
   if (typeof BottomNavComponent !== 'undefined') {
     BottomNavComponent.render('#bottom-nav-container', 'transfer');
   }
@@ -128,7 +125,6 @@ function initTransferLogic(ctx) {
   const conceptoEl = $('#concepto');
   const sourceBalanceEl = $('#transfer-source-balance');
 
-  // Sync available balance from backend SQLite
   if (typeof ApiService !== 'undefined' && typeof ApiService.getAccount === 'function') {
     ApiService.getAccount(1).then(account => {
       if (account && account.balance != null) {
@@ -151,7 +147,6 @@ function initTransferLogic(ctx) {
     });
   }
 
-  // Recipient name avatar
   if (nameEl && avatar) {
     const updateAvatar = () => {
       const parts = nameEl.value.trim().split(/\s+/).filter(Boolean);
@@ -163,7 +158,6 @@ function initTransferLogic(ctx) {
     updateAvatar();
   }
 
-  // IBAN validation badge
   if (ibanEl && badge) {
     const validarIban = () => {
       const v = ibanEl.value.replace(/\s+/g, '').toUpperCase();
@@ -175,7 +169,6 @@ function initTransferLogic(ctx) {
     validarIban();
   }
 
-  // Amount parsing & total formatting
   const parseAmount = (str) => {
     const clean = String(str).replace(/[^\d.,-]/g, '');
     if (!clean) return 0;
@@ -203,7 +196,6 @@ function initTransferLogic(ctx) {
     });
   }
 
-  // Quick amount buttons
   $$('.quick-adds button').forEach((btn) => {
     btn.addEventListener('click', () => {
       if (!field) return;
@@ -213,7 +205,6 @@ function initTransferLogic(ctx) {
     });
   });
 
-  // Confirm transfer button
   if (confirmBtn) {
     confirmBtn.addEventListener('click', () => {
       const amountVal = parseAmount(field ? field.value : '0');
@@ -229,11 +220,10 @@ function initTransferLogic(ctx) {
 
       confirmBtn.disabled = true;
 
-      // Execute transfer via Backend API
       const rawIban = (ibanEl ? ibanEl.value : '').replace(/\s+/g, '').toUpperCase();
 
       const executeTransfer = async () => {
-        let recipientAccountId = 2; // Default recipient account in backend seed (User Dos)
+        let recipientAccountId = 2;
         if (typeof ApiService !== 'undefined' && typeof ApiService.getAccounts === 'function') {
           try {
             const accounts = await ApiService.getAccounts();

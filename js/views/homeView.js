@@ -1,9 +1,7 @@
-// SECTION: View - Home Screen (Inicio)
 function renderHomeView(container) {
   const userName = (typeof AppState !== 'undefined' && AppState.user) ? AppState.user.split('@')[0] : 'Mateo';
   const displayName = userName.charAt(0).toUpperCase() + userName.slice(1);
 
-  // Dynamic Date Formatting
   const now = new Date();
   const rawDate = now.toLocaleDateString('es-ES', {
     weekday: 'long',
@@ -14,12 +12,10 @@ function renderHomeView(container) {
   const currentMonth = now.toLocaleDateString('es-ES', { month: 'long' });
   const formattedMonth = currentMonth.charAt(0).toUpperCase() + currentMonth.slice(1);
 
-  // Currency helper
   const fmt = (n) => (typeof window.formatCurrency === 'function')
     ? window.formatCurrency(n).replace(' €', '')
     : Math.abs(n).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  // Initial fallback metrics and movements
   const allRecords = [];
   const recentMovements = [];
   let monthlyIncome = 0;
@@ -29,7 +25,6 @@ function renderHomeView(container) {
   const initialBalFormatted = currentBal.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const initialBalParts = initialBalFormatted.split(',');
 
-  // Icon classifier based on transaction category/title
   function getMovementIconInfo(item) {
     const cat = (item.category || '').toLowerCase();
     const title = (item.title || '').toLowerCase();
@@ -52,7 +47,6 @@ function renderHomeView(container) {
     }
   }
 
-  // Generate dynamic movements HTML
   let movementsHtml = '';
   if (recentMovements.length > 0) {
     movementsHtml = recentMovements.map(item => {
@@ -177,11 +171,9 @@ function renderHomeView(container) {
     </div>
   `;
 
-  // Balance amount element
   const balanceAmountEl = container.querySelector('#home-balance-amount');
   let latestBalanceHTML = balanceAmountEl ? balanceAmountEl.innerHTML : '';
 
-  // Eye button: Toggle IBAN visibility (Masked by default)
   const toggleIbanBtn = container.querySelector('#btn-toggle-home-iban') || container.querySelector('#btn-toggle-home-balance');
   const ibanEl = container.querySelector('#home-iban');
 
@@ -228,7 +220,6 @@ function renderHomeView(container) {
     });
   }
 
-  // Logout button: Clear auth state and redirect to login
   const logoutBtn = container.querySelector('#btn-home-logout');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
@@ -247,12 +238,10 @@ function renderHomeView(container) {
     });
   }
 
-  // SECTION: Async Sync with Backend API
   async function syncHomeWithBackend() {
     if (typeof ApiService === 'undefined') return;
 
     try {
-      // 1. Fetch real account data (balance & IBAN) from backend SQLite
       const account = await ApiService.getAccount(1);
       if (account) {
         const balNum = Number(account.balance) || 0;
@@ -290,7 +279,6 @@ function renderHomeView(container) {
     }
 
     try {
-      // 2. Fetch real user profile from backend
       const user = await ApiService.getUser(1);
       if (user && user.name) {
         const nameEl = container.querySelector('#home-welcome-name');
@@ -301,7 +289,6 @@ function renderHomeView(container) {
     }
 
     try {
-      // 3. Fetch real transfer history from backend
       if (typeof TransactionService !== 'undefined') {
         const groups = await TransactionService.getTransactions();
         const allItems = groups.flatMap(g => g.items || []);
@@ -333,7 +320,6 @@ function renderHomeView(container) {
             }).join('');
           }
 
-          // Recalculate monthly metrics dynamically from real backend records
           const inc = allItems.filter(r => Number(r.amount) > 0).reduce((acc, r) => acc + Number(r.amount), 0);
           const exp = allItems.filter(r => Number(r.amount) < 0).reduce((acc, r) => acc + Math.abs(Number(r.amount)), 0);
           const incEl = container.querySelector('#home-metric-income');
@@ -349,7 +335,6 @@ function renderHomeView(container) {
 
   syncHomeWithBackend();
 
-  // Mount Unified Bottom Navigation Component
   if (typeof BottomNavComponent !== 'undefined') {
     BottomNavComponent.render('#bottom-nav-container', 'dashboard');
   }

@@ -1,12 +1,9 @@
-// SECTION: Global Application State
 const AppState = {
   user: null,
   isAuthenticated: false,
   balance: null
-  // TODO / FUTURE: Add auth token persistence (sessionStorage / localStorage)
 };
 
-// SECTION: Global UI Helpers (Toast Notification)
 let appToastTimer = null;
 window.showToast = function(message, type = 'info') {
   const toast = document.getElementById('toast');
@@ -22,7 +19,6 @@ window.showToast = function(message, type = 'info') {
   }, 3200);
 };
 
-// SECTION: Global Formatters
 window.formatCurrency = function(amount, options = {}) {
   const num = Number(amount) || 0;
   const absVal = Math.abs(num).toLocaleString('es-ES', {
@@ -35,7 +31,6 @@ window.formatCurrency = function(amount, options = {}) {
   return `${absVal} €`;
 };
 
-// SECTION: SPA Application Bootstrapper
 function initSPA() {
   window.appRouter = new Router({
     '/login': renderLoginView,

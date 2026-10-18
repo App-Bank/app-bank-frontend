@@ -1,10 +1,8 @@
-// SECTION: View - History Screen (Database Connected)
 function renderHistoryView(container) {
   let currentSearch = '';
-  let currentFilter = 'all'; // 'all', 'income', 'expense'
-  let currentPeriod = 'all'; // 'all', 'daily', 'weekly', 'monthly'
+  let currentFilter = 'all';
+  let currentPeriod = 'all';
 
-  // Helper: Format amount with +/- prefix and European currency notation
   function formatAmount(amount) {
     if (typeof window.formatCurrency === 'function') {
       return window.formatCurrency(amount, { includeSign: true });
@@ -17,7 +15,6 @@ function renderHistoryView(container) {
     return `${num > 0 ? '+' : '-'}${absVal} €`;
   }
 
-  // Render base shell structure
   container.innerHTML = `
     <div class="aurora" aria-hidden="true"></div>
     <section class="history-view" aria-labelledby="history-heading">
@@ -143,7 +140,6 @@ function renderHistoryView(container) {
     </section>
   `;
 
-  // DOM Elements
   const timelineContainer = document.getElementById('history-timeline-container');
   const searchInput = document.getElementById('history-search-input');
   const btnClearSearch = document.getElementById('btn-history-clear-search');
@@ -154,7 +150,6 @@ function renderHistoryView(container) {
   const txModal = document.getElementById('transaction-modal');
   const btnCloseModal = document.getElementById('btn-close-modal');
 
-  // SECTION: Render Transactions from Database
   async function loadTransactions() {
     timelineContainer.innerHTML = `
       <div class="history-empty-state">
@@ -235,7 +230,6 @@ function renderHistoryView(container) {
       timelineContainer.appendChild(groupElem);
     });
 
-    // Attach click listeners to transaction items for detail modal
     const items = timelineContainer.querySelectorAll('.history-item');
     items.forEach(itemElem => {
       itemElem.addEventListener('click', () => {
@@ -252,7 +246,6 @@ function renderHistoryView(container) {
     });
   }
 
-  // SECTION: Details Modal Logic
   function openTransactionModal(txId) {
     const foundItem = (typeof TransactionService !== 'undefined' && typeof TransactionService.getById === 'function')
       ? TransactionService.getById(txId)
@@ -264,14 +257,11 @@ function renderHistoryView(container) {
     amountElem.textContent = formatAmount(foundItem.amount);
     amountElem.style.color = foundItem.type === 'expense' ? '#f87171' : '#34d399';
 
-    // Set Account Number
-    const accountRow = document.getElementById('modal-tx-account-row');
     const accountElem = document.getElementById('modal-tx-account');
     const accountNumber = foundItem.accountNumber || `ES91 2100 0418 4502 000${(foundItem.id || '0000').slice(-4)}`;
     accountElem.textContent = accountNumber;
     accountRow.classList.remove('is-hidden');
 
-    // Set Concept
     const concept = foundItem.concept || foundItem.title || (foundItem.category || '-');
     document.getElementById('modal-tx-concept').textContent = concept;
 
@@ -299,7 +289,6 @@ function renderHistoryView(container) {
     });
   }
 
-  // SECTION: Search and Filter Event Handlers
   if (btnToggleFilters && filterOptionsContainer) {
     btnToggleFilters.addEventListener('click', () => {
       const isHidden = filterOptionsContainer.classList.toggle('is-hidden');
@@ -356,10 +345,8 @@ function renderHistoryView(container) {
     });
   });
 
-  // Initial render from database
   loadTransactions();
 
-  // SECTION: Mount Reusable Bottom Navigation Component
   if (typeof BottomNavComponent !== 'undefined') {
     BottomNavComponent.render('#bottom-nav-container', 'history');
   }
