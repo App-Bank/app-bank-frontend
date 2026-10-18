@@ -1,4 +1,4 @@
-// SECTION: View - Login Screen
+// SECTION: Login View
 function renderLoginView(container) {
   container.innerHTML = `
     <section class="login-view" aria-labelledby="login-heading">
@@ -118,8 +118,6 @@ function renderLoginView(container) {
             </div>
             <p id="password-error" class="field-error-text" role="alert" aria-live="polite">Ingresa tu contraseña</p>
           </div>
-
-          <!-- TODO / FUTURE: Add biometric authentication quick trigger -->
         </fieldset>
 
         <footer class="form-actions">

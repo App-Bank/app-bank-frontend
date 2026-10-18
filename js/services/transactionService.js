@@ -1,43 +1,41 @@
-// SECTION: Transaction Service (Backend Interface)
+// SECTION: Transaction Service
 const TransactionService = {
   _cache: [],
+  _accountsMap: new Map(),
 
-  // Helper to format IBAN into standard 4-character blocks
   formatIban(iban) {
     if (!iban) return '';
     const clean = iban.replace(/\s+/g, '');
     return clean.match(/.{1,4}/g)?.join(' ') || clean;
   },
 
-  // SECTION: Query Transactions (Loads from Backend API)
+  // SECTION: Query Transactions
   async getTransactions(params = {}) {
     let rawTransfers = [];
-    const accountsMap = new Map();
 
     if (typeof ApiService !== 'undefined') {
-      // 1. Fetch user transfer history
-      if (typeof ApiService.getTransferHistory === 'function') {
-        try {
-          rawTransfers = await ApiService.getTransferHistory();
-        } catch (error) {
-          console.warn('[TransactionService] Failed to fetch transfers from backend:', error);
-        }
+      const needAccounts = this._accountsMap.size === 0;
+      const tasks = [
+        typeof ApiService.getTransferHistory === 'function' ? ApiService.getTransferHistory().catch(e => {
+          console.warn('[TransactionService] Failed to fetch transfers:', e);
+          return [];
+        }) : Promise.resolve([])
+      ];
+
+      if (needAccounts && typeof ApiService.getAccounts === 'function') {
+        tasks.push(ApiService.getAccounts().catch(e => {
+          console.warn('[TransactionService] Failed to fetch accounts:', e);
+          return [];
+        }));
       }
 
-      // 2. Fetch accounts list to map account IDs to real IBAN numbers
-      if (typeof ApiService.getAccounts === 'function') {
-        try {
-          const accountsList = await ApiService.getAccounts();
-          if (Array.isArray(accountsList)) {
-            accountsList.forEach(acc => {
-              if (acc && acc.id) {
-                accountsMap.set(Number(acc.id), acc.iban);
-              }
-            });
-          }
-        } catch (error) {
-          console.warn('[TransactionService] Failed to fetch accounts list:', error);
-        }
+      const [transfersRes, accountsRes] = await Promise.all(tasks);
+      rawTransfers = transfersRes || [];
+
+      if (needAccounts && Array.isArray(accountsRes)) {
+        accountsRes.forEach(acc => {
+          if (acc && acc.id) this._accountsMap.set(Number(acc.id), acc.iban);
+        });
       }
     }
 
@@ -45,7 +43,6 @@ const TransactionService = {
       ? ApiService.config.defaultAccountId
       : 1;
 
-    // Transform backend transfers into frontend view model
     const allRecords = (rawTransfers || []).map(tx => {
       const isSender = Number(tx.sender_account_id) === currentAccountId;
       const amountNum = Math.abs(Number(tx.amount) || 0);
@@ -56,9 +53,8 @@ const TransactionService = {
         ? 'Hoy'
         : (!isNaN(d) ? d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : 'Reciente');
 
-      // Resolve actual account IBAN number for counterparty
       const counterpartyId = isSender ? Number(tx.recipient_account_id) : Number(tx.sender_account_id);
-      const rawIban = accountsMap.get(counterpartyId);
+      const rawIban = this._accountsMap.get(counterpartyId);
       const displayIban = rawIban ? this.formatIban(rawIban) : `ES91 2100 0418 4502 000${String(counterpartyId).padStart(4, '0')}`;
 
       const conceptValue = (tx.concept && tx.concept.trim()) ? tx.concept.trim() : '';
@@ -88,16 +84,11 @@ const TransactionService = {
     const now = new Date();
     const realTodayOnly = now.toISOString().split('T')[0];
 
-    // Filter backend records by search query, transaction type, and time period
     const filtered = allRecords.filter(item => {
-      // 1. Text search: strictly search by concept (not by date or subtitle)
       const conceptText = (item.concept || item.title || '').toLowerCase().trim();
       const matchesSearch = !query || conceptText.includes(query);
-
-      // 2. Type filter (all, income, expense)
       const matchesType = filter === 'all' || item.type === filter;
 
-      // 3. Period filter (all, daily, weekly, monthly)
       let matchesPeriod = true;
       if (period !== 'all') {
         const itemDate = new Date(item.date);
@@ -121,12 +112,12 @@ const TransactionService = {
     return this.groupTransactions(filtered);
   },
 
-  // SECTION: Query single item by ID for Modal
+  // SECTION: Query Single Item by ID
   getById(id) {
     return this._cache.find(item => String(item.id) === String(id) || String(item.backendId) === String(id)) || null;
   },
 
-  // SECTION: Dynamic Grouping & Sum Computation
+  // SECTION: Dynamic Grouping & Computation
   groupTransactions(items) {
     const groupsMap = new Map();
     const now = new Date();
@@ -138,17 +129,15 @@ const TransactionService = {
 
     items.forEach(item => {
       const datePart = (item.date || '').split('T')[0];
+      const d = new Date(item.date);
       let groupLabel = 'Otras fechas';
 
       if (datePart === todayStr) {
         groupLabel = 'Hoy, ' + now.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
       } else if (datePart === yesterdayStr) {
         groupLabel = 'Ayer, ' + yesterday.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
-      } else {
-        const d = new Date(item.date);
-        groupLabel = !isNaN(d)
-          ? d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })
-          : 'Otras fechas';
+      } else if (!isNaN(d)) {
+        groupLabel = d.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
       }
 
       if (!groupsMap.has(groupLabel)) {

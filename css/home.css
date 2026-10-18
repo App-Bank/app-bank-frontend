@@ -1,5 +1,4 @@
-/* SECTION: Home Screen (Inicio) Styles */
-/* SECTION: Mobile Container Shell */
+/* SECTION: Home View */
 .app-container {
   width: 100%;
   max-width: 430px;
@@ -12,7 +11,6 @@
   box-sizing: border-box;
 }
 
-/* Tabular numbers formatting for financial alignment */
 .balance-amount, .box-value, .movement-amount, .iban-value {
   font-feature-settings: 'tnum' 1, 'cv05' 1;
   font-variant-numeric: tabular-nums lining-nums;
@@ -70,7 +68,7 @@
   margin-top: 3px;
 }
 
-/* SECTION: Main Single-Column Vertical Layout */
+/* SECTION: Main Content Layout */
 .app-main {
   display: flex !important;
   flex-direction: column !important;
@@ -98,12 +96,11 @@
   margin-bottom: 0;
 }
 
-/* SECTION: Position Card Custom Padding */
+/* SECTION: Position Card */
 .position-card {
   padding: 20px;
 }
 
-/* Card Header */
 .card-header {
   display: flex;
   align-items: center;
@@ -159,7 +156,6 @@
   color: var(--on-surface);
 }
 
-/* Balance Display */
 .balance-display {
   display: flex;
   align-items: baseline;
@@ -194,7 +190,6 @@
   margin-bottom: 18px;
 }
 
-/* Metrics Pills */
 .metrics-pills {
   display: flex;
   gap: 8px;
@@ -222,7 +217,7 @@
   color: #38bdf8;
 }
 
-/* SECTION: Monthly Metrics Grid (2 Columns inside full width section) */
+/* SECTION: Monthly Metrics Grid */
 .month-label {
   font-size: 12.5px;
   font-weight: 500;
@@ -281,7 +276,7 @@
   color: var(--neg);
 }
 
-/* SECTION: Movements List (Full Width Below) */
+/* SECTION: Recent Movements List */
 .see-all {
   font-size: 13px;
   font-weight: 600;

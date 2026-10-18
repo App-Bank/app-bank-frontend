@@ -3,7 +3,6 @@ const AppState = {
   user: null,
   isAuthenticated: false,
   balance: null
-  // TODO / FUTURE: Add auth token persistence (sessionStorage / localStorage)
 };
 
 // SECTION: Global UI Helpers (Toast Notification)

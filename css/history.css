@@ -1,4 +1,4 @@
-/* SECTION: History Screen Layout */
+/* SECTION: History View Layout */
 .history-view {
   display: flex;
   flex-direction: column;
@@ -73,7 +73,6 @@
   width: 100%;
 }
 
-/* Hide native browser clear button to prevent duplicate 'X' */
 .history-search-input::-webkit-search-decoration,
 .history-search-input::-webkit-search-cancel-button,
 .history-search-input::-webkit-search-results-button,
@@ -112,7 +111,6 @@
   color: var(--text-white);
 }
 
-/* Filters row */
 .history-filter-row {
   display: flex;
   flex-wrap: wrap;
@@ -254,7 +252,6 @@
   color: #34d399;
 }
 
-/* Individual transaction item */
 .history-items-list {
   display: flex;
   flex-direction: column;
@@ -280,7 +277,6 @@
   gap: 14px;
 }
 
-/* Transaction icon circle */
 .history-item-icon {
   width: 44px;
   height: 44px;
@@ -301,7 +297,6 @@
   color: #34d399;
 }
 
-/* Details */
 .history-item-details {
   display: flex;
   flex-direction: column;
@@ -320,7 +315,6 @@
   margin-top: 3px;
 }
 
-/* Amount */
 .history-item-amount {
   font-size: 16px;
   font-weight: 700;
@@ -336,7 +330,7 @@
   color: #34d399;
 }
 
-/* Empty state */
+/* SECTION: Empty State */
 .history-empty-state {
   display: flex;
   flex-direction: column;
@@ -364,7 +358,7 @@
   color: #64748b;
 }
 
-/* Detail Modal Sheet (on transaction click) */
+/* SECTION: Transaction Details Modal */
 .transaction-modal {
   position: fixed;
   inset: 0;
