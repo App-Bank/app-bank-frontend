@@ -20,15 +20,6 @@
   margin-bottom: 22px;
 }
 
-.history-header .screen-title {
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 34px;
-  color: var(--on-surface, #e0e2eb);
-  margin: 0;
-}
-
 /* SECTION: Search & Filters */
 .history-search-container {
   display: flex;
@@ -237,6 +228,7 @@
   font-size: 13px;
   font-weight: 500;
   color: var(--text-muted);
+  margin: 0;
 }
 
 .history-group-total {
@@ -262,7 +254,13 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 0;
+  border: none;
   border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  background: transparent;
+  width: 100%;
+  font-family: inherit;
+  color: inherit;
+  text-align: left;
   transition: background-color 0.15s ease;
   cursor: pointer;
 }
@@ -427,7 +425,7 @@
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 14px;
   padding: 16px;
-  margin-bottom: 20px;
+  margin: 0 0 20px 0;
 }
 
 .modal-detail-row {
@@ -439,11 +437,14 @@
 }
 
 .modal-detail-label {
+  margin: 0;
   color: var(--text-muted);
   flex-shrink: 0;
+  font-weight: 400;
 }
 
 .modal-detail-value {
+  margin: 0;
   color: var(--text-white);
   font-weight: 500;
   text-align: right;

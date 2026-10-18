@@ -4,14 +4,9 @@ function renderHistoryView(container) {
   let currentFilter = 'all';
   let currentPeriod = 'all';
 
-  function formatAmount(amount) {
-    if (typeof window.formatCurrency === 'function') {
-      return window.formatCurrency(amount, { includeSign: true });
-    }
-    const num = Number(amount);
-    const absVal = Math.abs(num).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    return `${num > 0 ? '+' : '-'}${absVal} €`;
-  }
+  const formatAmount = (amount) => (typeof window.formatCurrency === 'function')
+    ? window.formatCurrency(amount, { includeSign: true })
+    : `${Number(amount) > 0 ? '+' : '-'}${Math.abs(Number(amount)).toFixed(2)} €`;
 
   container.innerHTML = `
     <div class="aurora" aria-hidden="true"></div>
@@ -23,7 +18,7 @@ function renderHistoryView(container) {
         <h1 id="history-heading" class="screen-title">Historial</h1>
       </header>
 
-      <section class="history-search-container" aria-label="Búsqueda y filtros de movimientos">
+      <search class="history-search-container" aria-label="Búsqueda y filtros de movimientos">
         <div class="history-search-bar" id="history-search-box">
           <span class="history-search-icon" aria-hidden="true">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" focusable="false"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -44,23 +39,23 @@ function renderHistoryView(container) {
             <div class="filter-group-block">
               <span class="filter-group-label">Periodo</span>
               <div class="filter-chips-row">
-                <button type="button" class="filter-chip-option active" data-period="all">Todos</button>
-                <button type="button" class="filter-chip-option" data-period="daily">Diario</button>
-                <button type="button" class="filter-chip-option" data-period="weekly">Semanal</button>
-                <button type="button" class="filter-chip-option" data-period="monthly">Mensual</button>
+                <button type="button" class="filter-chip-option active" data-period="all" aria-pressed="true">Todos</button>
+                <button type="button" class="filter-chip-option" data-period="daily" aria-pressed="false">Diario</button>
+                <button type="button" class="filter-chip-option" data-period="weekly" aria-pressed="false">Semanal</button>
+                <button type="button" class="filter-chip-option" data-period="monthly" aria-pressed="false">Mensual</button>
               </div>
             </div>
             <div class="filter-group-block">
               <span class="filter-group-label">Tipo</span>
               <div class="filter-chips-row">
-                <button type="button" class="filter-chip-option active" data-type="all">Todos</button>
-                <button type="button" class="filter-chip-option" data-type="income">Ingresos (+)</button>
-                <button type="button" class="filter-chip-option" data-type="expense">Gastos (-)</button>
+                <button type="button" class="filter-chip-option active" data-type="all" aria-pressed="true">Todos</button>
+                <button type="button" class="filter-chip-option" data-type="income" aria-pressed="false">Ingresos (+)</button>
+                <button type="button" class="filter-chip-option" data-type="expense" aria-pressed="false">Gastos (-)</button>
               </div>
             </div>
           </div>
         </div>
-      </section>
+      </search>
 
       <section class="history-timeline" id="history-timeline-container" aria-label="Listado de movimientos"></section>
 
@@ -71,12 +66,12 @@ function renderHistoryView(container) {
             <div><h2 id="modal-tx-title" class="modal-title">Detalle del Movimiento</h2></div>
             <div id="modal-tx-amount" class="modal-amount">0,00 €</div>
           </header>
-          <div class="modal-details-grid">
-            <div class="modal-detail-row" id="modal-tx-account-row"><span class="modal-detail-label">Número de cuenta</span><span id="modal-tx-account" class="modal-detail-value">-</span></div>
-            <div class="modal-detail-row"><span class="modal-detail-label">Concepto</span><span id="modal-tx-concept" class="modal-detail-value">-</span></div>
-            <div class="modal-detail-row"><span class="modal-detail-label">Fecha y hora</span><span id="modal-tx-date" class="modal-detail-value">-</span></div>
-            <div class="modal-detail-row"><span class="modal-detail-label">Estado</span><span class="modal-detail-value" style="color: #34d399;">● Completado</span></div>
-          </div>
+          <dl class="modal-details-grid">
+            <div class="modal-detail-row" id="modal-tx-account-row"><dt class="modal-detail-label">Número de cuenta</dt><dd id="modal-tx-account" class="modal-detail-value">-</dd></div>
+            <div class="modal-detail-row"><dt class="modal-detail-label">Concepto</dt><dd id="modal-tx-concept" class="modal-detail-value">-</dd></div>
+            <div class="modal-detail-row"><dt class="modal-detail-label">Fecha y hora</dt><dd class="modal-detail-value"><time id="modal-tx-date">-</time></dd></div>
+            <div class="modal-detail-row"><dt class="modal-detail-label">Estado</dt><dd class="modal-detail-value" style="color: #34d399;">● Completado</dd></div>
+          </dl>
           <button type="button" id="btn-close-modal" class="modal-close-btn">Cerrar</button>
         </div>
       </div>
@@ -122,7 +117,7 @@ function renderHistoryView(container) {
       const itemsHtml = group.items.map(item => {
         const formattedAmt = formatAmount(item.amount);
         return `
-          <div class="history-item ${item.type}" data-id="${item.id}" tabindex="0" role="button" aria-label="${item.title}: ${formattedAmt}">
+          <button type="button" class="history-item ${item.type}" data-id="${item.id}" aria-label="${item.title}: ${formattedAmt}">
             <div class="history-item-left">
               <div class="history-item-icon" aria-hidden="true">${item.type === 'expense' ? expIcon : incIcon}</div>
               <div class="history-item-details">
@@ -131,14 +126,14 @@ function renderHistoryView(container) {
               </div>
             </div>
             <div class="history-item-amount">${formattedAmt}</div>
-          </div>
+          </button>
         `;
       }).join('');
 
       return `
         <article class="history-group">
           <header class="history-group-header">
-            <span class="history-group-title">${group.groupLabel}</span>
+            <h2 class="history-group-title">${group.groupLabel}</h2>
             <span class="history-group-total ${totalClass}">${formatAmount(group.total)}</span>
           </header>
           <div class="history-items-list">${itemsHtml}</div>
@@ -175,11 +170,15 @@ function renderHistoryView(container) {
     amountElem.style.color = item.type === 'expense' ? '#f87171' : '#34d399';
 
     container.querySelector('#modal-tx-account').textContent = item.accountNumber || `ES91 2100 0418 4502 000${(item.id || '0000').slice(-4)}`;
-    container.querySelector('#modal-tx-account-row').classList.remove('is-hidden');
     container.querySelector('#modal-tx-concept').textContent = item.concept || item.title || (item.category || '-');
-    container.querySelector('#modal-tx-date').textContent = new Date(item.date).toLocaleDateString('es-ES', {
-      day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
-    });
+    const dateObj = new Date(item.date);
+    const dateElem = container.querySelector('#modal-tx-date');
+    if (dateElem) {
+      dateElem.textContent = dateObj.toLocaleDateString('es-ES', {
+        day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+      dateElem.setAttribute('datetime', !isNaN(dateObj.getTime()) ? dateObj.toISOString() : '');
+    }
 
     txModal.classList.add('show');
     txModal.setAttribute('aria-hidden', 'false');
@@ -196,6 +195,12 @@ function renderHistoryView(container) {
       if (e.target === txModal) closeTransactionModal();
     });
   }
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && txModal && txModal.classList.contains('show')) {
+      closeTransactionModal();
+    }
+  });
 
   // SECTION: Search and Filter Handlers
   if (btnToggleFilters && filterOptionsContainer) {
@@ -230,8 +235,12 @@ function renderHistoryView(container) {
     const chips = container.querySelectorAll(selector);
     chips.forEach(chip => {
       chip.addEventListener('click', () => {
-        chips.forEach(c => c.classList.remove('active'));
+        chips.forEach(c => {
+          c.classList.remove('active');
+          c.setAttribute('aria-pressed', 'false');
+        });
         chip.classList.add('active');
+        chip.setAttribute('aria-pressed', 'true');
         onSelect(chip);
         loadTransactions();
       });

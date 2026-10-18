@@ -70,10 +70,6 @@ const ApiService = {
     }
   },
 
-  async checkHealth() {
-    return this.request('get', '/');
-  },
-
   async getUser(userId = API_CONFIG.defaultUserId) {
     return this.request('get', `/user/${userId}`);
   },
@@ -84,10 +80,6 @@ const ApiService = {
 
   async getAccount(accountId = API_CONFIG.defaultAccountId) {
     return this.request('get', `/accounts/${accountId}`);
-  },
-
-  async getTimezones() {
-    return this.request('get', '/timezones/');
   },
 
   async getTransferHistory() {
@@ -101,15 +93,10 @@ const ApiService = {
       concept: transferData.concept || 'Transferencia',
       timezone_id: Number(transferData.timezone_id || API_CONFIG.defaultTimezoneId)
     });
-  },
-
-  async getActivities(skip = 0, limit = 50) {
-    return this.request('get', '/activity', null, { params: { skip, limit } });
   }
 };
 
 window.ApiService = ApiService;
-window.api = ApiService;
 
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = ApiService;
