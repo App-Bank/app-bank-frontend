@@ -126,14 +126,6 @@ const TransactionService = {
     return this._cache.find(item => String(item.id) === String(id) || String(item.backendId) === String(id)) || null;
   },
 
-  // SECTION: Mutation Methods
-  async createTransaction(transactionData) {
-    if (typeof ApiService !== 'undefined' && typeof ApiService.createTransfer === 'function') {
-      return await ApiService.createTransfer(transactionData);
-    }
-    throw new Error('ApiService unavailable');
-  },
-
   // SECTION: Dynamic Grouping & Sum Computation
   groupTransactions(items) {
     const groupsMap = new Map();

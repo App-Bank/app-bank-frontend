@@ -19,9 +19,7 @@ function renderHomeView(container) {
     ? window.formatCurrency(n).replace(' €', '')
     : Math.abs(n).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-  // Initial fallback metrics and movements
-  const allRecords = [];
-  const recentMovements = [];
+  // Initial fallback metrics
   let monthlyIncome = 0;
   let monthlyExpense = 0;
 
@@ -52,37 +50,12 @@ function renderHomeView(container) {
     }
   }
 
-  // Generate dynamic movements HTML
-  let movementsHtml = '';
-  if (recentMovements.length > 0) {
-    movementsHtml = recentMovements.map(item => {
-      const num = Number(item.amount);
-      const isPositive = num > 0;
-      const formattedAmount = `${isPositive ? '+' : '-'}${fmt(num)} €`;
-      const amountClass = isPositive ? 'positive' : 'negative';
-      const iconInfo = getMovementIconInfo(item);
-
-      return `
-        <div class="movement-item" style="cursor: pointer;" onclick="window.location.hash='#/history'" aria-label="${item.title}: ${formattedAmount}">
-          <div class="movement-icon ${iconInfo.cls}">${iconInfo.icon}</div>
-          <div class="movement-details">
-            <h3>${item.title}</h3>
-            <p>${item.subtitle || 'Operación bancaria'}</p>
-          </div>
-          <div class="movement-amount ${amountClass}">
-            <span>${formattedAmount}</span>
-            <span class="status">Completado</span>
-          </div>
-        </div>
-      `;
-    }).join('');
-  } else {
-    movementsHtml = `
-      <div style="text-align: center; padding: 24px 16px; color: var(--text-muted); font-size: 13.5px;">
-        No hay movimientos registrados
-      </div>
-    `;
-  }
+  // Initial placeholder before backend sync loads
+  const movementsHtml = `
+    <div style="text-align: center; padding: 24px 16px; color: var(--text-muted); font-size: 13.5px;">
+      No hay movimientos registrados
+    </div>
+  `;
 
   container.innerHTML = `
     <!-- Aurora background glow matching Transfer & History -->
@@ -182,7 +155,7 @@ function renderHomeView(container) {
   let latestBalanceHTML = balanceAmountEl ? balanceAmountEl.innerHTML : '';
 
   // Eye button: Toggle IBAN visibility (Masked by default)
-  const toggleIbanBtn = container.querySelector('#btn-toggle-home-iban') || container.querySelector('#btn-toggle-home-balance');
+  const toggleIbanBtn = container.querySelector('#btn-toggle-home-iban');
   const ibanEl = container.querySelector('#home-iban');
 
   let isIbanHidden = true;

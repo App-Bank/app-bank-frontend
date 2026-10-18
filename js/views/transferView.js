@@ -217,7 +217,6 @@ function initTransferLogic(ctx) {
   if (confirmBtn) {
     confirmBtn.addEventListener('click', () => {
       const amountVal = parseAmount(field ? field.value : '0');
-      const recipientName = nameEl ? nameEl.value.trim() : 'Destinatario';
       const conceptVal = conceptoEl ? conceptoEl.value.trim() : 'Transferencia';
 
       if (amountVal <= 0) {
