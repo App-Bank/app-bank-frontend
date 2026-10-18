@@ -1,4 +1,3 @@
-// SECTION: Bottom Navigation Component Loader
 const BottomNavComponent = {
   template: `
     <nav class="bottom-nav-bar" aria-label="Navegación principal de la app">

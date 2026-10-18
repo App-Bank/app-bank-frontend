@@ -1,4 +1,3 @@
-// SECTION: Login Controller
 function initLogin(options = {}) {
   const form = document.getElementById('login-form');
   const emailInput = document.getElementById('email');
@@ -18,8 +17,7 @@ function initLogin(options = {}) {
     if (typeof window.showToast === 'function') window.showToast(msg, type);
   };
 
-  // SECTION: Input Field Controls
-  function updateClearButton() {
+    function updateClearButton() {
     if (!btnClearEmail || !emailInput) return;
     if (emailInput.value.length > 0) {
       btnClearEmail.classList.remove('is-hidden');
@@ -70,8 +68,7 @@ function initLogin(options = {}) {
     });
   }
 
-  // SECTION: Form Validation & Authentication Handler
-  if (form) {
+    if (form) {
     form.addEventListener('submit', (e) => {
       e.preventDefault();
 

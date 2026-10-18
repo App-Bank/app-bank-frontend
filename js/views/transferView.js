@@ -1,4 +1,3 @@
-// SECTION: Transfer View
 function renderTransferView(container) {
   const currentBal = (typeof AppState !== 'undefined' && AppState.balance != null) ? Number(AppState.balance) : 0;
   const initialBalText = (typeof window.formatCurrency === 'function')
@@ -82,7 +81,6 @@ function renderTransferView(container) {
   }
 }
 
-// SECTION: Transfer Form Logic
 function initTransferLogic(ctx) {
   const $ = (sel) => ctx.querySelector(sel);
   const transferForm = $('#transfer-form');

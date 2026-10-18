@@ -1,4 +1,3 @@
-// SECTION: Master Script Bundle Loader
 (function() {
   const currentScript = document.currentScript;
   const basePath = currentScript 

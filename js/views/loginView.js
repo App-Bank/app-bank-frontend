@@ -1,4 +1,3 @@
-// SECTION: Login View
 function renderLoginView(container) {
   container.innerHTML = `
     <section class="login-view" aria-labelledby="login-heading">

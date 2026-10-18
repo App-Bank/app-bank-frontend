@@ -1,4 +1,3 @@
-// SECTION: Backend API Service Client
 const API_CONFIG = {
   baseUrl: 'http://127.0.0.1:8000',
   defaultUserId: 1,

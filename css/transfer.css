@@ -1,4 +1,3 @@
-/* SECTION: Transfer View */
 :root {
     --r-md: 0.75rem;
     --r-lg: 1rem;
@@ -77,7 +76,6 @@ svg { display: block; }
 }
 .step-head h2 { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
 
-/* SECTION: Recipient Step */
 .recipient { display: flex; align-items: flex-start; gap: var(--space-md); }
 .recipient-avatar {
     display: grid;
@@ -129,7 +127,6 @@ svg { display: block; }
 #recipient-iban { letter-spacing: 0.05em; }
 #recipient-iban.is-valid { border-color: rgba(3, 120, 230, 0.5); }
 
-/* SECTION: Amount Step */
 .amount-input {
     display: flex;
     align-items: baseline;
@@ -186,7 +183,6 @@ svg { display: block; }
     color: var(--primary);
 }
 
-/* SECTION: Concept Step */
 .concepto {
     width: 100%;
     height: 52px;
@@ -204,7 +200,6 @@ svg { display: block; }
     box-shadow: 0 0 0 3px rgba(3, 120, 230, 0.15);
 }
 
-/* SECTION: Confirmation Step */
 .total-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); }
 .total-row span { font-size: 14px; color: var(--on-surface-variant); }
 .total-row strong,

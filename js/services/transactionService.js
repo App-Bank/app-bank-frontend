@@ -1,4 +1,3 @@
-// SECTION: Transaction Service
 const TransactionService = {
   _cache: [],
   _accountsMap: new Map(),
@@ -7,8 +6,7 @@ const TransactionService = {
     return (typeof window.formatIban === 'function') ? window.formatIban(iban) : (iban || '').replace(/\s+/g, '').match(/.{1,4}/g)?.join(' ') || '';
   },
 
-  // SECTION: Query Transactions
-  async getTransactions(params = {}) {
+    async getTransactions(params = {}) {
     let rawTransfers = [];
 
     if (typeof ApiService !== 'undefined') {
@@ -110,13 +108,11 @@ const TransactionService = {
     return this.groupTransactions(filtered);
   },
 
-  // SECTION: Query Single Item by ID
-  getById(id) {
+    getById(id) {
     return this._cache.find(item => String(item.id) === String(id) || String(item.backendId) === String(id)) || null;
   },
 
-  // SECTION: Dynamic Grouping & Computation
-  groupTransactions(items) {
+    groupTransactions(items) {
     const groupsMap = new Map();
     const now = new Date();
     const todayStr = now.toISOString().split('T')[0];

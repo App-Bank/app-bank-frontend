@@ -1,4 +1,3 @@
-// SECTION: SPA Client-side Router
 class Router {
   constructor(routes, containerId = 'app') {
     this.routes = routes || {};

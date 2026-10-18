@@ -1,4 +1,3 @@
-// SECTION: Home View
 function renderHomeView(container) {
   const userName = (typeof AppState !== 'undefined' && AppState.user) ? AppState.user.split('@')[0] : 'Mateo';
   const displayName = userName.charAt(0).toUpperCase() + userName.slice(1);
@@ -156,8 +155,7 @@ function renderHomeView(container) {
     });
   }
 
-  // SECTION: Backend Data Synchronization
-  async function syncHomeWithBackend() {
+    async function syncHomeWithBackend() {
     if (typeof ApiService === 'undefined') return;
 
     const [accountRes, userRes, txRes] = await Promise.allSettled([

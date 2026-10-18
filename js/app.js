@@ -1,11 +1,9 @@
-// SECTION: Global Application State
 const AppState = {
   user: null,
   isAuthenticated: false,
   balance: null
 };
 
-// SECTION: Global UI Helpers (Toast Notification)
 let appToastTimer = null;
 window.showToast = function(message, type = 'info') {
   const toast = document.getElementById('toast');
@@ -21,7 +19,6 @@ window.showToast = function(message, type = 'info') {
   }, 3200);
 };
 
-// SECTION: Global Formatters
 window.formatCurrency = function(amount, options = {}) {
   const num = Number(amount) || 0;
   const absVal = Math.abs(num).toLocaleString('es-ES', {
@@ -43,7 +40,6 @@ window.formatIban = function(iban) {
   return clean.match(/.{1,4}/g)?.join(' ') || clean;
 };
 
-// SECTION: SPA Application Bootstrapper
 function initSPA() {
   window.appRouter = new Router({
     '/login': renderLoginView,
