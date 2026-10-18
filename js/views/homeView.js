@@ -9,9 +9,7 @@ function renderHomeView(container) {
   const currentMonth = now.toLocaleDateString('es-ES', { month: 'long' });
   const formattedMonth = currentMonth.charAt(0).toUpperCase() + currentMonth.slice(1);
 
-  const fmt = (n) => (typeof window.formatCurrency === 'function')
-    ? window.formatCurrency(n).replace(' €', '')
-    : Math.abs(n).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmt = (n) => window.formatCurrency(n, { noSymbol: true });
 
   const currentBal = (typeof AppState !== 'undefined' && AppState.balance != null) ? Number(AppState.balance) : 0;
   const initialBalFormatted = currentBal.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -98,19 +96,13 @@ function renderHomeView(container) {
   `;
 
   const balanceAmountEl = container.querySelector('#home-balance-amount');
-  let latestBalanceHTML = balanceAmountEl ? balanceAmountEl.innerHTML : '';
-
   const toggleIbanBtn = container.querySelector('#btn-toggle-home-iban');
   const ibanEl = container.querySelector('#home-iban');
 
   let isIbanHidden = true;
   let currentRawIban = 'ES9121000418450200051332';
 
-  function formatFullIban(iban) {
-    if (!iban) return '';
-    const clean = iban.replace(/\s+/g, '');
-    return clean.match(/.{1,4}/g)?.join(' ') || clean;
-  }
+  const formatFullIban = (iban) => (typeof window.formatIban === 'function') ? window.formatIban(iban) : iban;
 
   function formatMaskedIban(iban) {
     if (!iban) return 'ES-- •••• ----';
@@ -178,10 +170,9 @@ function renderHomeView(container) {
       const account = accountRes.value;
       const balNum = Number(account.balance) || 0;
       const balFormatted = balNum.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      const balParts = balFormatted.split(',');
-
-      latestBalanceHTML = `${balParts[0]}<span class="balance-decimals">,${balParts[1]}</span>`;
-      if (balanceAmountEl) balanceAmountEl.innerHTML = latestBalanceHTML;
+      if (balanceAmountEl) {
+        balanceAmountEl.innerHTML = `${balParts[0]}<span class="balance-decimals">,${balParts[1]}</span>`;
+      }
       if (account.iban) {
         currentRawIban = account.iban;
         updateIbanDisplay();
@@ -189,8 +180,9 @@ function renderHomeView(container) {
       if (typeof AppState !== 'undefined') AppState.balance = balNum;
     } else {
       console.warn('[HomeView] Could not fetch account from backend:', accountRes.reason);
-      latestBalanceHTML = '<span style="color: #f87171; font-weight: 700; font-size: 26px;">ERROR</span>';
-      if (balanceAmountEl) balanceAmountEl.innerHTML = latestBalanceHTML;
+      if (balanceAmountEl) {
+        balanceAmountEl.innerHTML = '<span style="color: #f87171; font-weight: 700; font-size: 26px;">ERROR</span>';
+      }
       const pillBadge = container.querySelector('#home-pill-badge');
       if (pillBadge) {
         pillBadge.textContent = '⚠️ Sin conexión API';

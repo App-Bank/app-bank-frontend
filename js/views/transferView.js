@@ -93,9 +93,7 @@ function initTransferLogic(ctx) {
   const conceptoEl = $('#concepto');
   const sourceBalanceEl = $('#transfer-source-balance');
 
-  const fmt = (n) => (typeof window.formatCurrency === 'function')
-    ? window.formatCurrency(n).replace(' €', '')
-    : n.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmt = (n) => window.formatCurrency(n, { noSymbol: true });
 
   if (typeof ApiService !== 'undefined' && typeof ApiService.getAccount === 'function') {
     ApiService.getAccount(1).then(account => {

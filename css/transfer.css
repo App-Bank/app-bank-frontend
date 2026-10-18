@@ -1,6 +1,5 @@
 /* SECTION: Transfer View */
 :root {
-    --r: 0.5rem;
     --r-md: 0.75rem;
     --r-lg: 1rem;
     --r-xl: 1.5rem;
@@ -10,16 +9,12 @@
     --space-sm: 0.5rem;
     --space-md: 1rem;
     --space-lg: 1.5rem;
-    --space-xl: 2rem;
-    --margin: 1rem;
 
     --glow-cobalt: 0 8px 24px -4px rgba(3, 120, 230, 0.25);
-    --shadow-2: 0 12px 30px -15px rgba(0, 0, 0, 0.6);
 
     --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
-ul { list-style: none; }
 button { font: inherit; color: inherit; cursor: pointer; }
 svg { display: block; }
 
@@ -40,14 +35,6 @@ svg { display: block; }
     margin-top: 0; 
 }
 
-.screen-title {
-    font-size: 26px;
-    font-weight: 700;
-    letter-spacing: -0.02em;
-    line-height: 34px;
-    margin: 0;
-}
-
 .source-account {
     display: flex;
     align-items: center;
@@ -65,7 +52,6 @@ svg { display: block; }
 .source-balance span {
     color: var(--primary);
     font-weight: 600;
-    font-feature-settings: 'tnum' 1, 'cv05' 1;
 }
 
 .step-card { padding: var(--space-lg); border-radius: var(--r-xl); }
@@ -139,7 +125,7 @@ svg { display: block; }
     border-color: var(--cobalt);
     box-shadow: 0 0 0 3px rgba(3, 120, 230, 0.15);
 }
-#recipient-iban { letter-spacing: 0.05em; font-feature-settings: 'tnum' 1; }
+#recipient-iban { letter-spacing: 0.05em; }
 #recipient-iban.is-valid { border-color: rgba(3, 120, 230, 0.5); }
 
 /* SECTION: Amount Step */
@@ -169,7 +155,6 @@ svg { display: block; }
     font-size: 44px;
     font-weight: 700;
     letter-spacing: -0.03em;
-    font-feature-settings: 'tnum' 1, 'cv05' 1;
     transition: border-color 0.2s ease;
 }
 .amount-field:focus { border-bottom-color: rgba(3, 120, 230, 0.6); }
@@ -225,7 +210,6 @@ svg { display: block; }
     font-size: 20px;
     font-weight: 700;
     color: var(--primary);
-    font-feature-settings: 'tnum' 1, 'cv05' 1;
 }
 
 .btn-confirm {

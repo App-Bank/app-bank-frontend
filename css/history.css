@@ -20,15 +20,6 @@
   margin-bottom: 22px;
 }
 
-.history-header .screen-title {
-  font-size: 26px;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 34px;
-  color: var(--on-surface, #e0e2eb);
-  margin: 0;
-}
-
 /* SECTION: Search & Filters */
 .history-search-container {
   display: flex;

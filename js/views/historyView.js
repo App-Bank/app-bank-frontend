@@ -4,14 +4,9 @@ function renderHistoryView(container) {
   let currentFilter = 'all';
   let currentPeriod = 'all';
 
-  function formatAmount(amount) {
-    if (typeof window.formatCurrency === 'function') {
-      return window.formatCurrency(amount, { includeSign: true });
-    }
-    const num = Number(amount);
-    const absVal = Math.abs(num).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    return `${num > 0 ? '+' : '-'}${absVal} €`;
-  }
+  const formatAmount = (amount) => (typeof window.formatCurrency === 'function')
+    ? window.formatCurrency(amount, { includeSign: true })
+    : `${Number(amount) > 0 ? '+' : '-'}${Math.abs(Number(amount)).toFixed(2)} €`;
 
   container.innerHTML = `
     <div class="aurora" aria-hidden="true"></div>
@@ -175,7 +170,6 @@ function renderHistoryView(container) {
     amountElem.style.color = item.type === 'expense' ? '#f87171' : '#34d399';
 
     container.querySelector('#modal-tx-account').textContent = item.accountNumber || `ES91 2100 0418 4502 000${(item.id || '0000').slice(-4)}`;
-    container.querySelector('#modal-tx-account-row').classList.remove('is-hidden');
     container.querySelector('#modal-tx-concept').textContent = item.concept || item.title || (item.category || '-');
     container.querySelector('#modal-tx-date').textContent = new Date(item.date).toLocaleDateString('es-ES', {
       day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'

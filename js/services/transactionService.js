@@ -4,9 +4,7 @@ const TransactionService = {
   _accountsMap: new Map(),
 
   formatIban(iban) {
-    if (!iban) return '';
-    const clean = iban.replace(/\s+/g, '');
-    return clean.match(/.{1,4}/g)?.join(' ') || clean;
+    return (typeof window.formatIban === 'function') ? window.formatIban(iban) : (iban || '').replace(/\s+/g, '').match(/.{1,4}/g)?.join(' ') || '';
   },
 
   // SECTION: Query Transactions

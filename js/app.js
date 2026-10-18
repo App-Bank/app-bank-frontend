@@ -28,10 +28,19 @@ window.formatCurrency = function(amount, options = {}) {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   });
+  if (options.noSymbol) {
+    return options.includeSign ? `${num > 0 ? '+' : '-'}${absVal}` : absVal;
+  }
   if (options.includeSign) {
     return `${num > 0 ? '+' : '-'}${absVal} €`;
   }
   return `${absVal} €`;
+};
+
+window.formatIban = function(iban) {
+  if (!iban) return '';
+  const clean = iban.replace(/\s+/g, '');
+  return clean.match(/.{1,4}/g)?.join(' ') || clean;
 };
 
 // SECTION: SPA Application Bootstrapper
