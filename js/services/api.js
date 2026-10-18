@@ -1,5 +1,4 @@
-// SECTION: Backend API Service Client (Axios)
-// Connects the frontend to the FastAPI / SQLite backend (app-bank-backend)
+// SECTION: Backend API Service Client
 const API_CONFIG = {
   baseUrl: 'http://127.0.0.1:8000',
   defaultUserId: 1,
@@ -10,7 +9,6 @@ const API_CONFIG = {
 const ApiService = {
   config: API_CONFIG,
 
-  // Helper method: returns a configured Axios instance
   getClient() {
     if (typeof axios !== 'undefined') {
       return axios.create({
@@ -24,7 +22,6 @@ const ApiService = {
     return null;
   },
 
-  // Centralized request handler using Axios
   async request(method, endpoint, data = null, options = {}) {
     const client = this.getClient();
     const url = `${this.config.baseUrl}${endpoint}`;
@@ -48,7 +45,6 @@ const ApiService = {
       }
     }
 
-    // Resilient fallback to native fetch if Axios is not yet loaded
     try {
       const fetchOptions = {
         method: method.toUpperCase(),
@@ -74,37 +70,30 @@ const ApiService = {
     }
   },
 
-  // Health check: verifies backend connectivity
   async checkHealth() {
     return this.request('get', '/');
   },
 
-  // User details
   async getUser(userId = API_CONFIG.defaultUserId) {
     return this.request('get', `/user/${userId}`);
   },
 
-  // List all bank accounts
   async getAccounts() {
     return this.request('get', '/accounts/');
   },
 
-  // Get specific account (balance, iban)
   async getAccount(accountId = API_CONFIG.defaultAccountId) {
     return this.request('get', `/accounts/${accountId}`);
   },
 
-  // Timezones list
   async getTimezones() {
     return this.request('get', '/timezones/');
   },
 
-  // Fetch transfer history for current authenticated user
   async getTransferHistory() {
     return this.request('get', '/transfers/history');
   },
 
-  // Create new transfer in backend database
   async createTransfer(transferData) {
     return this.request('post', '/transfers/', {
       recipient_account_id: Number(transferData.recipient_account_id),
@@ -114,13 +103,11 @@ const ApiService = {
     });
   },
 
-  // Fetch all activities
   async getActivities(skip = 0, limit = 50) {
     return this.request('get', '/activity', null, { params: { skip, limit } });
   }
 };
 
-// Global assignments for universal access across views
 window.ApiService = ApiService;
 window.api = ApiService;
 

@@ -21,8 +21,6 @@ class Router {
   handleRouting() {
     const rawHash = window.location.hash.slice(1) || '/login';
     const cleanPath = rawHash.startsWith('/') ? rawHash : `/${rawHash}`;
-
-    // TODO / FUTURE: Add authentication middleware / route guards to protect private views
     const handler = this.routes[cleanPath] || this.routes['/login'];
 
     if (handler && typeof handler === 'function') {

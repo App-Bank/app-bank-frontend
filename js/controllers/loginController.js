@@ -116,7 +116,6 @@ function initLogin(options = {}) {
 
       showToast('Accediendo a la cuenta...', 'info');
 
-      // TODO / FUTURE: Replace simulation timeout with real backend API request (e.g., fetch('/api/v1/auth/login'))
       setTimeout(() => {
         btnSubmit.classList.remove('is-loading');
         if (emailInput) emailInput.disabled = false;
@@ -124,7 +123,6 @@ function initLogin(options = {}) {
 
         showToast('¡Inicio de sesión exitoso!', 'success');
 
-        // TODO / FUTURE: Store session authentication token (JWT / HttpOnly cookie)
         if (typeof options.onSuccess === 'function') {
           options.onSuccess({ email });
         }

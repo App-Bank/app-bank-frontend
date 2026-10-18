@@ -19,7 +19,6 @@
   --accent-success: #10b981;
   --accent-error: #ef4444;
 
-  /* Surfaces & Unified Palette */
   --surface: #10131a;
   --surface-container-lowest: #0b0e14;
   --surface-container-low: #181c22;
@@ -207,5 +206,3 @@ html, body {
   width: 100%;
   box-sizing: border-box;
 }
-
-/* TODO / FUTURE: Add desktop media queries (@media (min-width: 768px)) for responsive multi-device support */
