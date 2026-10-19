@@ -1,0 +1,305 @@
+/* SECTION: Desktop Container Adaptation */
+@media (min-width: 768px) {
+  .mobile-app-container.is-history-view,
+  .mobile-app-container:has(.history-view) {
+    max-width: 1060px;
+    padding-inline: 32px;
+  }
+
+  .history-view {
+    max-width: 100%;
+    padding: 32px 0 110px;
+  }
+}
+
+/* SECTION: Desktop Header */
+@media (min-width: 768px) {
+  .history-header {
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+
+  .history-header .app-top {
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .history-header .screen-title {
+    font-size: 32px;
+    line-height: 40px;
+    letter-spacing: -0.5px;
+  }
+}
+
+/* SECTION: Desktop Search & Filters */
+@media (min-width: 768px) {
+  .history-search-container {
+    gap: 16px;
+    margin-bottom: 28px;
+    background: rgba(18, 24, 34, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 20px;
+    padding: 20px 24px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .history-search-bar {
+    height: 52px;
+    border-radius: 14px;
+    background-color: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+    padding: 0 18px;
+  }
+
+  .history-search-bar:focus-within {
+    background-color: rgba(255, 255, 255, 0.06);
+  }
+
+  .history-search-input {
+    font-size: 16px;
+  }
+
+  .history-filter-row {
+    width: 100%;
+    margin-top: 0;
+  }
+
+  .btn-filter-pill {
+    display: none !important;
+  }
+
+  .filter-options-container,
+  .filter-options-container.is-hidden {
+    display: flex !important;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 20px 36px;
+    width: 100%;
+    margin-top: 0;
+    padding: 14px 20px;
+    border-radius: 14px;
+    background: rgba(13, 17, 26, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-sizing: border-box;
+  }
+
+  .filter-group-block {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .filter-group-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  .filter-chips-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .filter-chip-option {
+    padding: 6px 16px;
+    font-size: 12.5px;
+  }
+}
+
+/* SECTION: Desktop Timeline & Items */
+@media (min-width: 768px) {
+  .history-timeline {
+    gap: 28px;
+  }
+
+  .history-group {
+    background: rgba(18, 24, 34, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 20px;
+    padding: 22px 24px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .history-group-header {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .history-group-title {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+  }
+
+  .history-group-total {
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .history-items-list {
+    gap: 6px;
+  }
+
+  .history-item {
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 1px solid transparent;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .history-item:hover {
+    background-color: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.08);
+    transform: translateX(4px);
+  }
+
+  .history-item-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+  }
+
+  .history-item-title {
+    font-size: 15.5px;
+  }
+
+  .history-item-subtitle {
+    font-size: 13px;
+    margin-top: 4px;
+  }
+
+  .history-item-amount {
+    font-size: 17px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .history-empty-state {
+    padding: 64px 24px;
+    background: rgba(18, 24, 34, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 20px;
+  }
+
+  .history-empty-state svg {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+  }
+
+  .history-empty-title {
+    font-size: 18px;
+  }
+
+  .history-empty-desc {
+    font-size: 14px;
+  }
+}
+
+/* SECTION: Desktop Modal Dialog */
+@media (min-width: 768px) {
+  .transaction-modal {
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .transaction-modal-sheet {
+    max-width: 480px;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow:
+      0 25px 50px -12px rgba(0, 0, 0, 0.8),
+      0 0 0 1px rgba(255, 255, 255, 0.05);
+    padding: 32px 28px;
+    transform: scale(0.95);
+    opacity: 0;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease;
+  }
+
+  .transaction-modal.show .transaction-modal-sheet {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  .modal-drag-handle {
+    display: none;
+  }
+
+  .modal-title {
+    font-size: 20px;
+  }
+
+  .modal-amount {
+    font-size: 28px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .modal-details-grid {
+    gap: 14px;
+    padding: 20px;
+    border-radius: 16px;
+    margin-bottom: 24px;
+  }
+
+  .modal-detail-row {
+    font-size: 14px;
+  }
+
+  .modal-close-btn {
+    height: 50px;
+    font-size: 15px;
+    border-radius: 14px;
+  }
+}
+
+/* SECTION: Desktop Floating Navigation Dock */
+@media (min-width: 768px) {
+  .bottom-nav-bar {
+    bottom: 24px;
+    max-width: 480px;
+    height: 64px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 
+      0 20px 45px -10px rgba(0, 0, 0, 0.7),
+      0 0 0 1px rgba(255, 255, 255, 0.05);
+    background: rgba(18, 24, 34, 0.90);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+
+  .bottom-nav-item {
+    padding: 8px 24px;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+  }
+
+  .bottom-nav-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: #e2e8f0;
+    transform: translateY(-1px);
+  }
+}
+
+/* SECTION: Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+  .history-item,
+  .transaction-modal-sheet,
+  .btn-filter-pill,
+  .filter-chip-option,
+  .bottom-nav-item {
+    transition: none !important;
+  }
+}

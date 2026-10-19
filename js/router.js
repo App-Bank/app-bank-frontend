@@ -28,6 +28,7 @@ class Router {
       if (this.container) {
         this.container.classList.toggle('is-login-view', cleanPath === '/login');
         this.container.classList.toggle('is-dashboard-view', cleanPath === '/dashboard');
+        this.container.classList.toggle('is-history-view', cleanPath === '/history');
       }
       handler(this.container);
     } else {
