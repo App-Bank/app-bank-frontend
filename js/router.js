@@ -27,6 +27,7 @@ class Router {
       this.currentRoute = cleanPath;
       if (this.container) {
         this.container.classList.toggle('is-login-view', cleanPath === '/login');
+        this.container.classList.toggle('is-dashboard-view', cleanPath === '/dashboard');
       }
       handler(this.container);
     } else {
