@@ -47,8 +47,7 @@ function renderHomeView(container) {
         <section class="account-section">
           <h2 class="section-title">Mi Cuenta</h2>
           <div class="card position-card">
-            <div class="card-header">
-              <span class="position-label">POSICIÓN GLOBAL</span>
+            <div class="iban-center-wrapper">
               <div class="iban-container">
                 <span class="iban-label">IBAN</span>
                 <span class="iban-value" id="home-iban">ES91 •••• 1332</span>
@@ -84,6 +83,7 @@ function renderHomeView(container) {
           <div class="metrics-grid">
             <div class="metric-box box-income"><span class="box-label">↑ Ingresos</span><span class="box-value" id="home-metric-income">0,00 €</span></div>
             <div class="metric-box box-expense"><span class="box-label">↓ Gastos</span><span class="box-value" id="home-metric-expense">0,00 €</span></div>
+            <div class="metric-box box-position"><span class="box-label">Posición Global</span><span class="box-value" id="home-metric-position">${initialBalFormatted} €</span></div>
           </div>
         </section>
 
@@ -197,6 +197,8 @@ function renderHomeView(container) {
       if (balanceAmountEl) {
         balanceAmountEl.innerHTML = `${balParts[0]}<span class="balance-decimals">,${balParts[1]}</span>`;
       }
+      const posEl = container.querySelector('#home-metric-position');
+      if (posEl) posEl.textContent = `${balFormatted} €`;
       if (account.iban) {
         currentRawIban = account.iban;
         updateIbanDisplay();
@@ -207,6 +209,8 @@ function renderHomeView(container) {
       if (balanceAmountEl) {
         balanceAmountEl.innerHTML = '<span style="color: #f87171; font-weight: 700; font-size: 26px;">ERROR</span>';
       }
+      const posEl = container.querySelector('#home-metric-position');
+      if (posEl) posEl.textContent = 'ERROR';
       const pillBadge = container.querySelector('#home-pill-badge');
       if (pillBadge) {
         pillBadge.textContent = '⚠️ Sin conexión API';

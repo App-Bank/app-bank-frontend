@@ -72,8 +72,8 @@
     border-radius: 20px;
   }
 
-  .card-header {
-    margin-bottom: 20px;
+  .iban-center-wrapper {
+    margin-bottom: 18px;
   }
 
   .balance-amount {
@@ -89,20 +89,22 @@
   }
 
   .metrics-grid {
-    gap: 16px !important;
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 14px !important;
   }
 
   .metric-box {
-    padding: 18px 20px;
+    padding: 16px 14px;
     border-radius: 16px;
+    gap: 6px;
   }
 
   .box-label {
-    font-size: 13.5px;
+    font-size: 12px;
   }
 
   .box-value {
-    font-size: 22px;
+    font-size: 18px;
   }
 
   .movements-list {

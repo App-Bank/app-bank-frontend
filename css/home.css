@@ -98,23 +98,13 @@
 
 /* SECTION: Position Card */
 .position-card {
-  padding: 20px;
+  padding: 24px 20px 22px;
 }
 
-.card-header {
+.iban-center-wrapper {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.position-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-  text-transform: uppercase;
+  justify-content: center;
+  margin-bottom: 14px;
 }
 
 .iban-container {
@@ -240,8 +230,8 @@
 
 .metrics-grid {
   display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: 12px !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 8px !important;
   width: 100% !important;
 }
 
@@ -251,23 +241,30 @@
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-soft);
   border-top-color: var(--border-medium);
-  padding: 16px;
+  padding: 12px 10px;
   border-radius: 14px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  min-width: 0;
 }
 
 .box-label {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .box-value {
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 700;
   letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .box-income .box-label {
@@ -284,6 +281,14 @@
 
 .box-expense .box-value {
   color: var(--neg);
+}
+
+.box-position .box-label {
+  color: #38bdf8;
+}
+
+.box-position .box-value {
+  color: #38bdf8;
 }
 
 /* SECTION: Recent Movements List */
