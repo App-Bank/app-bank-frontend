@@ -25,6 +25,9 @@ class Router {
 
     if (handler && typeof handler === 'function') {
       this.currentRoute = cleanPath;
+      if (this.container) {
+        this.container.classList.toggle('is-login-view', cleanPath === '/login');
+      }
       handler(this.container);
     } else {
       console.warn(`Route not found: ${cleanPath}. Redirecting to /login`);

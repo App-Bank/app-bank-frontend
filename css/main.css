@@ -1,6 +1,7 @@
 /* SECTION: Master Stylesheet Bundle */
 @import url('styles.css');
 @import url('login.css');
+@import url('login-desktop.css');
 @import url('home.css');
 @import url('transfer.css');
 @import url('history.css');

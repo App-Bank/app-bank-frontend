@@ -1,6 +1,7 @@
 // SECTION: Login View
 function renderLoginView(container) {
   container.innerHTML = `
+    <div class="aurora" aria-hidden="true"></div>
     <section class="login-view" aria-labelledby="login-heading">
       <header class="login-header">
         <div class="login-avatar-circle" role="img" aria-label="Logo Aura Neo-Banking">
