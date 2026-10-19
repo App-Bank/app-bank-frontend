@@ -4,9 +4,7 @@ function renderHistoryView(container) {
   let currentFilter = 'all';
   let currentPeriod = 'all';
 
-  const formatAmount = (amount) => (typeof window.formatCurrency === 'function')
-    ? window.formatCurrency(amount, { includeSign: true })
-    : `${Number(amount) > 0 ? '+' : '-'}${Math.abs(Number(amount)).toFixed(2)} €`;
+  const formatAmount = (amount) => window.formatCurrency(amount, { includeSign: true });
 
   container.innerHTML = `
     <div class="aurora" aria-hidden="true"></div>
@@ -67,7 +65,7 @@ function renderHistoryView(container) {
             <div id="modal-tx-amount" class="modal-amount">0,00 €</div>
           </header>
           <dl class="modal-details-grid">
-            <div class="modal-detail-row" id="modal-tx-account-row"><dt class="modal-detail-label">Número de cuenta</dt><dd id="modal-tx-account" class="modal-detail-value">-</dd></div>
+            <div class="modal-detail-row"><dt class="modal-detail-label">Número de cuenta</dt><dd id="modal-tx-account" class="modal-detail-value">-</dd></div>
             <div class="modal-detail-row"><dt class="modal-detail-label">Concepto</dt><dd id="modal-tx-concept" class="modal-detail-value">-</dd></div>
             <div class="modal-detail-row"><dt class="modal-detail-label">Fecha y hora</dt><dd class="modal-detail-value"><time id="modal-tx-date">-</time></dd></div>
             <div class="modal-detail-row"><dt class="modal-detail-label">Estado</dt><dd class="modal-detail-value" style="color: #34d399;">● Completado</dd></div>
@@ -147,21 +145,9 @@ function renderHistoryView(container) {
     if (itemElem) openTransactionModal(itemElem.getAttribute('data-id'));
   });
 
-  timelineContainer.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      const itemElem = e.target.closest('.history-item');
-      if (itemElem) {
-        e.preventDefault();
-        openTransactionModal(itemElem.getAttribute('data-id'));
-      }
-    }
-  });
-
   // SECTION: Transaction Details Modal Logic
   function openTransactionModal(txId) {
-    const item = (typeof TransactionService !== 'undefined' && typeof TransactionService.getById === 'function')
-      ? TransactionService.getById(txId)
-      : null;
+    const item = TransactionService.getById(txId);
     if (!item) return;
 
     container.querySelector('#modal-tx-title').textContent = item.title;
@@ -253,7 +239,5 @@ function renderHistoryView(container) {
   loadTransactions();
 
   // SECTION: Bottom Navigation Bar
-  if (typeof BottomNavComponent !== 'undefined') {
-    BottomNavComponent.render('#bottom-nav-container', 'history');
-  }
+  BottomNavComponent.render(container.querySelector('#bottom-nav-container'), 'history');
 }

@@ -195,12 +195,17 @@ html, body {
 }
 
 /* SECTION: Glassmorphic Card Surface */
-.card {
+.card,
+.metric-box,
+.movement-item {
   background: linear-gradient(180deg, rgba(39, 42, 49, 0.75), rgba(28, 32, 38, 0.75));
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--border-soft);
   border-top-color: var(--border-medium);
+}
+
+.card {
   border-radius: 18px;
   box-shadow: 0 12px 30px -15px rgba(0, 0, 0, 0.6);
   width: 100%;

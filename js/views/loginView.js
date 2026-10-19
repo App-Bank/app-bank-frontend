@@ -139,10 +139,8 @@ function renderLoginView(container) {
 
   initLogin({
     onSuccess: (data) => {
-      if (typeof AppState !== 'undefined') {
-        AppState.user = data.email;
-        AppState.isAuthenticated = true;
-      }
+      AppState.user = data.email;
+      AppState.isAuthenticated = true;
       if (window.appRouter) {
         window.appRouter.navigate('/dashboard');
       } else {

@@ -236,11 +236,6 @@
 }
 
 .metric-box {
-  background: linear-gradient(180deg, rgba(39, 42, 49, 0.75), rgba(28, 32, 38, 0.75));
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border-soft);
-  border-top-color: var(--border-medium);
   padding: 12px 10px;
   border-radius: 14px;
   display: flex;
@@ -312,11 +307,6 @@
 }
 
 .movement-item {
-  background: linear-gradient(180deg, rgba(39, 42, 49, 0.75), rgba(28, 32, 38, 0.75));
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border-soft);
-  border-top-color: var(--border-medium);
   padding: 14px 16px;
   border-radius: 14px;
   display: flex;

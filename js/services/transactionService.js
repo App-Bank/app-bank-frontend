@@ -3,43 +3,35 @@ const TransactionService = {
   _cache: [],
   _accountsMap: new Map(),
 
-  formatIban(iban) {
-    return (typeof window.formatIban === 'function') ? window.formatIban(iban) : (iban || '').replace(/\s+/g, '').match(/.{1,4}/g)?.join(' ') || '';
-  },
-
   // SECTION: Query Transactions
   async getTransactions(params = {}) {
     let rawTransfers = [];
 
-    if (typeof ApiService !== 'undefined') {
-      const needAccounts = this._accountsMap.size === 0;
-      const tasks = [
-        typeof ApiService.getTransferHistory === 'function' ? ApiService.getTransferHistory().catch(e => {
-          console.warn('[TransactionService] Failed to fetch transfers:', e);
-          return [];
-        }) : Promise.resolve([])
-      ];
+    const needAccounts = this._accountsMap.size === 0;
+    const tasks = [
+      ApiService.getTransferHistory().catch(e => {
+        console.warn('[TransactionService] Failed to fetch transfers:', e);
+        return [];
+      })
+    ];
 
-      if (needAccounts && typeof ApiService.getAccounts === 'function') {
-        tasks.push(ApiService.getAccounts().catch(e => {
-          console.warn('[TransactionService] Failed to fetch accounts:', e);
-          return [];
-        }));
-      }
-
-      const [transfersRes, accountsRes] = await Promise.all(tasks);
-      rawTransfers = transfersRes || [];
-
-      if (needAccounts && Array.isArray(accountsRes)) {
-        accountsRes.forEach(acc => {
-          if (acc && acc.id) this._accountsMap.set(Number(acc.id), acc.iban);
-        });
-      }
+    if (needAccounts) {
+      tasks.push(ApiService.getAccounts().catch(e => {
+        console.warn('[TransactionService] Failed to fetch accounts:', e);
+        return [];
+      }));
     }
 
-    const currentAccountId = (typeof ApiService !== 'undefined' && ApiService.config)
-      ? ApiService.config.defaultAccountId
-      : 1;
+    const [transfersRes, accountsRes] = await Promise.all(tasks);
+    rawTransfers = transfersRes || [];
+
+    if (needAccounts && Array.isArray(accountsRes)) {
+      accountsRes.forEach(acc => {
+        if (acc && acc.id) this._accountsMap.set(Number(acc.id), acc.iban);
+      });
+    }
+
+    const currentAccountId = ApiService.config.defaultAccountId || 1;
 
     const allRecords = (rawTransfers || []).map(tx => {
       const isSender = Number(tx.sender_account_id) === currentAccountId;
@@ -53,7 +45,7 @@ const TransactionService = {
 
       const counterpartyId = isSender ? Number(tx.recipient_account_id) : Number(tx.sender_account_id);
       const rawIban = this._accountsMap.get(counterpartyId);
-      const displayIban = rawIban ? this.formatIban(rawIban) : `ES91 2100 0418 4502 000${String(counterpartyId).padStart(4, '0')}`;
+      const displayIban = rawIban ? window.formatIban(rawIban) : `ES91 2100 0418 4502 000${String(counterpartyId).padStart(4, '0')}`;
 
       const conceptValue = (tx.concept && tx.concept.trim()) ? tx.concept.trim() : '';
       const displayTitle = conceptValue || (isSender ? 'Transferencia enviada' : 'Transferencia recibida');
@@ -140,7 +132,7 @@ const TransactionService = {
 
       if (!groupsMap.has(groupLabel)) {
         groupsMap.set(groupLabel, {
-          groupLabel: groupLabel,
+          groupLabel,
           items: [],
           total: 0
         });

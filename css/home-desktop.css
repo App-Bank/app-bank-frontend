@@ -89,7 +89,6 @@
   }
 
   .metrics-grid {
-    grid-template-columns: repeat(3, 1fr) !important;
     gap: 14px !important;
   }
 
@@ -128,40 +127,10 @@
   }
 }
 
-/* SECTION: Desktop Floating Navigation Dock */
-@media (min-width: 768px) {
-  .bottom-nav-bar {
-    bottom: 24px;
-    max-width: 480px;
-    height: 64px;
-    border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 
-      0 20px 45px -10px rgba(0, 0, 0, 0.7),
-      0 0 0 1px rgba(255, 255, 255, 0.05);
-    background: rgba(18, 24, 34, 0.90);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-  }
-
-  .bottom-nav-item {
-    padding: 8px 24px;
-    border-radius: 12px;
-    transition: all 0.2s ease;
-  }
-
-  .bottom-nav-item:hover {
-    background: rgba(255, 255, 255, 0.06);
-    color: #e2e8f0;
-    transform: translateY(-1px);
-  }
-}
-
 /* SECTION: Motion Preferences */
 @media (prefers-reduced-motion: reduce) {
   .movement-item,
-  .btn-logout,
-  .bottom-nav-item {
+  .btn-logout {
     transition: none !important;
   }
 }

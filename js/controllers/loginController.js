@@ -14,18 +14,11 @@ function initLogin(options = {}) {
   const eyeHide = document.getElementById('eye-hide');
 
   const btnSubmit = document.getElementById('btn-submit');
-  const showToast = (msg, type) => {
-    if (typeof window.showToast === 'function') window.showToast(msg, type);
-  };
 
   // SECTION: Input Field Controls
   function updateClearButton() {
     if (!btnClearEmail || !emailInput) return;
-    if (emailInput.value.length > 0) {
-      btnClearEmail.classList.remove('is-hidden');
-    } else {
-      btnClearEmail.classList.add('is-hidden');
-    }
+    btnClearEmail.classList.toggle('is-hidden', emailInput.value.length === 0);
   }
 
   if (emailInput && btnClearEmail) {
@@ -106,7 +99,7 @@ function initLogin(options = {}) {
       }
 
       if (hasErrors) {
-        showToast('Verifica tus credenciales', 'error');
+        window.showToast('Verifica tus credenciales', 'error');
         return;
       }
 
@@ -114,14 +107,14 @@ function initLogin(options = {}) {
       if (emailInput) emailInput.disabled = true;
       if (passwordInput) passwordInput.disabled = true;
 
-      showToast('Accediendo a la cuenta...', 'info');
+      window.showToast('Accediendo a la cuenta...', 'info');
 
       setTimeout(() => {
         btnSubmit.classList.remove('is-loading');
         if (emailInput) emailInput.disabled = false;
         if (passwordInput) passwordInput.disabled = false;
 
-        showToast('¡Inicio de sesión exitoso!', 'success');
+        window.showToast('¡Inicio de sesión exitoso!', 'success');
 
         if (typeof options.onSuccess === 'function') {
           options.onSuccess({ email });
