@@ -51,7 +51,7 @@ function renderTransferView(container) {
 
           <section class="card step-card">
             <div class="step-head"><span class="step-num" aria-hidden="true">3</span><h2>Concepto</h2></div>
-            <input class="concepto" id="concepto" type="text" maxlength="60" placeholder="Añade un motivo" value="Transferencia habitual" aria-label="Concepto de la transferencia">
+            <input class="concepto" id="concepto" type="text" maxlength="60" placeholder="Añade un motivo" aria-label="Concepto de la transferencia">
           </section>
 
           <section class="card step-card">
