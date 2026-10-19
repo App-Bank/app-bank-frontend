@@ -138,9 +138,18 @@ function renderLoginView(container) {
   `;
 
   initLogin({
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       AppState.user = data.email;
       AppState.isAuthenticated = true;
+      try {
+        sessionStorage.setItem('aura_user', data.email);
+        const user = await ApiService.getUser(1);
+        if (user && user.name) {
+          AppState.userName = user.name;
+          sessionStorage.setItem('aura_user_name', user.name);
+        }
+      } catch (_) {}
+
       if (window.appRouter) {
         window.appRouter.navigate('/dashboard');
       } else {

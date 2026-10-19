@@ -1,9 +1,15 @@
 // SECTION: Global Application State
 const AppState = {
   user: null,
+  userName: null,
   isAuthenticated: false,
   balance: null
 };
+
+try {
+  AppState.user = sessionStorage.getItem('aura_user') || null;
+  AppState.userName = sessionStorage.getItem('aura_user_name') || null;
+} catch (_) {}
 
 // SECTION: Global UI Helpers (Toast Notification)
 let appToastTimer = null;

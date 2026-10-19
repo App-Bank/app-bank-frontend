@@ -1,7 +1,6 @@
 // SECTION: Home View
 function renderHomeView(container) {
-  const userName = AppState.user ? AppState.user.split('@')[0] : 'Mateo';
-  const displayName = userName.charAt(0).toUpperCase() + userName.slice(1);
+  const displayName = AppState.userName || (AppState.user ? (AppState.user.split('@')[0].charAt(0).toUpperCase() + AppState.user.split('@')[0].slice(1)) : 'Mateo');
 
   const now = new Date();
   const rawDate = now.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -149,7 +148,12 @@ function renderHomeView(container) {
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
       AppState.user = null;
+      AppState.userName = null;
       AppState.isAuthenticated = false;
+      try {
+        sessionStorage.removeItem('aura_user');
+        sessionStorage.removeItem('aura_user_name');
+      } catch (_) {}
       window.showToast('Sesión cerrada correctamente', 'info');
       if (window.appRouter) {
         window.appRouter.navigate('/login');
@@ -163,9 +167,10 @@ function renderHomeView(container) {
   async function syncHomeWithBackend() {
     if (typeof ApiService === 'undefined') return;
 
+    const needUser = !AppState.userName;
     const [accountRes, userRes, txRes] = await Promise.allSettled([
       ApiService.getAccount(1),
-      ApiService.getUser(1),
+      needUser ? ApiService.getUser(1) : Promise.resolve(null),
       TransactionService.getTransactions()
     ]);
 
@@ -199,6 +204,8 @@ function renderHomeView(container) {
     }
 
     if (userRes.status === 'fulfilled' && userRes.value && userRes.value.name) {
+      AppState.userName = userRes.value.name;
+      try { sessionStorage.setItem('aura_user_name', userRes.value.name); } catch (_) {}
       const nameEl = container.querySelector('#home-welcome-name');
       if (nameEl) nameEl.textContent = userRes.value.name;
     }
