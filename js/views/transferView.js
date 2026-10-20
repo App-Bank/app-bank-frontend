@@ -48,7 +48,7 @@ function renderTransferView(container) {
 
           <section class="card step-card">
             <div class="step-head"><span class="step-num" aria-hidden="true">3</span><h2>Concepto</h2></div>
-            <input class="concepto" id="concepto" type="text" maxlength="60" placeholder="Añade un motivo" aria-label="Concepto de la transferencia">
+            <input class="concepto" id="concepto" type="text" maxlength="60" placeholder="Añade un motivo (obligatorio)" aria-label="Concepto de la transferencia" required>
           </section>
 
           <section class="card step-card">
@@ -72,13 +72,7 @@ function renderTransferView(container) {
     </div>
   `;
 
-  initTransferLogic(container);
-
-  BottomNavComponent.render(container.querySelector('#bottom-nav-container'), 'transfer');
-}
-
-function initTransferLogic(ctx) {
-  const $ = (sel) => ctx.querySelector(sel);
+  const $ = (sel) => container.querySelector(sel);
   const transferForm = $('#transfer-form');
   const nameEl = $('#recipient-name');
   const ibanEl = $('#recipient-iban');
@@ -143,12 +137,13 @@ function initTransferLogic(ctx) {
     if (totalEl && field) totalEl.textContent = window.formatCurrency(parseAmount(field.value));
   };
 
+  const updateFieldWidth = () => {
+    if (field && (!window.CSS?.supports?.('field-sizing', 'content'))) {
+      field.style.width = Math.max(6, field.value.length + 1) + 'ch';
+    }
+  };
+
   if (field) {
-    const updateFieldWidth = () => {
-      if (!window.CSS || !CSS.supports || !CSS.supports('field-sizing', 'content')) {
-        field.style.width = Math.max(6, field.value.length + 1) + 'ch';
-      }
-    };
     field.addEventListener('input', () => {
       updateFieldWidth();
       syncTotal();
@@ -160,13 +155,11 @@ function initTransferLogic(ctx) {
     });
   }
 
-  ctx.querySelectorAll('.quick-adds button').forEach(btn => {
+  container.querySelectorAll('.quick-adds button').forEach(btn => {
     btn.addEventListener('click', () => {
       if (!field) return;
       field.value = fmt(parseAmount(field.value) + (parseFloat(btn.dataset.add) || 0));
-      if (!window.CSS || !CSS.supports || !CSS.supports('field-sizing', 'content')) {
-        field.style.width = Math.max(6, field.value.length + 1) + 'ch';
-      }
+      updateFieldWidth();
       syncTotal();
     });
   });
@@ -176,10 +169,17 @@ function initTransferLogic(ctx) {
     if (confirmBtn && confirmBtn.disabled) return;
 
     const amountVal = parseAmount(field ? field.value : '0');
-    const conceptVal = conceptoEl ? conceptoEl.value.trim() : 'Transferencia';
+    const conceptVal = conceptoEl ? conceptoEl.value.trim() : '';
 
     if (amountVal <= 0) {
       window.showToast('Introduce un importe válido', 'error');
+      if (field) field.focus();
+      return;
+    }
+
+    if (!conceptVal) {
+      window.showToast('El concepto es obligatorio', 'error');
+      if (conceptoEl) conceptoEl.focus();
       return;
     }
 
@@ -192,10 +192,16 @@ function initTransferLogic(ctx) {
     const rawIban = (ibanEl ? ibanEl.value : '').replace(/\s+/g, '').toUpperCase();
 
     let recipientAccountId = null;
+    let recipientOwnerName = '';
     try {
-      const accounts = await ApiService.getAccounts();
-      const matched = (accounts || []).find(a => a.iban && a.iban.replace(/\s+/g, '').toUpperCase() === rawIban);
-      if (matched && matched.id != null) recipientAccountId = matched.id;
+      const found = await ApiService.getAccountByIban(rawIban);
+      if (found && found.id != null) {
+        recipientAccountId = found.id;
+        recipientOwnerName = found.owner_name || '';
+        if (nameEl && !nameEl.value.trim() && found.owner_name) {
+          nameEl.value = found.owner_name;
+        }
+      }
     } catch (e) {
       console.warn('[TransferView] Accounts lookup failed:', e);
     }
@@ -220,7 +226,7 @@ function initTransferLogic(ctx) {
       });
 
       AppState.lastTransfer = {
-        recipientName: nameEl ? nameEl.value.trim() : '',
+        recipientName: (nameEl && nameEl.value.trim()) ? nameEl.value.trim() : (recipientOwnerName || 'Destinatario'),
         recipientIban: rawIban,
         amount: amountVal,
         concept: conceptVal || 'Transferencia',
@@ -247,4 +253,7 @@ function initTransferLogic(ctx) {
   }
 
   syncTotal();
+
+  // SECTION: Bottom Navigation Bar
+  BottomNavComponent.render($('#bottom-nav-container'), 'transfer');
 }

@@ -1,21 +1,19 @@
 // SECTION: Home View
 function renderHomeView(container) {
-  const esc = window.escapeHtml || (s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])));
-
+  const esc = window.escapeHtml;
   const displayName = AppState.userName || (AppState.user ? (AppState.user.split('@')[0].charAt(0).toUpperCase() + AppState.user.split('@')[0].slice(1)) : 'Usuario');
 
   const now = new Date();
-  const rawDate = now.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-  const formattedDate = rawDate.charAt(0).toUpperCase() + rawDate.slice(1);
-  const currentMonth = now.toLocaleDateString('es-ES', { month: 'long' });
-  const formattedMonth = currentMonth.charAt(0).toUpperCase() + currentMonth.slice(1);
+  const cap = (s) => s ? s.charAt(0).toUpperCase() + s.slice(1) : '';
+  const formattedDate = cap(now.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' }));
+  const formattedMonth = cap(now.toLocaleDateString('es-ES', { month: 'long' }));
 
   function formatBalance(amount) {
-    const formatted = (Number(amount) || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    const parts = formatted.split(',');
+    const formatted = window.formatCurrency(amount, { noSymbol: true });
+    const [intPart, decPart] = formatted.split(',');
     return {
       text: `${formatted} €`,
-      html: `${parts[0]}<span class="balance-decimals">,${parts[1]}</span>`
+      html: `${intPart}<span class="balance-decimals">,${decPart}</span>`
     };
   }
 
@@ -126,20 +124,12 @@ function renderHomeView(container) {
       ibanEl.textContent = 'No disponible';
       return;
     }
-    if (isIbanHidden) {
-      ibanEl.textContent = formatMaskedIban(currentRawIban);
-      if (toggleIbanBtn) {
-        toggleIbanBtn.innerHTML = eyeClosedIcon;
-        toggleIbanBtn.setAttribute('aria-label', 'Mostrar IBAN completo');
-        toggleIbanBtn.setAttribute('title', 'Mostrar IBAN completo');
-      }
-    } else {
-      ibanEl.textContent = window.formatIban(currentRawIban);
-      if (toggleIbanBtn) {
-        toggleIbanBtn.innerHTML = eyeOpenIcon;
-        toggleIbanBtn.setAttribute('aria-label', 'Ocultar IBAN');
-        toggleIbanBtn.setAttribute('title', 'Ocultar IBAN');
-      }
+    ibanEl.textContent = isIbanHidden ? formatMaskedIban(currentRawIban) : window.formatIban(currentRawIban);
+    if (toggleIbanBtn) {
+      toggleIbanBtn.innerHTML = isIbanHidden ? eyeClosedIcon : eyeOpenIcon;
+      const label = isIbanHidden ? 'Mostrar IBAN completo' : 'Ocultar IBAN';
+      toggleIbanBtn.setAttribute('aria-label', label);
+      toggleIbanBtn.setAttribute('title', label);
     }
   }
 
@@ -154,23 +144,7 @@ function renderHomeView(container) {
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
       window.showToast('Sesión cerrada correctamente', 'info');
-      if (typeof ApiService !== 'undefined' && typeof ApiService.logout === 'function') {
-        ApiService.logout();
-      } else {
-        AppState.user = null;
-        AppState.userName = null;
-        AppState.isAuthenticated = false;
-        try {
-          sessionStorage.removeItem('aura_token');
-          sessionStorage.removeItem('aura_user');
-          sessionStorage.removeItem('aura_user_name');
-        } catch (_) {}
-        if (window.appRouter) {
-          window.appRouter.navigate('/login');
-        } else {
-          window.location.hash = '#/login';
-        }
-      }
+      ApiService.logout();
     });
   }
 
@@ -220,25 +194,11 @@ function renderHomeView(container) {
       if (nameEl) nameEl.textContent = userRes.value.name;
     }
 
-    let txRes = null;
-    try {
-      const groups = await TransactionService.getTransactions();
-      txRes = { status: 'fulfilled', value: groups };
-    } catch (err) {
-      txRes = { status: 'rejected', reason: err };
-    }
-
     const movementsContainer = container.querySelector('#home-movements-list');
 
-    if (txRes.status === 'rejected') {
-      if (movementsContainer) {
-        movementsContainer.innerHTML = '<div style="text-align: center; padding: 24px 16px; color: #f87171; font-size: 13.5px;">No se pudieron cargar los movimientos</div>';
-      }
-      return;
-    }
-
-    if (txRes.status === 'fulfilled' && Array.isArray(txRes.value)) {
-      const allItems = txRes.value.flatMap(g => g.items || []);
+    try {
+      const groups = await TransactionService.getTransactions();
+      const allItems = (groups || []).flatMap(g => g.items || []);
       if (allItems.length > 0) {
         allItems.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
         const recent = allItems.slice(0, 3);
@@ -269,23 +229,25 @@ function renderHomeView(container) {
           }).join('');
         }
 
-        const nowD = new Date();
-        const curM = nowD.getMonth();
-        const curY = nowD.getFullYear();
-        let inc = 0;
-        let exp = 0;
-        for (const r of allItems) {
+        const curM = now.getMonth();
+        const curY = now.getFullYear();
+        const [inc, exp] = allItems.reduce(([i, e], r) => {
           const d = r.timestamp ? new Date(r.timestamp) : null;
           if (d && d.getMonth() === curM && d.getFullYear() === curY) {
             const val = Number(r.amount) || 0;
-            if (val > 0) inc += val;
-            else if (val < 0) exp += Math.abs(val);
+            return val > 0 ? [i + val, e] : [i, e + Math.abs(val)];
           }
-        }
+          return [i, e];
+        }, [0, 0]);
+
         const incEl = container.querySelector('#home-metric-income');
         const expEl = container.querySelector('#home-metric-expense');
         if (incEl) incEl.textContent = window.formatCurrency(inc);
         if (expEl) expEl.textContent = window.formatCurrency(exp);
+      }
+    } catch (_) {
+      if (movementsContainer) {
+        movementsContainer.innerHTML = '<div style="text-align: center; padding: 24px 16px; color: #f87171; font-size: 13.5px;">No se pudieron cargar los movimientos</div>';
       }
     }
   }

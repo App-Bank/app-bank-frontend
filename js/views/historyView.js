@@ -87,6 +87,11 @@ function renderHistoryView(container) {
   const filterOptionsContainer = container.querySelector('#filter-options-container');
   const txModal = container.querySelector('#transaction-modal');
   const btnCloseModal = container.querySelector('#btn-close-modal');
+  const modalTitle = container.querySelector('#modal-tx-title');
+  const modalAmount = container.querySelector('#modal-tx-amount');
+  const modalAccount = container.querySelector('#modal-tx-account');
+  const modalConcept = container.querySelector('#modal-tx-concept');
+  const modalDate = container.querySelector('#modal-tx-date');
 
   const expIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>';
   const incIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>';
@@ -180,35 +185,37 @@ function renderHistoryView(container) {
 
     previousActiveElement = document.activeElement;
 
-    container.querySelector('#modal-tx-title').textContent = item.title;
-    const amountElem = container.querySelector('#modal-tx-amount');
-    amountElem.textContent = formatAmount(item.amount);
-    amountElem.style.color = item.type === 'expense' ? '#f87171' : '#34d399';
+    if (modalTitle) modalTitle.textContent = item.title;
+    if (modalAmount) {
+      modalAmount.textContent = formatAmount(item.amount);
+      modalAmount.style.color = item.type === 'expense' ? '#f87171' : '#34d399';
+    }
 
-    container.querySelector('#modal-tx-account').textContent = item.accountNumber || 'No disponible';
-    container.querySelector('#modal-tx-concept').textContent = item.concept || item.title || (item.category || '-');
+    if (modalAccount) modalAccount.textContent = item.accountNumber || 'No disponible';
+    if (modalConcept) modalConcept.textContent = item.concept || item.title || (item.category || '-');
     const dateObj = item.timestamp ? new Date(item.timestamp) : null;
-    const dateElem = container.querySelector('#modal-tx-date');
-    if (dateElem) {
-      dateElem.textContent = dateObj
+    if (modalDate) {
+      modalDate.textContent = dateObj
         ? dateObj.toLocaleString('es-ES', {
             day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
           })
         : 'Fecha no disponible';
-      dateElem.setAttribute('datetime', dateObj ? dateObj.toISOString() : '');
+      modalDate.setAttribute('datetime', dateObj ? dateObj.toISOString() : '');
     }
 
-    txModal.classList.add('show');
-    txModal.setAttribute('aria-hidden', 'false');
-    if (btnCloseModal) {
-      btnCloseModal.focus();
+    if (txModal) {
+      txModal.classList.add('show');
+      txModal.setAttribute('aria-hidden', 'false');
     }
+    if (btnCloseModal) btnCloseModal.focus();
     window.addEventListener('keydown', handleModalKeyDown);
   }
 
   function closeTransactionModal() {
-    txModal.classList.remove('show');
-    txModal.setAttribute('aria-hidden', 'true');
+    if (txModal) {
+      txModal.classList.remove('show');
+      txModal.setAttribute('aria-hidden', 'true');
+    }
     window.removeEventListener('keydown', handleModalKeyDown);
     if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
       previousActiveElement.focus();
@@ -261,11 +268,10 @@ function renderHistoryView(container) {
     chips.forEach(chip => {
       chip.addEventListener('click', () => {
         chips.forEach(c => {
-          c.classList.remove('active');
-          c.setAttribute('aria-pressed', 'false');
+          const isActive = c === chip;
+          c.classList.toggle('active', isActive);
+          c.setAttribute('aria-pressed', String(isActive));
         });
-        chip.classList.add('active');
-        chip.setAttribute('aria-pressed', 'true');
         onSelect(chip);
         loadTransactions();
       });

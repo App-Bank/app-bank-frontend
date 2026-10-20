@@ -48,26 +48,10 @@ window.showToast = function(message, type = 'info') {
 // SECTION: Global Formatters
 window.formatCurrency = function(amount, options = {}) {
   const num = Number(amount) || 0;
-  const isZero = Math.abs(num) < 0.005;
-  const isNegative = !isZero && num < 0;
-  const isPositive = !isZero && num > 0;
-
-  const formattedNum = Math.abs(num).toLocaleString('es-ES', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
-
-  let sign = '';
-  if (isNegative) {
-    sign = '-';
-  } else if (isPositive && options.includeSign) {
-    sign = '+';
-  }
-
-  if (options.noSymbol) {
-    return `${sign}${formattedNum}`;
-  }
-  return `${sign}${formattedNum} €`;
+  const abs = Math.abs(num);
+  const formatted = abs.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const sign = abs < 0.005 ? '' : (num < 0 ? '-' : (options.includeSign ? '+' : ''));
+  return `${sign}${formatted}${options.noSymbol ? '' : ' €'}`;
 };
 
 window.formatIban = function(iban) {
