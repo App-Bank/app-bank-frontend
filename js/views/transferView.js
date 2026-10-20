@@ -1,4 +1,3 @@
-// SECTION: Transfer View
 function renderTransferView(container) {
   const currentBal = AppState.balance != null ? Number(AppState.balance) : 0;
   const initialBalText = window.formatCurrency(currentBal);
@@ -78,7 +77,6 @@ function renderTransferView(container) {
   BottomNavComponent.render(container.querySelector('#bottom-nav-container'), 'transfer');
 }
 
-// SECTION: Transfer Form Logic
 function initTransferLogic(ctx) {
   const $ = (sel) => ctx.querySelector(sel);
   const transferForm = $('#transfer-form');
@@ -109,6 +107,8 @@ function initTransferLogic(ctx) {
       sourceBalanceEl.style.color = '#f87171';
     }
   });
+
+
 
   if (nameEl && avatar) {
     const updateAvatar = () => {
@@ -207,6 +207,13 @@ function initTransferLogic(ctx) {
           sourceBalanceEl.textContent = window.formatCurrency(AppState.balance);
         }
       }
+
+      renderConfirmView(ctx, {
+  name: nameEl ? nameEl.value : '',
+  amount: amountVal,
+  concept: conceptVal
+});
+
     } catch (err) {
       console.error('[TransferView] Transfer failed:', err);
       window.showToast(`Error: ${err.message}`, 'error');
