@@ -1,44 +1,47 @@
 // SECTION: Confirm View
-function renderConfirmView(container) {
+function renderConfirmView(container, data = {}) {
+  const name = data.name || '—';
+  const amountText = (typeof window.formatCurrency === 'function')
+    ? window.formatCurrency(Number(data.amount) || 0)
+    : `${Number(data.amount) || 0} €`;
+  const concept = data.concept || 'Transferencia';
+  
   container.innerHTML = `
-    <!-- Formulario de Transferencia -->
-    <form id="transfer-form">
-      <div class="form-group">
-        <label for="amount">Monto a transferir:</label>
-        <input type="number" id="amount" required min="1" placeholder="Ej. 500">
-      </div>
-      <button type="submit" id="submit-btn">Realizar Transferencia</button>
-    </form>
+    <div class="aurora" aria-hidden="true"></div>
+    <div class="app">
+      <header class="app-header" id="top">
+        <div class="app-top">
+          <a href="#/dashboard" class="app-brand"><span class="logo-mark" aria-hidden="true"></span><span>AURA NEO-BANKING</span></a>
+        </div>
+        <h1 class="screen-title">Transferencia enviada</h1>
+      </header>
 
-    <!-- Contenedor para el Mensaje de Estado (Feedback) -->
-    <div id="status-card" class="status-card hidden">
-      <p id="status-message"></p>
-      <button id="close-btn">Entendido</button>
+      <main class="app-main transfer">
+        <section class="card step-card">
+          <div class="step-head"><span class="step-num">1</span><h2>Destinatario</h2></div>
+          <p class="source-balance">${name}</p>
+        </section>
+
+        <section class="card step-card">
+          <div class="step-head"><span class="step-num">2</span><h2>Importe</h2></div>
+          <div class="total-row"><span>Total enviado</span><output>${amountText}</output></div>
+        </section>
+
+        <section class="card step-card">
+          <div class="step-head"><span class="step-num">3</span><h2>Concepto</h2></div>
+          <p class="source-balance">${concept}</p>
+        </section>
+
+        <a href="#/transfer" class="btn-confirm">Nueva transferencia</a>
+      </main>
+
+      <div id="bottom-nav-container"></div>
     </div>
   `;
 
-  const statusCard = container.querySelector('#status-card');
-  const statusMessage = container.querySelector('#status-message');
-  const form = container.querySelector('#transfer-form');
-
-  if (form) {
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-
-      // Simulamos una validación (ej. si hay fondos suficientes)
-      const fondosSuficientes = Math.random() > 0.3; // 70% de probabilidad de éxito
-
-      statusMessage.textContent = fondosSuficientes
-        ? '¡Transferencia realizada con éxito! '
-        : 'Error: Fondos insuficientes o cuenta inválida. ❌';
-
-      statusCard.classList.remove('hidden', 'success', 'error');
-      statusCard.classList.add(fondosSuficientes ? 'success' : 'error');
-    });
-  }
-
-  const closeBtn = container.querySelector('#close-btn');
-  if (closeBtn) {
-    closeBtn.addEventListener('click', () => statusCard.classList.add('hidden'));
+   if (typeof BottomNavComponent !== 'undefined') {
+    BottomNavComponent.render('#bottom-nav-container', 'transfer');
   }
 }
+
+  

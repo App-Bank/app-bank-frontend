@@ -1,4 +1,3 @@
-// SECTION: Transfer View
 function renderTransferView(container) {
   const currentBal = (typeof AppState !== 'undefined' && AppState.balance != null) ? Number(AppState.balance) : 0;
   const initialBalText = (typeof window.formatCurrency === 'function')
@@ -82,7 +81,6 @@ function renderTransferView(container) {
   }
 }
 
-// SECTION: Transfer Form Logic
 function initTransferLogic(ctx) {
   const $ = (sel) => ctx.querySelector(sel);
   const transferForm = $('#transfer-form');
@@ -115,6 +113,8 @@ function initTransferLogic(ctx) {
       }
     });
   }
+
+
 
   if (nameEl && avatar) {
     const updateAvatar = () => {
@@ -220,6 +220,13 @@ function initTransferLogic(ctx) {
             : `${fmt(AppState.balance)} €`;
         }
       }
+
+      renderConfirmView(ctx, {
+  name: nameEl ? nameEl.value : '',
+  amount: amountVal,
+  concept: conceptVal
+});
+
     } catch (err) {
       console.error('[TransferView] Transfer failed:', err);
       if (typeof window.showToast === 'function') window.showToast(`Error: ${err.message}`, 'error');
