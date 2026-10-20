@@ -166,6 +166,8 @@ function renderHistoryView(container) {
   });
 
   // SECTION: Transaction Details Modal Logic
+  let previousActiveElement = null;
+
   const handleModalKeyDown = (e) => {
     if (e.key === 'Escape') {
       closeTransactionModal();
@@ -175,6 +177,8 @@ function renderHistoryView(container) {
   function openTransactionModal(txId) {
     const item = TransactionService.getById(txId);
     if (!item) return;
+
+    previousActiveElement = document.activeElement;
 
     container.querySelector('#modal-tx-title').textContent = item.title;
     const amountElem = container.querySelector('#modal-tx-amount');
@@ -196,6 +200,9 @@ function renderHistoryView(container) {
 
     txModal.classList.add('show');
     txModal.setAttribute('aria-hidden', 'false');
+    if (btnCloseModal) {
+      btnCloseModal.focus();
+    }
     window.addEventListener('keydown', handleModalKeyDown);
   }
 
@@ -203,6 +210,10 @@ function renderHistoryView(container) {
     txModal.classList.remove('show');
     txModal.setAttribute('aria-hidden', 'true');
     window.removeEventListener('keydown', handleModalKeyDown);
+    if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
+      previousActiveElement.focus();
+    }
+    previousActiveElement = null;
   }
 
   if (btnCloseModal) btnCloseModal.addEventListener('click', closeTransactionModal);

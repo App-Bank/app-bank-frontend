@@ -232,6 +232,8 @@
     box-shadow: var(--glow-cobalt);
     transition: transform 0.15s ease, box-shadow 0.2s ease;
 }
+a.btn-confirm { text-decoration: none; }
+.step-card p { overflow-wrap: anywhere; }
 .btn-confirm:hover { transform: translateY(-1px); box-shadow: 0 0 20px rgba(3, 120, 230, 0.5), var(--glow-cobalt); }
 .btn-confirm:active { transform: translateY(0); }
 .btn-confirm svg { width: 20px; height: 20px; }

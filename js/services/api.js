@@ -113,6 +113,7 @@ const ApiService = {
       AppState.token = null;
       AppState.accountId = null;
       AppState.balance = null;
+      AppState.lastTransfer = null;
     }
     if (typeof TransactionService !== 'undefined') {
       if (typeof TransactionService.reset === 'function') {

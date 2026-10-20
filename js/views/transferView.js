@@ -35,7 +35,7 @@ function renderTransferView(container) {
           <section class="card step-card">
             <div class="step-head"><span class="step-num" aria-hidden="true">2</span><h2>Importe</h2></div>
             <div class="amount-input">
-              <input class="amount-field" id="amount-field" type="text" inputmode="decimal" value="250,00" aria-label="Importe a enviar" autocomplete="off">
+              <input class="amount-field" id="amount-field" type="text" inputmode="decimal" placeholder="0,00" aria-label="Importe a enviar" autocomplete="off">
               <span class="currency" aria-hidden="true">€</span>
             </div>
             <p class="amount-note">Sin comisiones bancarias</p>
@@ -55,7 +55,7 @@ function renderTransferView(container) {
             <div class="step-head"><span class="step-num" aria-hidden="true">4</span><h2>Confirmación</h2></div>
             <div class="total-row">
               <span>Total a enviar</span>
-              <output id="total" for="amount-field">250,00 €</output>
+              <output id="total" for="amount-field">0,00 €</output>
             </div>
           </section>
 
@@ -131,12 +131,12 @@ function initTransferLogic(ctx) {
   }
 
   const parseAmount = (str) => {
-    const clean = String(str).replace(/[^\d.,-]/g, '');
-    if (!clean) return 0;
-    const n = (clean.includes(',') && clean.includes('.'))
-      ? parseFloat(clean.replace(/\./g, '').replace(',', '.'))
-      : parseFloat(clean.replace(',', '.'));
-    return isNaN(n) ? 0 : n;
+    let s = String(str).replace(/[^\d.,]/g, '');
+    if (!s) return 0;
+    if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+    else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');   // "1.500" -> 1500
+    const n = parseFloat(s);
+    return Number.isFinite(n) ? Math.round(n * 100) / 100 : 0;
   };
 
   const syncTotal = () => {
@@ -144,9 +144,18 @@ function initTransferLogic(ctx) {
   };
 
   if (field) {
-    field.addEventListener('input', syncTotal);
+    const updateFieldWidth = () => {
+      if (!window.CSS || !CSS.supports || !CSS.supports('field-sizing', 'content')) {
+        field.style.width = Math.max(6, field.value.length + 1) + 'ch';
+      }
+    };
+    field.addEventListener('input', () => {
+      updateFieldWidth();
+      syncTotal();
+    });
     field.addEventListener('blur', () => {
       field.value = fmt(parseAmount(field.value));
+      updateFieldWidth();
       syncTotal();
     });
   }
@@ -155,6 +164,9 @@ function initTransferLogic(ctx) {
     btn.addEventListener('click', () => {
       if (!field) return;
       field.value = fmt(parseAmount(field.value) + (parseFloat(btn.dataset.add) || 0));
+      if (!window.CSS || !CSS.supports || !CSS.supports('field-sizing', 'content')) {
+        field.style.width = Math.max(6, field.value.length + 1) + 'ch';
+      }
       syncTotal();
     });
   });
@@ -171,49 +183,51 @@ function initTransferLogic(ctx) {
       return;
     }
 
+    if (AppState.balance != null && amountVal > AppState.balance) {
+      window.showToast('Saldo insuficiente', 'error');
+      return;
+    }
+
     if (confirmBtn) confirmBtn.disabled = true;
     const rawIban = (ibanEl ? ibanEl.value : '').replace(/\s+/g, '').toUpperCase();
 
-    let recipientAccountId = 2;
+    let recipientAccountId = null;
     try {
       const accounts = await ApiService.getAccounts();
-      if (Array.isArray(accounts)) {
-        const matched = accounts.find(a => a.iban.replace(/\s+/g, '').toUpperCase() === rawIban);
-        if (matched) recipientAccountId = matched.id;
-      }
+      const matched = (accounts || []).find(a => a.iban && a.iban.replace(/\s+/g, '').toUpperCase() === rawIban);
+      if (matched && matched.id != null) recipientAccountId = matched.id;
     } catch (e) {
-      console.warn('[TransferView] Accounts lookup fallback:', e);
+      console.warn('[TransferView] Accounts lookup failed:', e);
+    }
+
+    if (recipientAccountId == null) {
+      window.showToast('No encontramos ninguna cuenta con ese IBAN', 'error');
+      if (confirmBtn) confirmBtn.disabled = false;
+      return;
+    }
+    if (AppState.accountId != null && Number(recipientAccountId) === Number(AppState.accountId)) {
+      window.showToast('No puedes transferir a tu propia cuenta', 'error');
+      if (confirmBtn) confirmBtn.disabled = false;
+      return;
     }
 
     try {
-      await ApiService.createTransfer({
+      const created = await ApiService.createTransfer({
         recipient_account_id: recipientAccountId,
         amount: amountVal,
         concept: conceptVal || 'Transferencia',
         timezone_id: 1
       });
 
-      const formattedSentAmount = window.formatCurrency(amountVal);
-      if (confirmBtn) {
-        confirmBtn.classList.add('is-done');
-        confirmBtn.textContent = `Transferencia enviada · ${formattedSentAmount}`;
-      }
-
-      window.showToast(`Transferencia de ${formattedSentAmount} enviada con éxito`, 'success');
-
-      if (AppState.balance != null) {
-        AppState.balance = Math.max(0, AppState.balance - amountVal);
-        if (sourceBalanceEl) {
-          sourceBalanceEl.textContent = window.formatCurrency(AppState.balance);
-        }
-      }
-
-      renderConfirmView(ctx, {
-  name: nameEl ? nameEl.value : '',
-  amount: amountVal,
-  concept: conceptVal
-});
-
+      AppState.lastTransfer = {
+        recipientName: nameEl ? nameEl.value.trim() : '',
+        recipientIban: rawIban,
+        amount: amountVal,
+        concept: conceptVal || 'Transferencia',
+        id: created && created.id != null ? created.id : null
+      };
+      window.showToast(`Transferencia de ${window.formatCurrency(amountVal)} enviada con éxito`, 'success');
+      window.appRouter.navigate('/confirm');
     } catch (err) {
       console.error('[TransferView] Transfer failed:', err);
       window.showToast(`Error: ${err.message}`, 'error');

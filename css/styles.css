@@ -71,6 +71,7 @@ html, body {
   flex-direction: column;
   position: relative;
   overflow-x: hidden;
+  isolation: isolate;
 }
 
 /* SECTION: Aurora Ambient Lighting Background */
