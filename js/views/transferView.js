@@ -128,7 +128,7 @@ function initTransferLogic(ctx) {
   if (ibanEl && badge) {
     const validarIban = () => {
       const v = ibanEl.value.replace(/\s+/g, '').toUpperCase();
-      const ok = /^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/.test(v);
+      const ok = /^[A-Z]{2}\d{22}$/.test(v);
       badge.hidden = !ok;
       ibanEl.classList.toggle('is-valid', ok);
     };
@@ -180,16 +180,16 @@ function initTransferLogic(ctx) {
     if (confirmBtn) confirmBtn.disabled = true;
     const rawIban = (ibanEl ? ibanEl.value : '').replace(/\s+/g, '').toUpperCase();
 
-    if (!/^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/.test(rawIban)) {
-      if (confirmBtn) confirmBtn.disabled = false;
-      renderConfirmView(ctx, {
-        name: nameEl ? nameEl.value : '',
-        amount: amountVal,
-        concept: conceptVal,
-        error: true,
-        message: 'El IBAN introducido no es válido'
-      });
-      return;
+    if (!/^[A-Z]{2}\d{22}$/.test(rawIban)) {
+     if (confirmBtn) confirmBtn.disabled = false;
+     renderConfirmView(ctx, {
+      name: nameEl ? nameEl.value : '',
+      amount: amountVal,
+      concept: conceptVal,
+      error: true,
+      message: 'El IBAN introducido está incompleto'
+     });
+     return;
     }
 
     let recipientAccountId = null;
