@@ -216,6 +216,19 @@ function initTransferLogic(ctx) {
       return;
     }
 
+    const maxBal = (typeof AppState !== 'undefined' && AppState.balance != null) ? Number(AppState.balance) : null;
+    if (maxBal != null && amountVal > maxBal) {
+      if (confirmBtn) confirmBtn.disabled = false;
+      renderConfirmView(ctx, {
+        name: nameEl ? nameEl.value : '',
+        amount: amountVal,
+        concept: conceptVal,
+        error: true,
+        message: `Saldo insuficiente: dispones de ${maxBal.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`
+      });
+      return;
+    }
+
     try {
       if (typeof ApiService !== 'undefined' && typeof ApiService.createTransfer === 'function') {
         await ApiService.createTransfer({
