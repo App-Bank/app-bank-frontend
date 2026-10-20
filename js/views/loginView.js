@@ -1,6 +1,7 @@
 // SECTION: Login View
 function renderLoginView(container) {
   container.innerHTML = `
+    <div class="aurora" aria-hidden="true"></div>
     <section class="login-view" aria-labelledby="login-heading">
       <header class="login-header">
         <div class="login-avatar-circle" role="img" aria-label="Logo Aura Neo-Banking">
@@ -137,11 +138,18 @@ function renderLoginView(container) {
   `;
 
   initLogin({
-    onSuccess: (data) => {
-      if (typeof AppState !== 'undefined') {
-        AppState.user = data.email;
-        AppState.isAuthenticated = true;
-      }
+    onSuccess: async (data) => {
+      AppState.user = data.email;
+      AppState.isAuthenticated = true;
+      try {
+        sessionStorage.setItem('aura_user', data.email);
+        const user = await ApiService.getUser(1);
+        if (user && user.name) {
+          AppState.userName = user.name;
+          sessionStorage.setItem('aura_user_name', user.name);
+        }
+      } catch (_) {}
+
       if (window.appRouter) {
         window.appRouter.navigate('/dashboard');
       } else {

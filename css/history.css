@@ -155,10 +155,6 @@
   -webkit-backdrop-filter: blur(16px);
 }
 
-.filter-options-container.is-hidden {
-  display: none !important;
-}
-
 .filter-group-block {
   display: flex;
   flex-direction: column;

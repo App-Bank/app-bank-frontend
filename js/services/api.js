@@ -8,16 +8,20 @@ const API_CONFIG = {
 
 const ApiService = {
   config: API_CONFIG,
+  _client: null,
 
   getClient() {
     if (typeof axios !== 'undefined') {
-      return axios.create({
-        baseURL: this.config.baseUrl,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        timeout: 8000
-      });
+      if (!this._client) {
+        this._client = axios.create({
+          baseURL: this.config.baseUrl,
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          timeout: 8000
+        });
+      }
+      return this._client;
     }
     return null;
   },
@@ -98,6 +102,3 @@ const ApiService = {
 
 window.ApiService = ApiService;
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = ApiService;
-}
