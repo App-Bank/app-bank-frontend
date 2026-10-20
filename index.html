@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline';
+             img-src 'self' data:; connect-src 'self' http://127.0.0.1:8000;
+             base-uri 'none'; form-action 'self'">
   <meta name="theme-color" content="#0c1017">
   <title>AURA NEO-BANKING - Bank App</title>
   <link rel="stylesheet" href="css/main.css">
@@ -18,7 +22,7 @@
   </div>
 
   <!-- SECTION: Axios HTTP Library -->
-  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="js/vendor/axios.min.js"></script>
 
   <!-- SECTION: Scripts -->
   <script src="js/main.js"></script>

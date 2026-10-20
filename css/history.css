@@ -324,6 +324,11 @@
   color: #34d399;
 }
 
+.history-item-left { flex: 1; min-width: 0; }
+.history-item-details { min-width: 0; }
+.history-item-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.history-item-amount { flex-shrink: 0; margin-left: 12px; white-space: nowrap; }
+
 /* SECTION: Empty State */
 .history-empty-state {
   display: flex;

@@ -69,7 +69,7 @@
 }
 
 /* SECTION: Main Content Layout */
-.app-main {
+.app-container .app-main {
   display: flex !important;
   flex-direction: column !important;
   gap: 22px !important;
@@ -254,12 +254,10 @@
 }
 
 .box-value {
-  font-size: 15px;
+  font-size: clamp(12px, 3.6vw, 15px);
   font-weight: 700;
   letter-spacing: -0.01em;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .box-income .box-label {

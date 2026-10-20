@@ -5,7 +5,8 @@ const AppState = {
   isAuthenticated: false,
   token: null,
   accountId: null,
-  balance: null
+  balance: null,
+  lastTransfer: null
 };
 
 try {
@@ -81,6 +82,7 @@ function initSPA() {
     '/login': renderLoginView,
     '/dashboard': renderHomeView,
     '/transfer': renderTransferView,
+    '/confirm': renderConfirmView,
     '/history': renderHistoryView
   }, 'app');
   window.appRouter.handleRouting();
