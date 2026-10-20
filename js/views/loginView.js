@@ -45,8 +45,8 @@ function renderLoginView(container) {
                 id="email" 
                 name="email" 
                 class="field-input" 
-                value="admin@admin.com" 
-                placeholder="admin@admin.com"
+                value="" 
+                placeholder="tu@correo.com"
                 autocomplete="username"
                 autocapitalize="none"
                 autocorrect="off"
@@ -86,8 +86,8 @@ function renderLoginView(container) {
                 id="password" 
                 name="password" 
                 class="field-input" 
-                value="admin" 
-                placeholder="admin"
+                value="" 
+                placeholder="Tu contraseña"
                 autocomplete="current-password"
                 autocapitalize="none"
                 autocorrect="off"
@@ -138,17 +138,28 @@ function renderLoginView(container) {
   `;
 
   initLogin({
-    onSuccess: async (data) => {
+    onSubmit: async (data) => {
+      try {
+        await ApiService.login(data.email, data.password);
+      } catch (err) {
+        if (err.message && err.message.toLowerCase().includes('incorrect')) {
+          throw new Error('Correo o contraseña incorrectos');
+        }
+        throw err;
+      }
+
       AppState.user = data.email;
       AppState.isAuthenticated = true;
       try {
         sessionStorage.setItem('aura_user', data.email);
-        const user = await ApiService.getUser(1);
+        const user = await ApiService.getUser();
         if (user && user.name) {
           AppState.userName = user.name;
           sessionStorage.setItem('aura_user_name', user.name);
         }
       } catch (_) {}
+
+      window.showToast('¡Inicio de sesión exitoso!', 'success');
 
       if (window.appRouter) {
         window.appRouter.navigate('/dashboard');

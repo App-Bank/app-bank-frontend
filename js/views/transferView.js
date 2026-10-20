@@ -94,7 +94,7 @@ function initTransferLogic(ctx) {
 
   const fmt = (n) => window.formatCurrency(n, { noSymbol: true });
 
-  ApiService.getAccount(1).then(account => {
+  ApiService.getAccount().then(account => {
     if (account && account.balance != null) {
       const balNum = Number(account.balance);
       if (sourceBalanceEl) {
