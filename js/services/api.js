@@ -1,4 +1,4 @@
-// SECTION: Backend API Service Client
+// SECTION: Backend API Configuration
 const API_CONFIG = {
   baseUrl: 'http://127.0.0.1:8000',
   defaultUserId: 1,
@@ -6,99 +6,61 @@ const API_CONFIG = {
   defaultTimezoneId: 1
 };
 
+// SECTION: Axios Instance
+const apiClient = axios.create({
+  baseURL: API_CONFIG.baseUrl,
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  timeout: 8000
+});
+
+// SECTION: Axios Interceptors
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const errorDetail = error.response?.data?.detail 
+      || error.response?.data?.message 
+      || error.message 
+      || 'Error de conexión con el backend';
+    return Promise.reject(new Error(errorDetail));
+  }
+);
+
+// SECTION: Backend API Service Client
 const ApiService = {
   config: API_CONFIG,
-  _client: null,
-
-  getClient() {
-    if (typeof axios !== 'undefined') {
-      if (!this._client) {
-        this._client = axios.create({
-          baseURL: this.config.baseUrl,
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          timeout: 8000
-        });
-      }
-      return this._client;
-    }
-    return null;
-  },
-
-  async request(method, endpoint, data = null, options = {}) {
-    const client = this.getClient();
-    const url = `${this.config.baseUrl}${endpoint}`;
-
-    if (client) {
-      try {
-        const response = await client({
-          method,
-          url: endpoint,
-          data,
-          ...options
-        });
-        return response.data;
-      } catch (error) {
-        const errorDetail = error.response?.data?.detail 
-          || error.response?.data?.message 
-          || error.message 
-          || 'Error de conexión con el backend';
-        console.warn(`[Axios API Error] ${method.toUpperCase()} ${endpoint}:`, errorDetail);
-        throw new Error(errorDetail);
-      }
-    }
-
-    try {
-      const fetchOptions = {
-        method: method.toUpperCase(),
-        headers: {
-          'Content-Type': 'application/json',
-          ...(options.headers || {})
-        }
-      };
-      if (data && ['POST', 'PUT', 'PATCH'].includes(fetchOptions.method)) {
-        fetchOptions.body = JSON.stringify(data);
-      }
-      const res = await fetch(url, fetchOptions);
-      if (!res.ok) {
-        let errBody = null;
-        try { errBody = await res.json(); } catch (_) { errBody = { detail: res.statusText }; }
-        throw new Error((errBody && (errBody.detail || errBody.message)) || `Error ${res.status}`);
-      }
-      if (res.status === 204) return null;
-      return await res.json();
-    } catch (err) {
-      console.warn(`[API Fallback Error] ${method.toUpperCase()} ${url}:`, err.message);
-      throw err;
-    }
-  },
+  client: apiClient,
 
   async getUser(userId = API_CONFIG.defaultUserId) {
-    return this.request('get', `/user/${userId}`);
+    const response = await apiClient.get(`/user/${userId}`);
+    return response.data;
   },
 
   async getAccounts() {
-    return this.request('get', '/accounts/');
+    const response = await apiClient.get('/accounts/');
+    return response.data;
   },
 
   async getAccount(accountId = API_CONFIG.defaultAccountId) {
-    return this.request('get', `/accounts/${accountId}`);
+    const response = await apiClient.get(`/accounts/${accountId}`);
+    return response.data;
   },
 
   async getTransferHistory() {
-    return this.request('get', '/transfers/history');
+    const response = await apiClient.get('/transfers/history');
+    return response.data;
   },
 
   async createTransfer(transferData) {
-    return this.request('post', '/transfers/', {
+    const response = await apiClient.post('/transfers/', {
       recipient_account_id: Number(transferData.recipient_account_id),
       amount: parseFloat(transferData.amount),
       concept: transferData.concept || 'Transferencia',
       timezone_id: Number(transferData.timezone_id || API_CONFIG.defaultTimezoneId)
     });
+    return response.data;
   }
 };
 
 window.ApiService = ApiService;
-
