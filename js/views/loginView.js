@@ -1,6 +1,7 @@
 // SECTION: Login View
 function renderLoginView(container) {
   container.innerHTML = `
+    <div class="aurora" aria-hidden="true"></div>
     <section class="login-view" aria-labelledby="login-heading">
       <header class="login-header">
         <div class="login-avatar-circle" role="img" aria-label="Logo Aura Neo-Banking">
@@ -44,8 +45,8 @@ function renderLoginView(container) {
                 id="email" 
                 name="email" 
                 class="field-input" 
-                value="admin@admin.com" 
-                placeholder="admin@admin.com"
+                value="" 
+                placeholder="tu@correo.com"
                 autocomplete="username"
                 autocapitalize="none"
                 autocorrect="off"
@@ -85,8 +86,8 @@ function renderLoginView(container) {
                 id="password" 
                 name="password" 
                 class="field-input" 
-                value="admin" 
-                placeholder="admin"
+                value="" 
+                placeholder="Tu contraseña"
                 autocomplete="current-password"
                 autocapitalize="none"
                 autocorrect="off"
@@ -137,11 +138,29 @@ function renderLoginView(container) {
   `;
 
   initLogin({
-    onSuccess: (data) => {
-      if (typeof AppState !== 'undefined') {
-        AppState.user = data.email;
-        AppState.isAuthenticated = true;
+    onSubmit: async (data) => {
+      try {
+        await ApiService.login(data.email, data.password);
+      } catch (err) {
+        if (err.message && err.message.toLowerCase().includes('incorrect')) {
+          throw new Error('Correo o contraseña incorrectos');
+        }
+        throw err;
       }
+
+      AppState.user = data.email;
+      AppState.isAuthenticated = true;
+      try {
+        sessionStorage.setItem('aura_user', data.email);
+        const user = await ApiService.getUser();
+        if (user && user.name) {
+          AppState.userName = user.name;
+          sessionStorage.setItem('aura_user_name', user.name);
+        }
+      } catch (_) {}
+
+      window.showToast('¡Inicio de sesión exitoso!', 'success');
+
       if (window.appRouter) {
         window.appRouter.navigate('/dashboard');
       } else {

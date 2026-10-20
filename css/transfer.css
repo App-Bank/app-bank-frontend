@@ -11,12 +11,12 @@
     --space-lg: 1.5rem;
 
     --glow-cobalt: 0 8px 24px -4px rgba(3, 120, 230, 0.25);
-
-    --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
-button { font: inherit; color: inherit; cursor: pointer; }
-svg { display: block; }
+.transfer-form button,
+.quick-adds button,
+.btn-confirm { font: inherit; color: inherit; cursor: pointer; }
+.app-main.transfer svg { display: block; }
 
 .source-balance, .amount-field, .total-row strong, .total-row output, #recipient-iban { font-feature-settings: 'tnum' 1, 'cv05' 1; font-variant-numeric: tabular-nums lining-nums; }
 
@@ -152,7 +152,7 @@ svg { display: block; }
     color: var(--on-surface);
     text-align: center;
     outline: none;
-    font-family: var(--font);
+    font-family: var(--font-family);
     font-size: 44px;
     font-weight: 700;
     letter-spacing: -0.03em;
@@ -238,7 +238,11 @@ svg { display: block; }
 .btn-confirm.is-done { background: rgba(52, 211, 153, 0.9); box-shadow: 0 8px 24px -4px rgba(52, 211, 153, 0.3); }
 
 @media (prefers-reduced-motion: reduce) {
-    * { animation: none !important; transition: none !important; }
+    .step-card,
+    .transfer .field-input,
+    .concepto,
+    .quick-adds button,
+    .btn-confirm { animation: none !important; transition: none !important; }
 }
 /* ==========================================================================
    SECTION: Confirmation Modal (Pestaña Emergente de Transferencia)

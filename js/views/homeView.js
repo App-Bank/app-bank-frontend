@@ -1,7 +1,8 @@
 // SECTION: Home View
 function renderHomeView(container) {
-  const userName = (typeof AppState !== 'undefined' && AppState.user) ? AppState.user.split('@')[0] : 'Mateo';
-  const displayName = userName.charAt(0).toUpperCase() + userName.slice(1);
+  const esc = window.escapeHtml || (s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])));
+
+  const displayName = AppState.userName || (AppState.user ? (AppState.user.split('@')[0].charAt(0).toUpperCase() + AppState.user.split('@')[0].slice(1)) : 'Usuario');
 
   const now = new Date();
   const rawDate = now.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -9,11 +10,17 @@ function renderHomeView(container) {
   const currentMonth = now.toLocaleDateString('es-ES', { month: 'long' });
   const formattedMonth = currentMonth.charAt(0).toUpperCase() + currentMonth.slice(1);
 
-  const fmt = (n) => window.formatCurrency(n, { noSymbol: true });
+  function formatBalance(amount) {
+    const formatted = (Number(amount) || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const parts = formatted.split(',');
+    return {
+      text: `${formatted} €`,
+      html: `${parts[0]}<span class="balance-decimals">,${parts[1]}</span>`
+    };
+  }
 
-  const currentBal = (typeof AppState !== 'undefined' && AppState.balance != null) ? Number(AppState.balance) : 0;
-  const initialBalFormatted = currentBal.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const initialBalParts = initialBalFormatted.split(',');
+  const currentBal = AppState.balance != null ? Number(AppState.balance) : 0;
+  const initialBal = formatBalance(currentBal);
 
   function getMovementIconInfo(item) {
     const text = `${item.category || ''} ${item.title || ''}`.toLowerCase();
@@ -25,6 +32,9 @@ function renderHomeView(container) {
     if (/transporte|gasolina/.test(text)) return { icon: '⛽', cls: 'icon-shopping' };
     return isIncome ? { icon: '💰', cls: 'icon-salary' } : { icon: '💳', cls: 'icon-shopping' };
   }
+
+  const eyeClosedIcon = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path><line x1="2" y1="2" x2="22" y2="22"></line></svg>`;
+  const eyeOpenIcon = `<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>`;
 
   container.innerHTML = `
     <div class="aurora" aria-hidden="true"></div>
@@ -38,7 +48,7 @@ function renderHomeView(container) {
           </button>
         </div>
         <div class="user-welcome">
-          <h1 id="home-welcome-title">Hola, <span id="home-welcome-name">${displayName}</span> <span class="hand-emoji">👋</span></h1>
+          <h1 id="home-welcome-title">Hola, <span id="home-welcome-name">${esc(displayName)}</span> <span class="hand-emoji">👋</span></h1>
           <time class="current-date" id="home-current-date" datetime="${now.toISOString().slice(0, 10)}">${formattedDate}</time>
         </div>
       </header>
@@ -47,17 +57,16 @@ function renderHomeView(container) {
         <section class="account-section">
           <h2 class="section-title">Mi Cuenta</h2>
           <div class="card position-card">
-            <div class="card-header">
-              <span class="position-label">POSICIÓN GLOBAL</span>
+            <div class="iban-center-wrapper">
               <div class="iban-container">
                 <span class="iban-label">IBAN</span>
-                <span class="iban-value" id="home-iban">ES91 •••• 1332</span>
+                <span class="iban-value" id="home-iban">Cargando...</span>
+                <button type="button" class="btn-icon" id="btn-toggle-home-iban" aria-label="Mostrar IBAN completo" title="Mostrar IBAN completo">${eyeClosedIcon}</button>
               </div>
-              <button type="button" class="btn-icon" id="btn-toggle-home-iban" aria-label="Mostrar IBAN completo" title="Mostrar IBAN completo">👁️</button>
             </div>
             
             <div class="balance-display">
-              <span class="balance-amount" id="home-balance-amount">${initialBalParts[0]}<span class="balance-decimals">,${initialBalParts[1]}</span></span>
+              <span class="balance-amount" id="home-balance-amount">${initialBal.html}</span>
               <span class="balance-currency">€</span>
             </div>
             <p class="balance-subtitle">Patrimonio total disponible</p>
@@ -77,6 +86,7 @@ function renderHomeView(container) {
           <div class="metrics-grid">
             <div class="metric-box box-income"><span class="box-label">↑ Ingresos</span><span class="box-value" id="home-metric-income">0,00 €</span></div>
             <div class="metric-box box-expense"><span class="box-label">↓ Gastos</span><span class="box-value" id="home-metric-expense">0,00 €</span></div>
+            <div class="metric-box box-position"><span class="box-label">Posición Global</span><span class="box-value" id="home-metric-position">${initialBal.text}</span></div>
           </div>
         </section>
 
@@ -100,31 +110,33 @@ function renderHomeView(container) {
   const ibanEl = container.querySelector('#home-iban');
 
   let isIbanHidden = true;
-  let currentRawIban = 'ES9121000418450200051332';
-
-  const formatFullIban = (iban) => (typeof window.formatIban === 'function') ? window.formatIban(iban) : iban;
+  let currentRawIban = '';
 
   function formatMaskedIban(iban) {
-    if (!iban) return 'ES-- •••• ----';
+    if (!iban) return 'No disponible';
     const clean = iban.replace(/\s+/g, '');
-    const prefix = clean.slice(0, 4) || 'ES91';
-    const suffix = clean.slice(-4) || '1332';
+    const prefix = clean.slice(0, 4) || 'ES--';
+    const suffix = clean.slice(-4) || '----';
     return `${prefix} •••• ${suffix}`;
   }
 
   function updateIbanDisplay() {
     if (!ibanEl) return;
+    if (!currentRawIban) {
+      ibanEl.textContent = 'No disponible';
+      return;
+    }
     if (isIbanHidden) {
       ibanEl.textContent = formatMaskedIban(currentRawIban);
       if (toggleIbanBtn) {
-        toggleIbanBtn.textContent = '👁️';
+        toggleIbanBtn.innerHTML = eyeClosedIcon;
         toggleIbanBtn.setAttribute('aria-label', 'Mostrar IBAN completo');
         toggleIbanBtn.setAttribute('title', 'Mostrar IBAN completo');
       }
     } else {
-      ibanEl.textContent = formatFullIban(currentRawIban);
+      ibanEl.textContent = window.formatIban(currentRawIban);
       if (toggleIbanBtn) {
-        toggleIbanBtn.textContent = '🔒';
+        toggleIbanBtn.innerHTML = eyeOpenIcon;
         toggleIbanBtn.setAttribute('aria-label', 'Ocultar IBAN');
         toggleIbanBtn.setAttribute('title', 'Ocultar IBAN');
       }
@@ -141,17 +153,23 @@ function renderHomeView(container) {
   const logoutBtn = container.querySelector('#btn-home-logout');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
-      if (typeof AppState !== 'undefined') {
-        AppState.user = null;
-        AppState.isAuthenticated = false;
-      }
-      if (typeof window.showToast === 'function') {
-        window.showToast('Sesión cerrada correctamente', 'info');
-      }
-      if (window.appRouter) {
-        window.appRouter.navigate('/login');
+      window.showToast('Sesión cerrada correctamente', 'info');
+      if (typeof ApiService !== 'undefined' && typeof ApiService.logout === 'function') {
+        ApiService.logout();
       } else {
-        window.location.hash = '#/login';
+        AppState.user = null;
+        AppState.userName = null;
+        AppState.isAuthenticated = false;
+        try {
+          sessionStorage.removeItem('aura_token');
+          sessionStorage.removeItem('aura_user');
+          sessionStorage.removeItem('aura_user_name');
+        } catch (_) {}
+        if (window.appRouter) {
+          window.appRouter.navigate('/login');
+        } else {
+          window.location.hash = '#/login';
+        }
       }
     });
   }
@@ -160,30 +178,31 @@ function renderHomeView(container) {
   async function syncHomeWithBackend() {
     if (typeof ApiService === 'undefined') return;
 
-    const [accountRes, userRes, txRes] = await Promise.allSettled([
-      ApiService.getAccount(1),
-      ApiService.getUser(1),
-      typeof TransactionService !== 'undefined' ? TransactionService.getTransactions() : Promise.resolve([])
+    const needUser = !AppState.userName;
+    const [accountRes, userRes] = await Promise.allSettled([
+      ApiService.getAccount(),
+      needUser ? ApiService.getUser() : Promise.resolve(null)
     ]);
 
     if (accountRes.status === 'fulfilled' && accountRes.value) {
       const account = accountRes.value;
       const balNum = Number(account.balance) || 0;
-      const balFormatted = balNum.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      const balParts = balFormatted.split(',');
-      if (balanceAmountEl) {
-        balanceAmountEl.innerHTML = `${balParts[0]}<span class="balance-decimals">,${balParts[1]}</span>`;
-      }
+      const bal = formatBalance(balNum);
+      if (balanceAmountEl) balanceAmountEl.innerHTML = bal.html;
+      const posEl = container.querySelector('#home-metric-position');
+      if (posEl) posEl.textContent = bal.text;
       if (account.iban) {
         currentRawIban = account.iban;
         updateIbanDisplay();
       }
-      if (typeof AppState !== 'undefined') AppState.balance = balNum;
+      AppState.balance = balNum;
     } else {
       console.warn('[HomeView] Could not fetch account from backend:', accountRes.reason);
       if (balanceAmountEl) {
         balanceAmountEl.innerHTML = '<span style="color: #f87171; font-weight: 700; font-size: 26px;">ERROR</span>';
       }
+      const posEl = container.querySelector('#home-metric-position');
+      if (posEl) posEl.textContent = 'ERROR';
       const pillBadge = container.querySelector('#home-pill-badge');
       if (pillBadge) {
         pillBadge.textContent = '⚠️ Sin conexión API';
@@ -195,31 +214,54 @@ function renderHomeView(container) {
     }
 
     if (userRes.status === 'fulfilled' && userRes.value && userRes.value.name) {
+      AppState.userName = userRes.value.name;
+      try { sessionStorage.setItem('aura_user_name', userRes.value.name); } catch (_) {}
       const nameEl = container.querySelector('#home-welcome-name');
       if (nameEl) nameEl.textContent = userRes.value.name;
+    }
+
+    let txRes = null;
+    try {
+      const groups = await TransactionService.getTransactions();
+      txRes = { status: 'fulfilled', value: groups };
+    } catch (err) {
+      txRes = { status: 'rejected', reason: err };
+    }
+
+    const movementsContainer = container.querySelector('#home-movements-list');
+
+    if (txRes.status === 'rejected') {
+      if (movementsContainer) {
+        movementsContainer.innerHTML = '<div style="text-align: center; padding: 24px 16px; color: #f87171; font-size: 13.5px;">No se pudieron cargar los movimientos</div>';
+      }
+      return;
     }
 
     if (txRes.status === 'fulfilled' && Array.isArray(txRes.value)) {
       const allItems = txRes.value.flatMap(g => g.items || []);
       if (allItems.length > 0) {
+        allItems.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
         const recent = allItems.slice(0, 3);
-        const movementsContainer = container.querySelector('#home-movements-list');
         if (movementsContainer) {
           movementsContainer.innerHTML = recent.map(item => {
             const num = Number(item.amount);
             const isPositive = num > 0;
-            const formattedAmt = `${isPositive ? '+' : '-'}${fmt(num)} €`;
+            const formattedAmt = window.formatCurrency(num, { includeSign: true });
             const iconInfo = getMovementIconInfo(item);
 
+            const safeTitle = esc(item.title);
+            const safeSubtitle = esc(item.subtitle || 'Operación bancaria');
+            const safeAmt = esc(formattedAmt);
+
             return `
-              <a href="#/history" class="movement-item" aria-label="${item.title}: ${formattedAmt}">
+              <a href="#/history" class="movement-item" aria-label="${safeTitle}: ${safeAmt}">
                 <div class="movement-icon ${iconInfo.cls}" aria-hidden="true">${iconInfo.icon}</div>
                 <div class="movement-details">
-                  <h3>${item.title}</h3>
-                  <p>${item.subtitle || 'Operación bancaria'}</p>
+                  <h3>${safeTitle}</h3>
+                  <p>${safeSubtitle}</p>
                 </div>
                 <div class="movement-amount ${isPositive ? 'positive' : 'negative'}">
-                  <span>${formattedAmt}</span>
+                  <span>${safeAmt}</span>
                   <span class="status">Completado</span>
                 </div>
               </a>
@@ -227,19 +269,28 @@ function renderHomeView(container) {
           }).join('');
         }
 
-        const inc = allItems.filter(r => Number(r.amount) > 0).reduce((acc, r) => acc + Number(r.amount), 0);
-        const exp = allItems.filter(r => Number(r.amount) < 0).reduce((acc, r) => acc + Math.abs(Number(r.amount)), 0);
+        const nowD = new Date();
+        const curM = nowD.getMonth();
+        const curY = nowD.getFullYear();
+        let inc = 0;
+        let exp = 0;
+        for (const r of allItems) {
+          const d = r.timestamp ? new Date(r.timestamp) : null;
+          if (d && d.getMonth() === curM && d.getFullYear() === curY) {
+            const val = Number(r.amount) || 0;
+            if (val > 0) inc += val;
+            else if (val < 0) exp += Math.abs(val);
+          }
+        }
         const incEl = container.querySelector('#home-metric-income');
         const expEl = container.querySelector('#home-metric-expense');
-        if (incEl) incEl.textContent = `${fmt(inc)} €`;
-        if (expEl) expEl.textContent = `${fmt(exp)} €`;
+        if (incEl) incEl.textContent = window.formatCurrency(inc);
+        if (expEl) expEl.textContent = window.formatCurrency(exp);
       }
     }
   }
 
   syncHomeWithBackend();
 
-  if (typeof BottomNavComponent !== 'undefined') {
-    BottomNavComponent.render('#bottom-nav-container', 'dashboard');
-  }
+  BottomNavComponent.render(container.querySelector('#bottom-nav-container'), 'dashboard');
 }

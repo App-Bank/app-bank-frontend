@@ -1,0 +1,96 @@
+/* SECTION: Desktop Container Adaptation */
+@media (min-width: 768px) {
+  .mobile-app-container.is-login-view,
+  .mobile-app-container:has(.login-view) {
+    max-width: 100%;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 24px;
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 25%, rgba(3, 120, 230, 0.12), transparent 70%),
+      var(--bg-color);
+  }
+}
+
+/* SECTION: Desktop Responsive Adaptation */
+@media (min-width: 768px) {
+  .login-view {
+    max-width: 440px;
+    min-height: auto;
+    flex: initial;
+    margin: auto;
+    padding: 44px 38px 40px;
+    border-radius: 24px;
+    background: linear-gradient(180deg, rgba(23, 29, 39, 0.85), rgba(13, 17, 24, 0.92));
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: 
+      0 24px 60px -15px rgba(0, 0, 0, 0.75),
+      0 0 0 1px rgba(255, 255, 255, 0.04);
+  }
+
+  .login-header {
+    margin-bottom: 26px;
+    padding-bottom: 0;
+  }
+
+  .login-avatar-circle {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 18px;
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .login-title {
+    font-size: 28px;
+    letter-spacing: -0.4px;
+  }
+
+  .login-subtitle {
+    font-size: 14px;
+  }
+
+  .login-form {
+    margin-top: 0;
+    gap: 20px;
+  }
+
+  .login-fieldset {
+    gap: 18px;
+  }
+
+  .field-input-box {
+    height: 52px;
+  }
+
+  .field-input-box:hover:not(:focus-within) {
+    border-color: rgba(255, 255, 255, 0.14);
+    background-color: var(--bg-input-focus);
+  }
+
+  .btn-login {
+    height: 52px;
+    font-size: 15.5px;
+    margin-top: 6px;
+  }
+
+  .btn-login:hover {
+    box-shadow: 0 6px 22px var(--primary-blue-shadow);
+    transform: translateY(-1px);
+  }
+
+  .btn-login:active {
+    transform: translateY(0) scale(0.99);
+  }
+}
+
+/* SECTION: Motion Preferences */
+@media (prefers-reduced-motion: reduce) {
+  .btn-login,
+  .btn-arrow-icon,
+  .field-input-box {
+    transition: none !important;
+  }
+}

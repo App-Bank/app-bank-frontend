@@ -1,8 +1,6 @@
 function renderTransferView(container) {
-  const currentBal = (typeof AppState !== 'undefined' && AppState.balance != null) ? Number(AppState.balance) : 0;
-  const initialBalText = (typeof window.formatCurrency === 'function')
-    ? window.formatCurrency(currentBal)
-    : `${currentBal.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`;
+  const currentBal = AppState.balance != null ? Number(AppState.balance) : 0;
+  const initialBalText = window.formatCurrency(currentBal);
 
   container.innerHTML = `
     <div class="aurora" aria-hidden="true"></div>
@@ -50,7 +48,7 @@ function renderTransferView(container) {
 
           <section class="card step-card">
             <div class="step-head"><span class="step-num" aria-hidden="true">3</span><h2>Concepto</h2></div>
-            <input class="concepto" id="concepto" type="text" maxlength="60" placeholder="Añade un motivo" value="Transferencia habitual" aria-label="Concepto de la transferencia">
+            <input class="concepto" id="concepto" type="text" maxlength="60" placeholder="Añade un motivo" aria-label="Concepto de la transferencia">
           </section>
 
           <section class="card step-card">
@@ -76,9 +74,7 @@ function renderTransferView(container) {
 
   initTransferLogic(container);
 
-  if (typeof BottomNavComponent !== 'undefined') {
-    BottomNavComponent.render('#bottom-nav-container', 'transfer');
-  }
+  BottomNavComponent.render(container.querySelector('#bottom-nav-container'), 'transfer');
 }
 
 function initTransferLogic(ctx) {
@@ -96,23 +92,21 @@ function initTransferLogic(ctx) {
 
   const fmt = (n) => window.formatCurrency(n, { noSymbol: true });
 
-  if (typeof ApiService !== 'undefined' && typeof ApiService.getAccount === 'function') {
-    ApiService.getAccount(1).then(account => {
-      if (account && account.balance != null) {
-        const balNum = Number(account.balance);
-        if (sourceBalanceEl) {
-          sourceBalanceEl.textContent = (typeof window.formatCurrency === 'function') ? window.formatCurrency(balNum) : `${fmt(balNum)} €`;
-        }
-        if (typeof AppState !== 'undefined') AppState.balance = balNum;
-      }
-    }).catch(err => {
-      console.warn('[TransferView] Failed to fetch source balance from backend:', err);
+  ApiService.getAccount().then(account => {
+    if (account && account.balance != null) {
+      const balNum = Number(account.balance);
       if (sourceBalanceEl) {
-        sourceBalanceEl.textContent = 'ERROR';
-        sourceBalanceEl.style.color = '#f87171';
+        sourceBalanceEl.textContent = window.formatCurrency(balNum);
       }
-    });
-  }
+      AppState.balance = balNum;
+    }
+  }).catch(err => {
+    console.warn('[TransferView] Failed to fetch source balance from backend:', err);
+    if (sourceBalanceEl) {
+      sourceBalanceEl.textContent = 'ERROR';
+      sourceBalanceEl.style.color = '#f87171';
+    }
+  });
 
 
 
@@ -146,7 +140,7 @@ function initTransferLogic(ctx) {
   };
 
   const syncTotal = () => {
-    if (totalEl && field) totalEl.textContent = fmt(parseAmount(field.value)) + ' €';
+    if (totalEl && field) totalEl.textContent = window.formatCurrency(parseAmount(field.value));
   };
 
   if (field) {
@@ -173,35 +167,22 @@ function initTransferLogic(ctx) {
     const conceptVal = conceptoEl ? conceptoEl.value.trim() : 'Transferencia';
 
     if (amountVal <= 0) {
-      if (typeof window.showToast === 'function') window.showToast('Introduce un importe válido', 'error');
+      window.showToast('Introduce un importe válido', 'error');
       return;
     }
 
     if (confirmBtn) confirmBtn.disabled = true;
     const rawIban = (ibanEl ? ibanEl.value : '').replace(/\s+/g, '').toUpperCase();
 
-    if (!/^[A-Z]{2}\d{22}$/.test(rawIban)) {
-     if (confirmBtn) confirmBtn.disabled = false;
-     renderConfirmView(ctx, {
-      name: nameEl ? nameEl.value : '',
-      amount: amountVal,
-      concept: conceptVal,
-      error: true,
-      message: 'El IBAN introducido está incompleto'
-     });
-     return;
-    }
-
-    let recipientAccountId = null;
-    if (typeof ApiService !== 'undefined' && typeof ApiService.getAccount === 'function') {
-      try {
-        const acc = await ApiService.getAccount(2);
-        if (acc && typeof acc.iban === 'string' && acc.iban.replace(/\s+/g, '').toUpperCase() === rawIban) {
-          recipientAccountId = acc.id;
-        }
-      } catch (e) {
-        console.warn('[TransferView] Account lookup failed:', e);
+    let recipientAccountId = 2;
+    try {
+      const accounts = await ApiService.getAccounts();
+      if (Array.isArray(accounts)) {
+        const matched = accounts.find(a => a.iban.replace(/\s+/g, '').toUpperCase() === rawIban);
+        if (matched) recipientAccountId = matched.id;
       }
+    } catch (e) {
+      console.warn('[TransferView] Accounts lookup fallback:', e);
     }
 
     if (!recipientAccountId) {
@@ -230,30 +211,25 @@ function initTransferLogic(ctx) {
     }
 
     try {
-      if (typeof ApiService !== 'undefined' && typeof ApiService.createTransfer === 'function') {
-        await ApiService.createTransfer({
-          recipient_account_id: recipientAccountId,
-          amount: amountVal,
-          concept: conceptVal || 'Transferencia',
-          timezone_id: 1
-        });
-      }
+      await ApiService.createTransfer({
+        recipient_account_id: recipientAccountId,
+        amount: amountVal,
+        concept: conceptVal || 'Transferencia',
+        timezone_id: 1
+      });
 
+      const formattedSentAmount = window.formatCurrency(amountVal);
       if (confirmBtn) {
         confirmBtn.classList.add('is-done');
-        confirmBtn.textContent = `Transferencia enviada · ${fmt(amountVal)} €`;
+        confirmBtn.textContent = `Transferencia enviada · ${formattedSentAmount}`;
       }
 
-      if (typeof window.showToast === 'function') {
-        window.showToast(`Transferencia de ${fmt(amountVal)} € enviada con éxito`, 'success');
-      }
+      window.showToast(`Transferencia de ${formattedSentAmount} enviada con éxito`, 'success');
 
-      if (typeof AppState !== 'undefined' && AppState.balance != null) {
+      if (AppState.balance != null) {
         AppState.balance = Math.max(0, AppState.balance - amountVal);
         if (sourceBalanceEl) {
-          sourceBalanceEl.textContent = (typeof window.formatCurrency === 'function')
-            ? window.formatCurrency(AppState.balance)
-            : `${fmt(AppState.balance)} €`;
+          sourceBalanceEl.textContent = window.formatCurrency(AppState.balance);
         }
       }
 
@@ -265,14 +241,7 @@ function initTransferLogic(ctx) {
 
     } catch (err) {
       console.error('[TransferView] Transfer failed:', err);
-      if (typeof window.showToast === 'function') window.showToast(`Error: ${err.message}`, 'error');
-       renderConfirmView(ctx, {                                    
-        name: nameEl ? nameEl.value : '',
-        amount: amountVal,
-        concept: conceptVal,
-        error: true,
-        message: err.message
-      });
+      window.showToast(`Error: ${err.message}`, 'error');
     } finally {
       setTimeout(() => {
         if (confirmBtn) {
