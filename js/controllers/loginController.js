@@ -86,11 +86,11 @@ function initLogin(options = {}) {
         if (emailInput) emailInput.setAttribute('aria-invalid', 'false');
       }
 
-      if (!password || password.length < 3) {
+      if (!password || !password.trim()) {
         if (passwordBox) passwordBox.classList.add('has-error');
         if (passwordInput) passwordInput.setAttribute('aria-invalid', 'true');
         if (passwordError) {
-          passwordError.textContent = !password ? 'Por favor, ingresa tu contraseña.' : 'Mínimo 3 caracteres.';
+          passwordError.textContent = 'Por favor, ingresa tu contraseña.';
           passwordError.classList.add('is-visible');
         }
         hasErrors = true;
@@ -109,17 +109,24 @@ function initLogin(options = {}) {
 
       window.showToast('Accediendo a la cuenta...', 'info');
 
-      setTimeout(() => {
-        btnSubmit.classList.remove('is-loading');
-        if (emailInput) emailInput.disabled = false;
-        if (passwordInput) passwordInput.disabled = false;
-
-        window.showToast('¡Inicio de sesión exitoso!', 'success');
-
-        if (typeof options.onSuccess === 'function') {
-          options.onSuccess({ email });
+      const executeLogin = async () => {
+        try {
+          if (typeof options.onSubmit === 'function') {
+            await options.onSubmit({ email, password });
+          } else if (typeof options.onSuccess === 'function') {
+            await options.onSuccess({ email, password });
+          }
+        } catch (err) {
+          console.error('[LoginController] Authentication error:', err);
+          window.showToast(err.message || 'Error de autenticación', 'error');
+        } finally {
+          btnSubmit.classList.remove('is-loading');
+          if (emailInput) emailInput.disabled = false;
+          if (passwordInput) passwordInput.disabled = false;
         }
-      }, 1200);
+      };
+
+      executeLogin();
     });
   }
 }

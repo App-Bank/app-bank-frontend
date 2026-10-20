@@ -3,6 +3,8 @@ function renderHistoryView(container) {
   let currentSearch = '';
   let currentFilter = 'all';
   let currentPeriod = 'all';
+  let currentSearchRequestId = 0;
+  let searchDebounceTimer = null;
 
   const formatAmount = (amount) => window.formatCurrency(amount, { includeSign: true });
 
@@ -91,53 +93,71 @@ function renderHistoryView(container) {
 
   // SECTION: Transaction Timeline Rendering
   async function loadTransactions() {
-    timelineContainer.innerHTML = '<div class="history-empty-state"><span>Cargando movimientos de la base de datos...</span></div>';
+    const requestId = ++currentSearchRequestId;
+    timelineContainer.innerHTML = '<div class="history-empty-state"><span>Cargando movimientos...</span></div>';
 
-    const groups = await TransactionService.getTransactions({
-      search: currentSearch,
-      filter: currentFilter,
-      period: currentPeriod
-    });
+    try {
+      const groups = await TransactionService.getTransactions({
+        search: currentSearch,
+        filter: currentFilter,
+        period: currentPeriod
+      });
 
-    if (!groups || groups.length === 0) {
-      timelineContainer.innerHTML = `
-        <div class="history-empty-state">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <div class="history-empty-title">Sin movimientos en la base de datos</div>
-          <p class="history-empty-desc">No hay operaciones que coincidan con la búsqueda o la base de datos está vacía.</p>
-        </div>
-      `;
-      return;
-    }
+      if (requestId !== currentSearchRequestId) return;
 
-    timelineContainer.innerHTML = groups.map(group => {
-      const totalClass = group.total < 0 ? 'negative' : 'positive';
-      const itemsHtml = group.items.map(item => {
-        const formattedAmt = formatAmount(item.amount);
-        return `
-          <button type="button" class="history-item ${item.type}" data-id="${item.id}" aria-label="${item.title}: ${formattedAmt}">
-            <div class="history-item-left">
-              <div class="history-item-icon" aria-hidden="true">${item.type === 'expense' ? expIcon : incIcon}</div>
-              <div class="history-item-details">
-                <span class="history-item-title">${item.title}</span>
-                <span class="history-item-subtitle">${item.subtitle}</span>
+      if (!groups || groups.length === 0) {
+        timelineContainer.innerHTML = `
+          <div class="history-empty-state">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <div class="history-empty-title">Sin movimientos</div>
+            <p class="history-empty-desc">No hay operaciones que coincidan con la búsqueda.</p>
+          </div>
+        `;
+        return;
+      }
+
+      timelineContainer.innerHTML = groups.map(group => {
+        const totalClass = group.total < 0 ? 'negative' : 'positive';
+        const itemsHtml = group.items.map(item => {
+          const formattedAmt = formatAmount(item.amount);
+          const safeTitle = window.escapeHtml(item.title);
+          const safeSubtitle = window.escapeHtml(item.subtitle);
+          const safeAmt = window.escapeHtml(formattedAmt);
+
+          return `
+            <button type="button" class="history-item ${item.type}" data-id="${window.escapeHtml(item.id)}" aria-label="${safeTitle}: ${safeAmt}">
+              <div class="history-item-left">
+                <div class="history-item-icon" aria-hidden="true">${item.type === 'expense' ? expIcon : incIcon}</div>
+                <div class="history-item-details">
+                  <span class="history-item-title">${safeTitle}</span>
+                  <span class="history-item-subtitle">${safeSubtitle}</span>
+                </div>
               </div>
-            </div>
-            <div class="history-item-amount">${formattedAmt}</div>
-          </button>
+              <div class="history-item-amount">${safeAmt}</div>
+            </button>
+          `;
+        }).join('');
+
+        return `
+          <article class="history-group">
+            <header class="history-group-header">
+              <h2 class="history-group-title">${window.escapeHtml(group.groupLabel)}</h2>
+              <span class="history-group-total ${totalClass}">${formatAmount(group.total)}</span>
+            </header>
+            <div class="history-items-list">${itemsHtml}</div>
+          </article>
         `;
       }).join('');
-
-      return `
-        <article class="history-group">
-          <header class="history-group-header">
-            <h2 class="history-group-title">${group.groupLabel}</h2>
-            <span class="history-group-total ${totalClass}">${formatAmount(group.total)}</span>
-          </header>
-          <div class="history-items-list">${itemsHtml}</div>
-        </article>
+    } catch (err) {
+      if (requestId !== currentSearchRequestId) return;
+      timelineContainer.innerHTML = `
+        <div class="history-empty-state error">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <div class="history-empty-title" style="color: #f87171;">Error al cargar movimientos</div>
+          <p class="history-empty-desc">${window.escapeHtml(err.message || 'Error de conexión con el backend.')}</p>
+        </div>
       `;
-    }).join('');
+    }
   }
 
   timelineContainer.addEventListener('click', (e) => {
@@ -146,6 +166,12 @@ function renderHistoryView(container) {
   });
 
   // SECTION: Transaction Details Modal Logic
+  const handleModalKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      closeTransactionModal();
+    }
+  };
+
   function openTransactionModal(txId) {
     const item = TransactionService.getById(txId);
     if (!item) return;
@@ -155,24 +181,28 @@ function renderHistoryView(container) {
     amountElem.textContent = formatAmount(item.amount);
     amountElem.style.color = item.type === 'expense' ? '#f87171' : '#34d399';
 
-    container.querySelector('#modal-tx-account').textContent = item.accountNumber || `ES91 2100 0418 4502 000${(item.id || '0000').slice(-4)}`;
+    container.querySelector('#modal-tx-account').textContent = item.accountNumber || 'No disponible';
     container.querySelector('#modal-tx-concept').textContent = item.concept || item.title || (item.category || '-');
-    const dateObj = new Date(item.date);
+    const dateObj = item.timestamp ? new Date(item.timestamp) : null;
     const dateElem = container.querySelector('#modal-tx-date');
     if (dateElem) {
-      dateElem.textContent = dateObj.toLocaleDateString('es-ES', {
-        day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
-      });
-      dateElem.setAttribute('datetime', !isNaN(dateObj.getTime()) ? dateObj.toISOString() : '');
+      dateElem.textContent = dateObj
+        ? dateObj.toLocaleString('es-ES', {
+            day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+          })
+        : 'Fecha no disponible';
+      dateElem.setAttribute('datetime', dateObj ? dateObj.toISOString() : '');
     }
 
     txModal.classList.add('show');
     txModal.setAttribute('aria-hidden', 'false');
+    window.addEventListener('keydown', handleModalKeyDown);
   }
 
   function closeTransactionModal() {
     txModal.classList.remove('show');
     txModal.setAttribute('aria-hidden', 'true');
+    window.removeEventListener('keydown', handleModalKeyDown);
   }
 
   if (btnCloseModal) btnCloseModal.addEventListener('click', closeTransactionModal);
@@ -181,12 +211,6 @@ function renderHistoryView(container) {
       if (e.target === txModal) closeTransactionModal();
     });
   }
-
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && txModal && txModal.classList.contains('show')) {
-      closeTransactionModal();
-    }
-  });
 
   // SECTION: Search and Filter Handlers
   if (btnToggleFilters && filterOptionsContainer) {
@@ -201,7 +225,10 @@ function renderHistoryView(container) {
     const handleSearch = () => {
       currentSearch = searchInput.value;
       if (btnClearSearch) btnClearSearch.classList.toggle('is-hidden', currentSearch.length === 0);
-      loadTransactions();
+      if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(() => {
+        loadTransactions();
+      }, 300);
     };
     searchInput.addEventListener('input', handleSearch);
     searchInput.addEventListener('search', handleSearch);
@@ -213,6 +240,7 @@ function renderHistoryView(container) {
       currentSearch = '';
       btnClearSearch.classList.add('is-hidden');
       if (searchInput) searchInput.focus();
+      if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
       loadTransactions();
     });
   }
@@ -240,4 +268,9 @@ function renderHistoryView(container) {
 
   // SECTION: Bottom Navigation Bar
   BottomNavComponent.render(container.querySelector('#bottom-nav-container'), 'history');
+
+  return () => {
+    window.removeEventListener('keydown', handleModalKeyDown);
+    if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+  };
 }

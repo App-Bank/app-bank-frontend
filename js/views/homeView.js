@@ -1,6 +1,8 @@
 // SECTION: Home View
 function renderHomeView(container) {
-  const displayName = AppState.userName || (AppState.user ? (AppState.user.split('@')[0].charAt(0).toUpperCase() + AppState.user.split('@')[0].slice(1)) : 'Mateo');
+  const esc = window.escapeHtml || (s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])));
+
+  const displayName = AppState.userName || (AppState.user ? (AppState.user.split('@')[0].charAt(0).toUpperCase() + AppState.user.split('@')[0].slice(1)) : 'Usuario');
 
   const now = new Date();
   const rawDate = now.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
@@ -46,7 +48,7 @@ function renderHomeView(container) {
           </button>
         </div>
         <div class="user-welcome">
-          <h1 id="home-welcome-title">Hola, <span id="home-welcome-name">${displayName}</span> <span class="hand-emoji">👋</span></h1>
+          <h1 id="home-welcome-title">Hola, <span id="home-welcome-name">${esc(displayName)}</span> <span class="hand-emoji">👋</span></h1>
           <time class="current-date" id="home-current-date" datetime="${now.toISOString().slice(0, 10)}">${formattedDate}</time>
         </div>
       </header>
@@ -58,7 +60,7 @@ function renderHomeView(container) {
             <div class="iban-center-wrapper">
               <div class="iban-container">
                 <span class="iban-label">IBAN</span>
-                <span class="iban-value" id="home-iban">ES91 •••• 1332</span>
+                <span class="iban-value" id="home-iban">Cargando...</span>
                 <button type="button" class="btn-icon" id="btn-toggle-home-iban" aria-label="Mostrar IBAN completo" title="Mostrar IBAN completo">${eyeClosedIcon}</button>
               </div>
             </div>
@@ -108,18 +110,22 @@ function renderHomeView(container) {
   const ibanEl = container.querySelector('#home-iban');
 
   let isIbanHidden = true;
-  let currentRawIban = 'ES9121000418450200051332';
+  let currentRawIban = '';
 
   function formatMaskedIban(iban) {
-    if (!iban) return 'ES-- •••• ----';
+    if (!iban) return 'No disponible';
     const clean = iban.replace(/\s+/g, '');
-    const prefix = clean.slice(0, 4) || 'ES91';
-    const suffix = clean.slice(-4) || '1332';
+    const prefix = clean.slice(0, 4) || 'ES--';
+    const suffix = clean.slice(-4) || '----';
     return `${prefix} •••• ${suffix}`;
   }
 
   function updateIbanDisplay() {
     if (!ibanEl) return;
+    if (!currentRawIban) {
+      ibanEl.textContent = 'No disponible';
+      return;
+    }
     if (isIbanHidden) {
       ibanEl.textContent = formatMaskedIban(currentRawIban);
       if (toggleIbanBtn) {
@@ -147,18 +153,23 @@ function renderHomeView(container) {
   const logoutBtn = container.querySelector('#btn-home-logout');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
-      AppState.user = null;
-      AppState.userName = null;
-      AppState.isAuthenticated = false;
-      try {
-        sessionStorage.removeItem('aura_user');
-        sessionStorage.removeItem('aura_user_name');
-      } catch (_) {}
       window.showToast('Sesión cerrada correctamente', 'info');
-      if (window.appRouter) {
-        window.appRouter.navigate('/login');
+      if (typeof ApiService !== 'undefined' && typeof ApiService.logout === 'function') {
+        ApiService.logout();
       } else {
-        window.location.hash = '#/login';
+        AppState.user = null;
+        AppState.userName = null;
+        AppState.isAuthenticated = false;
+        try {
+          sessionStorage.removeItem('aura_token');
+          sessionStorage.removeItem('aura_user');
+          sessionStorage.removeItem('aura_user_name');
+        } catch (_) {}
+        if (window.appRouter) {
+          window.appRouter.navigate('/login');
+        } else {
+          window.location.hash = '#/login';
+        }
       }
     });
   }
@@ -168,10 +179,9 @@ function renderHomeView(container) {
     if (typeof ApiService === 'undefined') return;
 
     const needUser = !AppState.userName;
-    const [accountRes, userRes, txRes] = await Promise.allSettled([
-      ApiService.getAccount(1),
-      needUser ? ApiService.getUser(1) : Promise.resolve(null),
-      TransactionService.getTransactions()
+    const [accountRes, userRes] = await Promise.allSettled([
+      ApiService.getAccount(),
+      needUser ? ApiService.getUser() : Promise.resolve(null)
     ]);
 
     if (accountRes.status === 'fulfilled' && accountRes.value) {
@@ -210,11 +220,28 @@ function renderHomeView(container) {
       if (nameEl) nameEl.textContent = userRes.value.name;
     }
 
+    let txRes = null;
+    try {
+      const groups = await TransactionService.getTransactions();
+      txRes = { status: 'fulfilled', value: groups };
+    } catch (err) {
+      txRes = { status: 'rejected', reason: err };
+    }
+
+    const movementsContainer = container.querySelector('#home-movements-list');
+
+    if (txRes.status === 'rejected') {
+      if (movementsContainer) {
+        movementsContainer.innerHTML = '<div style="text-align: center; padding: 24px 16px; color: #f87171; font-size: 13.5px;">No se pudieron cargar los movimientos</div>';
+      }
+      return;
+    }
+
     if (txRes.status === 'fulfilled' && Array.isArray(txRes.value)) {
       const allItems = txRes.value.flatMap(g => g.items || []);
       if (allItems.length > 0) {
+        allItems.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
         const recent = allItems.slice(0, 3);
-        const movementsContainer = container.querySelector('#home-movements-list');
         if (movementsContainer) {
           movementsContainer.innerHTML = recent.map(item => {
             const num = Number(item.amount);
@@ -222,15 +249,19 @@ function renderHomeView(container) {
             const formattedAmt = window.formatCurrency(num, { includeSign: true });
             const iconInfo = getMovementIconInfo(item);
 
+            const safeTitle = esc(item.title);
+            const safeSubtitle = esc(item.subtitle || 'Operación bancaria');
+            const safeAmt = esc(formattedAmt);
+
             return `
-              <a href="#/history" class="movement-item" aria-label="${item.title}: ${formattedAmt}">
+              <a href="#/history" class="movement-item" aria-label="${safeTitle}: ${safeAmt}">
                 <div class="movement-icon ${iconInfo.cls}" aria-hidden="true">${iconInfo.icon}</div>
                 <div class="movement-details">
-                  <h3>${item.title}</h3>
-                  <p>${item.subtitle || 'Operación bancaria'}</p>
+                  <h3>${safeTitle}</h3>
+                  <p>${safeSubtitle}</p>
                 </div>
                 <div class="movement-amount ${isPositive ? 'positive' : 'negative'}">
-                  <span>${formattedAmt}</span>
+                  <span>${safeAmt}</span>
                   <span class="status">Completado</span>
                 </div>
               </a>
@@ -238,12 +269,18 @@ function renderHomeView(container) {
           }).join('');
         }
 
+        const nowD = new Date();
+        const curM = nowD.getMonth();
+        const curY = nowD.getFullYear();
         let inc = 0;
         let exp = 0;
         for (const r of allItems) {
-          const val = Number(r.amount) || 0;
-          if (val > 0) inc += val;
-          else if (val < 0) exp += Math.abs(val);
+          const d = r.timestamp ? new Date(r.timestamp) : null;
+          if (d && d.getMonth() === curM && d.getFullYear() === curY) {
+            const val = Number(r.amount) || 0;
+            if (val > 0) inc += val;
+            else if (val < 0) exp += Math.abs(val);
+          }
         }
         const incEl = container.querySelector('#home-metric-income');
         const expEl = container.querySelector('#home-metric-expense');
