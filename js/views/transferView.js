@@ -122,7 +122,7 @@ function initTransferLogic(ctx) {
   if (ibanEl && badge) {
     const validarIban = () => {
       const v = ibanEl.value.replace(/\s+/g, '').toUpperCase();
-      const ok = /^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/.test(v);
+      const ok = /^[A-Z]{2}\d{22}$/.test(v);
       badge.hidden = !ok;
       ibanEl.classList.toggle('is-valid', ok);
     };
@@ -183,6 +183,31 @@ function initTransferLogic(ctx) {
       }
     } catch (e) {
       console.warn('[TransferView] Accounts lookup fallback:', e);
+    }
+
+    if (!recipientAccountId) {
+      if (confirmBtn) confirmBtn.disabled = false;
+      renderConfirmView(ctx, {
+        name: nameEl ? nameEl.value : '',
+        amount: amountVal,
+        concept: conceptVal,
+        error: true,
+        message: 'No existe ninguna cuenta con ese IBAN'
+      });
+      return;
+    }
+
+    const maxBal = (typeof AppState !== 'undefined' && AppState.balance != null) ? Number(AppState.balance) : null;
+    if (maxBal != null && amountVal > maxBal) {
+      if (confirmBtn) confirmBtn.disabled = false;
+      renderConfirmView(ctx, {
+        name: nameEl ? nameEl.value : '',
+        amount: amountVal,
+        concept: conceptVal,
+        error: true,
+        message: `Saldo insuficiente: dispones de ${maxBal.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`
+      });
+      return;
     }
 
     try {

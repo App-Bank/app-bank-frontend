@@ -1,10 +1,13 @@
 // SECTION: Confirm View
 function renderConfirmView(container, data = {}) {
+  const isError = !!data.error;
   const name = data.name || '—';
   const amountText = (typeof window.formatCurrency === 'function')
     ? window.formatCurrency(Number(data.amount) || 0)
     : `${Number(data.amount) || 0} €`;
   const concept = data.concept || 'Transferencia';
+  const errorMsg = data.message || 'No se pudo completar la operación';
+  
   
   container.innerHTML = `
     <div class="aurora" aria-hidden="true"></div>
@@ -13,13 +16,13 @@ function renderConfirmView(container, data = {}) {
         <div class="app-top">
           <a href="#/dashboard" class="app-brand"><span class="logo-mark" aria-hidden="true"></span><span>AURA NEO-BANKING</span></a>
         </div>
-        <h1 class="screen-title">Transferencia enviada</h1>
+        <h1 class="screen-title">${isError ? 'Transferencia fallida' : 'Transferencia enviada'}</h1>
       </header>
 
       <main class="app-main transfer">
-        <section class="card step-card">
-          <div class="step-head"><span class="step-num">1</span><h2>Destinatario</h2></div>
-          <p class="source-balance">${name}</p>
+        <section class="card step-card ${isError ? 'error-card' : ''}">
+          <div class="step-head"><span class="step-num">1</span><h2>${isError ? 'Error' : 'Destinatario'}</h2></div>
+          <p class="source-balance">${isError ? errorMsg : name}</p>
         </section>
 
         <section class="card step-card">
@@ -32,7 +35,7 @@ function renderConfirmView(container, data = {}) {
           <p class="source-balance">${concept}</p>
         </section>
 
-        <a href="#/transfer" class="btn-confirm">Nueva transferencia</a>
+        <a href="#/transfer" id="btn-retry" class="btn-confirm">${isError ? 'Reintentar' : 'Nueva transferencia'}</a>
       </main>
 
       <div id="bottom-nav-container"></div>
@@ -42,6 +45,19 @@ function renderConfirmView(container, data = {}) {
    if (typeof BottomNavComponent !== 'undefined') {
     BottomNavComponent.render('#bottom-nav-container', 'transfer');
   }
+
+  const retryBtn = container.querySelector('#btn-retry');
+  if (retryBtn) {
+    retryBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (typeof renderTransferView === 'function') {
+        renderTransferView(container);
+      } else if (window.appRouter) {
+        window.appRouter.navigate('/transfer');
+        window.appRouter.handleRouting();
+      }
+    });
+  }
 }
 
-  
+
