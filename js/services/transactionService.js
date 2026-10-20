@@ -32,74 +32,77 @@ const TransactionService = {
 
   // SECTION: Query Transactions
   async getTransactions(params = {}) {
-    let rawTransfers = [];
     const needAccounts = this._accountsMap.size === 0;
-
     let currentAccountId = (typeof AppState !== 'undefined' && AppState.accountId != null) ? AppState.accountId : null;
-    const tasks = [
-      ApiService.getTransferHistory()
-    ];
 
-    if (currentAccountId == null) {
-      tasks.push(ApiService.getAccount());
+    const [rawActivities = [], rawTransfers = [], myAcc, accountsRes] = await Promise.all([
+      ApiService.getActivityHistory(),
+      ApiService.getTransferHistory().catch(() => []),
+      currentAccountId == null ? ApiService.getAccount().catch(() => null) : null,
+      needAccounts ? ApiService.getAccounts().catch(() => []) : null
+    ]);
+
+    const transfersMap = new Map();
+    if (Array.isArray(rawTransfers)) {
+      rawTransfers.forEach(tx => {
+        if (tx && tx.id != null) transfersMap.set(Number(tx.id), tx);
+      });
     }
 
-    if (needAccounts) {
-      tasks.push(ApiService.getAccounts().catch(e => {
-        console.warn('[TransactionService] Failed to fetch accounts:', e);
-        return [];
-      }));
-    }
-
-    const results = await Promise.all(tasks);
-    rawTransfers = results[0] || [];
-
-    let resultIndex = 1;
     if (currentAccountId == null) {
-      const myAcc = results[resultIndex++];
       if (myAcc && myAcc.id != null) {
         currentAccountId = Number(myAcc.id);
-        if (typeof AppState !== 'undefined') AppState.accountId = currentAccountId;
+      } else if (Array.isArray(rawActivities)) {
+        const actWithAcc = rawActivities.find(a => a && a.account_id != null);
+        if (actWithAcc) currentAccountId = Number(actWithAcc.account_id);
+      }
+      if (currentAccountId != null && typeof AppState !== 'undefined') {
+        AppState.accountId = currentAccountId;
       }
     }
 
-    if (currentAccountId == null) {
-      throw new Error('No se pudo identificar tu cuenta (falta "id" en /accounts/me)');
-    }
-
-    if (needAccounts) {
-      const accountsRes = results[resultIndex];
-      if (Array.isArray(accountsRes)) {
-        accountsRes.forEach(acc => {
-          if (acc && acc.id != null) this._accountsMap.set(Number(acc.id), acc.iban);
-        });
-      }
+    if (Array.isArray(accountsRes)) {
+      accountsRes.forEach(acc => {
+        if (acc && acc.id != null) this._accountsMap.set(Number(acc.id), acc.iban);
+      });
     }
 
     const now = new Date();
     const todayKeyStr = dayKey(now);
 
-    const allRecords = (rawTransfers || []).map(tx => {
-      const isSender = Number(tx.sender_account_id) === currentAccountId;
-      const amountNum = Math.abs(Number(tx.amount) || 0);
+    const hasActivities = Array.isArray(rawActivities) && rawActivities.length > 0;
+    const sourceList = hasActivities ? rawActivities : (Array.isArray(rawTransfers) ? rawTransfers : []);
 
-      const d = parseApiDate(tx.created_at);
+    const allRecords = sourceList.map(item => {
+      const isSender = hasActivities
+        ? (Number(item.activity_type_id) === 1 || item.activity_type === 'debit')
+        : (currentAccountId != null && Number(item.sender_account_id) === currentAccountId);
+
+      const tx = hasActivities ? transfersMap.get(Number(item.transfer_id)) : item;
+      const conceptValue = (tx?.concept && tx.concept.trim()) || '';
+
+      let displayIban = 'No disponible';
+      if (tx) {
+        const counterpartyId = isSender ? Number(tx.recipient_account_id) : Number(tx.sender_account_id);
+        const rawIban = this._accountsMap.get(counterpartyId);
+        if (rawIban) displayIban = window.formatIban(rawIban);
+      }
+
+      const amountNum = Math.abs(Number(item.amount) || 0);
+      const dateRaw = item.succeeded_in || item.created_at || null;
+      const d = parseApiDate(dateRaw);
       const isToday = d ? (dayKey(d) === todayKeyStr) : false;
       const dateSubtitle = isToday
         ? 'Hoy'
         : (d ? d.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' }) : 'Fecha no disponible');
 
-      const counterpartyId = isSender ? Number(tx.recipient_account_id) : Number(tx.sender_account_id);
-      const rawIban = this._accountsMap.get(counterpartyId);
-      const displayIban = rawIban ? window.formatIban(rawIban) : 'No disponible';
-
-      const conceptValue = (tx.concept && tx.concept.trim()) ? tx.concept.trim() : '';
       const displayTitle = conceptValue || (isSender ? 'Transferencia enviada' : 'Transferencia recibida');
       const displaySubtitle = `${isSender ? 'Transferencia emitida' : 'Transferencia recibida'} · ${dateSubtitle}`;
 
       return {
-        id: `tx-${tx.id}`,
-        backendId: tx.id,
+        id: `act-${item.id}`,
+        backendId: item.id,
+        transferId: item.transfer_id || item.id,
         concept: conceptValue || displayTitle,
         title: displayTitle,
         subtitle: displaySubtitle,
@@ -107,10 +110,10 @@ const TransactionService = {
         type: isSender ? 'expense' : 'income',
         category: 'Transferencia',
         accountNumber: displayIban,
-        date: tx.created_at || null,
+        date: dateRaw,
         timestamp: d ? d.getTime() : null,
         status: 'completed',
-        reference: `TX-${String(tx.id).padStart(6, '0')}`
+        reference: `ACT-${String(item.id).padStart(6, '0')}`
       };
     });
 
@@ -151,7 +154,15 @@ const TransactionService = {
 
   // SECTION: Query Single Item by ID
   getById(id) {
-    return this._cache.find(item => String(item.id) === String(id) || String(item.backendId) === String(id)) || null;
+    const sId = String(id);
+    return this._cache.find(item =>
+      String(item.id) === sId ||
+      String(item.backendId) === sId ||
+      (item.transferId != null && String(item.transferId) === sId) ||
+      `act-${item.backendId}` === sId ||
+      `tx-${item.backendId}` === sId ||
+      (item.transferId != null && `tx-${item.transferId}` === sId)
+    ) || null;
   },
 
   // SECTION: Dynamic Grouping & Computation

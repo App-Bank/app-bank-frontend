@@ -45,10 +45,7 @@ class Router {
 
       this.currentRoute = cleanPath;
       if (this.container) {
-        this.container.classList.toggle('is-login-view', cleanPath === '/login');
-        this.container.classList.toggle('is-dashboard-view', cleanPath === '/dashboard');
-        this.container.classList.toggle('is-history-view', cleanPath === '/history');
-        this.container.classList.toggle('is-transfer-view', cleanPath === '/transfer');
+        this.container.className = `mobile-app-container is-${cleanPath.slice(1)}-view`;
       }
       const cleanupHook = handler(this.container);
       if (typeof cleanupHook === 'function') {

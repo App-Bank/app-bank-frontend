@@ -1,14 +1,20 @@
 // SECTION: Confirm View
 function renderConfirmView(container, data = {}) {
-  const isError = !!data.error;
-  const name = data.name || '—';
-  const amountText = (typeof window.formatCurrency === 'function')
-    ? window.formatCurrency(Number(data.amount) || 0)
-    : `${Number(data.amount) || 0} €`;
-  const concept = data.concept || 'Transferencia';
-  const errorMsg = data.message || 'No se pudo completar la operación';
-  
-  
+  const transferData = (data && (data.amount != null || data.error)) ? data : AppState.lastTransfer;
+  if (!transferData) {
+    window.appRouter.navigate('/transfer');
+    return;
+  }
+
+  const isError = Boolean(transferData.error);
+  const esc = window.escapeHtml;
+  const iban = (transferData.recipientIban || transferData.iban || '').replace(/\s+/g, '');
+  const fullIban = window.formatIban(iban);
+  const recipient = transferData.recipientName || transferData.name || 'Destinatario';
+  const amountText = window.formatCurrency(transferData.amount);
+  const concept = transferData.concept || 'Transferencia';
+  const errorMsg = transferData.message || 'No se pudo completar la operación';
+
   container.innerHTML = `
     <div class="aurora" aria-hidden="true"></div>
     <div class="app">
@@ -20,44 +26,42 @@ function renderConfirmView(container, data = {}) {
       </header>
 
       <main class="app-main transfer">
-        <section class="card step-card ${isError ? 'error-card' : ''}">
-          <div class="step-head"><span class="step-num">1</span><h2>${isError ? 'Error' : 'Destinatario'}</h2></div>
-          <p class="source-balance">${isError ? errorMsg : name}</p>
-        </section>
+        <div class="transfer-form">
+          <section class="card step-card ${isError ? 'error-card' : ''}">
+            <div class="step-head"><span class="step-num" aria-hidden="true">1</span><h2>${isError ? 'Error' : 'Destinatario'}</h2></div>
+            <p class="source-balance">${esc(isError ? errorMsg : recipient)}</p>
+            ${(!isError && fullIban) ? `<p class="amount-note">${esc(fullIban)}</p>` : ''}
+          </section>
 
-        <section class="card step-card">
-          <div class="step-head"><span class="step-num">2</span><h2>Importe</h2></div>
-          <div class="total-row"><span>Total enviado</span><output>${amountText}</output></div>
-        </section>
+          <section class="card step-card">
+            <div class="step-head"><span class="step-num" aria-hidden="true">2</span><h2>Importe</h2></div>
+            <div class="total-row"><span>Total ${isError ? 'a enviar' : 'enviado'}</span><output>${esc(amountText)}</output></div>
+          </section>
 
-        <section class="card step-card">
-          <div class="step-head"><span class="step-num">3</span><h2>Concepto</h2></div>
-          <p class="source-balance">${concept}</p>
-        </section>
+          <section class="card step-card">
+            <div class="step-head"><span class="step-num" aria-hidden="true">3</span><h2>Concepto</h2></div>
+            <p class="source-balance">${esc(concept)}</p>
+          </section>
 
-        <a href="#/transfer" id="btn-retry" class="btn-confirm">${isError ? 'Reintentar' : 'Nueva transferencia'}</a>
+          <a href="#/transfer" id="btn-retry" class="btn-confirm">${isError ? 'Reintentar' : 'Nueva transferencia'}</a>
+        </div>
       </main>
 
       <div id="bottom-nav-container"></div>
     </div>
   `;
 
-   if (typeof BottomNavComponent !== 'undefined') {
-    BottomNavComponent.render('#bottom-nav-container', 'transfer');
-  }
+  BottomNavComponent.render(container.querySelector('#bottom-nav-container'), 'transfer');
 
   const retryBtn = container.querySelector('#btn-retry');
   if (retryBtn) {
     retryBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      if (typeof renderTransferView === 'function') {
-        renderTransferView(container);
-      } else if (window.appRouter) {
-        window.appRouter.navigate('/transfer');
-        window.appRouter.handleRouting();
-      }
+      window.appRouter.navigate('/transfer');
     });
   }
+
+  return () => {
+    AppState.lastTransfer = null;
+  };
 }
-
-

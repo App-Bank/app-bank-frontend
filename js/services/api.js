@@ -46,19 +46,12 @@ apiClient.interceptors.response.use(
       }
     }
 
-    let errorDetail = 'Error de conexión con el backend';
     const data = error.response?.data;
-    if (data) {
-      if (typeof data.detail === 'string') {
-        errorDetail = data.detail;
-      } else if (Array.isArray(data.detail)) {
-        errorDetail = data.detail.map(d => d.msg || d.message || JSON.stringify(d)).join(', ');
-      } else if (data.message) {
-        errorDetail = data.message;
-      }
-    } else if (error.message) {
-      errorDetail = error.message;
-    }
+    const errorDetail = (typeof data?.detail === 'string')
+      ? data.detail
+      : Array.isArray(data?.detail)
+        ? data.detail.map(d => d.msg || d.message || JSON.stringify(d)).join(', ')
+        : data?.message || error.message || 'Error de conexión con el backend';
 
     return Promise.reject(new Error(errorDetail));
   }
@@ -107,20 +100,18 @@ const ApiService = {
       sessionStorage.removeItem('aura_user_name');
     } catch (_) {}
     if (typeof AppState !== 'undefined') {
-      AppState.user = null;
-      AppState.userName = null;
-      AppState.isAuthenticated = false;
-      AppState.token = null;
-      AppState.accountId = null;
-      AppState.balance = null;
-      AppState.lastTransfer = null;
+      Object.assign(AppState, {
+        user: null,
+        userName: null,
+        isAuthenticated: false,
+        token: null,
+        accountId: null,
+        balance: null,
+        lastTransfer: null
+      });
     }
     if (typeof TransactionService !== 'undefined') {
-      if (typeof TransactionService.reset === 'function') {
-        TransactionService.reset();
-      } else if (typeof TransactionService.clearCache === 'function') {
-        TransactionService.clearCache();
-      }
+      TransactionService.reset?.();
     }
   },
 
@@ -155,10 +146,25 @@ const ApiService = {
   async getAccount() {
     const response = await apiClient.get('/accounts/me');
     if (response.data && typeof AppState !== 'undefined') {
-      AppState.accountId = response.data.id;
+      AppState.accountId = response.data.id != null ? Number(response.data.id) : null;
       AppState.balance = Number(response.data.balance) || 0;
     }
     return response.data;
+  },
+
+  async getAccountByIban(iban) {
+    const clean = (iban || '').replace(/\s+/g, '').toUpperCase();
+    const response = await apiClient.get(`/transfers/accounts/${clean}`);
+    return response.data;
+  },
+
+  async getActivityHistory(params = {}) {
+    const response = await apiClient.get('/activity', { params });
+    return response.data;
+  },
+
+  async getActivities(params = {}) {
+    return this.getActivityHistory(params);
   },
 
   async getTransferHistory() {

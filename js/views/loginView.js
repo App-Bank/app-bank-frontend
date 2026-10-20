@@ -160,12 +160,7 @@ function renderLoginView(container) {
       } catch (_) {}
 
       window.showToast('¡Inicio de sesión exitoso!', 'success');
-
-      if (window.appRouter) {
-        window.appRouter.navigate('/dashboard');
-      } else {
-        window.location.hash = '#/dashboard';
-      }
+      window.appRouter.navigate('/dashboard');
     }
   });
 }
