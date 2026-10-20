@@ -369,3 +369,13 @@ a.btn-confirm { text-decoration: none; }
 @media (prefers-reduced-motion: reduce) {
     .modal-card { animation: none; }
 }
+
+/* Tarjetas en estado de error (pantalla de confirmación fallida) */
+.error-card {
+    border-color: rgba(248, 113, 113, 0.55);
+}
+
+.error-card .step-num {
+    background: #f87171;
+    color: #0c1017;
+}

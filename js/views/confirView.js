@@ -1,17 +1,19 @@
 // SECTION: Confirm View
 function renderConfirmView(container, data = {}) {
-  const transferData = (data && data.amount != null) ? data : AppState.lastTransfer;
+  const transferData = (data && (data.amount != null || data.error)) ? data : AppState.lastTransfer;
   if (!transferData) {
     window.appRouter.navigate('/transfer');
     return;
   }
 
+  const isError = Boolean(transferData.error);
   const esc = window.escapeHtml;
   const iban = (transferData.recipientIban || transferData.iban || '').replace(/\s+/g, '');
   const fullIban = window.formatIban(iban);
   const recipient = transferData.recipientName || transferData.name || 'Destinatario';
   const amountText = window.formatCurrency(transferData.amount);
   const concept = transferData.concept || 'Transferencia';
+  const errorMsg = transferData.message || 'No se pudo completar la operación';
 
   container.innerHTML = `
     <div class="aurora" aria-hidden="true"></div>
@@ -20,20 +22,20 @@ function renderConfirmView(container, data = {}) {
         <div class="app-top">
           <a href="#/dashboard" class="app-brand"><span class="logo-mark" aria-hidden="true"></span><span>AURA NEO-BANKING</span></a>
         </div>
-        <h1 class="screen-title">Transferencia enviada</h1>
+        <h1 class="screen-title">${isError ? 'Transferencia fallida' : 'Transferencia enviada'}</h1>
       </header>
 
       <main class="app-main transfer">
         <div class="transfer-form">
-          <section class="card step-card">
-            <div class="step-head"><span class="step-num" aria-hidden="true">1</span><h2>Destinatario</h2></div>
-            <p class="source-balance">${esc(recipient)}</p>
-            ${fullIban ? `<p class="amount-note">${esc(fullIban)}</p>` : ''}
+          <section class="card step-card ${isError ? 'error-card' : ''}">
+            <div class="step-head"><span class="step-num" aria-hidden="true">1</span><h2>${isError ? 'Error' : 'Destinatario'}</h2></div>
+            <p class="source-balance">${esc(isError ? errorMsg : recipient)}</p>
+            ${(!isError && fullIban) ? `<p class="amount-note">${esc(fullIban)}</p>` : ''}
           </section>
 
           <section class="card step-card">
             <div class="step-head"><span class="step-num" aria-hidden="true">2</span><h2>Importe</h2></div>
-            <div class="total-row"><span>Total enviado</span><output>${esc(amountText)}</output></div>
+            <div class="total-row"><span>Total ${isError ? 'a enviar' : 'enviado'}</span><output>${esc(amountText)}</output></div>
           </section>
 
           <section class="card step-card">
@@ -41,7 +43,7 @@ function renderConfirmView(container, data = {}) {
             <p class="source-balance">${esc(concept)}</p>
           </section>
 
-          <a href="#/transfer" class="btn-confirm">Nueva transferencia</a>
+          <a href="#/transfer" id="btn-retry" class="btn-confirm">${isError ? 'Reintentar' : 'Nueva transferencia'}</a>
         </div>
       </main>
 
@@ -50,6 +52,14 @@ function renderConfirmView(container, data = {}) {
   `;
 
   BottomNavComponent.render(container.querySelector('#bottom-nav-container'), 'transfer');
+
+  const retryBtn = container.querySelector('#btn-retry');
+  if (retryBtn) {
+    retryBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.appRouter.navigate('/transfer');
+    });
+  }
 
   return () => {
     AppState.lastTransfer = null;

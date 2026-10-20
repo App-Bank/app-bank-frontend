@@ -116,7 +116,7 @@ function renderTransferView(container) {
   if (ibanEl && badge) {
     const validarIban = () => {
       const v = ibanEl.value.replace(/\s+/g, '').toUpperCase();
-      const ok = /^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/.test(v);
+      const ok = /^[A-Z]{2}\d{22}$/.test(v);
       badge.hidden = !ok;
       ibanEl.classList.toggle('is-valid', ok);
     };
@@ -216,6 +216,8 @@ function renderTransferView(container) {
       if (confirmBtn) confirmBtn.disabled = false;
       return;
     }
+
+    
 
     try {
       const created = await ApiService.createTransfer({
