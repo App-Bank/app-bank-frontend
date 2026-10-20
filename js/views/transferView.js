@@ -180,17 +180,40 @@ function initTransferLogic(ctx) {
     if (confirmBtn) confirmBtn.disabled = true;
     const rawIban = (ibanEl ? ibanEl.value : '').replace(/\s+/g, '').toUpperCase();
 
-    let recipientAccountId = 2;
-    if (typeof ApiService !== 'undefined' && typeof ApiService.getAccounts === 'function') {
+    if (!/^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/.test(rawIban)) {
+      if (confirmBtn) confirmBtn.disabled = false;
+      renderConfirmView(ctx, {
+        name: nameEl ? nameEl.value : '',
+        amount: amountVal,
+        concept: conceptVal,
+        error: true,
+        message: 'El IBAN introducido no es válido'
+      });
+      return;
+    }
+
+    let recipientAccountId = null;
+    if (typeof ApiService !== 'undefined' && typeof ApiService.getAccount === 'function') {
       try {
-        const accounts = await ApiService.getAccounts();
-        if (Array.isArray(accounts)) {
-          const matched = accounts.find(a => a.iban.replace(/\s+/g, '').toUpperCase() === rawIban);
-          if (matched) recipientAccountId = matched.id;
+        const acc = await ApiService.getAccount(2);
+        if (acc && typeof acc.iban === 'string' && acc.iban.replace(/\s+/g, '').toUpperCase() === rawIban) {
+          recipientAccountId = acc.id;
         }
       } catch (e) {
-        console.warn('[TransferView] Accounts lookup fallback:', e);
+        console.warn('[TransferView] Account lookup failed:', e);
       }
+    }
+
+    if (!recipientAccountId) {
+      if (confirmBtn) confirmBtn.disabled = false;
+      renderConfirmView(ctx, {
+        name: nameEl ? nameEl.value : '',
+        amount: amountVal,
+        concept: conceptVal,
+        error: true,
+        message: 'No existe ninguna cuenta con ese IBAN'
+      });
+      return;
     }
 
     try {
@@ -230,6 +253,13 @@ function initTransferLogic(ctx) {
     } catch (err) {
       console.error('[TransferView] Transfer failed:', err);
       if (typeof window.showToast === 'function') window.showToast(`Error: ${err.message}`, 'error');
+       renderConfirmView(ctx, {                                    
+        name: nameEl ? nameEl.value : '',
+        amount: amountVal,
+        concept: conceptVal,
+        error: true,
+        message: err.message
+      });
     } finally {
       setTimeout(() => {
         if (confirmBtn) {
