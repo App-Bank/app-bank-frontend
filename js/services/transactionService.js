@@ -67,6 +67,14 @@ const TransactionService = {
       });
     }
 
+    if (Array.isArray(rawActivities)) {
+      rawActivities.forEach(act => {
+        if (act && act.account_id != null && act.account_iban) {
+          this._accountsMap.set(Number(act.account_id), act.account_iban);
+        }
+      });
+    }
+
     const now = new Date();
     const todayKeyStr = dayKey(now);
 
@@ -81,12 +89,12 @@ const TransactionService = {
       const tx = hasActivities ? transfersMap.get(Number(item.transfer_id)) : item;
       const conceptValue = (tx?.concept && tx.concept.trim()) || '';
 
-      let displayIban = 'No disponible';
-      if (tx) {
+      let rawIban = item.account_iban || item.iban || null;
+      if (!rawIban && tx) {
         const counterpartyId = isSender ? Number(tx.recipient_account_id) : Number(tx.sender_account_id);
-        const rawIban = this._accountsMap.get(counterpartyId);
-        if (rawIban) displayIban = window.formatIban(rawIban);
+        rawIban = this._accountsMap.get(counterpartyId);
       }
+      const displayIban = rawIban ? window.formatIban(rawIban) : 'No disponible';
 
       const amountNum = Math.abs(Number(item.amount) || 0);
       const dateRaw = item.succeeded_in || item.created_at || null;
@@ -124,7 +132,7 @@ const TransactionService = {
     const query = search.toLowerCase().trim();
 
     const filtered = allRecords.filter(item => {
-      const conceptText = (item.concept || item.title || '').toLowerCase().trim();
+      const conceptText = `${item.concept || ''} ${item.title || ''} ${item.accountNumber || ''}`.toLowerCase().trim();
       const matchesSearch = !query || conceptText.includes(query);
       const matchesType = filter === 'all' || item.type === filter;
 
