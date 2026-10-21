@@ -1,13 +1,11 @@
 /* SECTION: Desktop Container Adaptation */
 @media (min-width: 768px) {
-  .mobile-app-container.is-transfer-view,
-  .mobile-app-container:has(.app-main.transfer) {
+  .mobile-app-container.is-transfer-view {
     max-width: 1060px;
     padding-inline: 32px;
   }
 
-  .mobile-app-container.is-transfer-view .app,
-  .mobile-app-container:has(.app-main.transfer) .app {
+  .mobile-app-container.is-transfer-view .app {
     max-width: 100%;
     padding: 32px 0 110px;
   }
@@ -98,7 +96,6 @@
     border: 1px solid rgba(255, 255, 255, 0.06);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    box-sizing: border-box;
     transition: border-color 0.2s ease, transform 0.2s ease;
   }
 
@@ -127,15 +124,6 @@
     font-size: 13px;
   }
 
-  .recipient {
-    gap: 16px;
-  }
-
-  .recipient-avatar {
-    width: 50px;
-    height: 50px;
-    font-size: 16px;
-  }
 
   .recipient-fields {
     gap: 12px;
@@ -184,7 +172,6 @@
     font-size: 15px;
   }
 
-  .total-row strong,
   .total-row output {
     font-size: 26px;
   }
@@ -201,4 +188,3 @@
     transform: translateY(-2px);
   }
 }
-

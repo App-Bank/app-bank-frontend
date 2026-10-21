@@ -149,7 +149,6 @@ function renderLoginView(container) {
       }
 
       AppState.user = data.email;
-      AppState.isAuthenticated = true;
       try {
         sessionStorage.setItem('aura_user', data.email);
         const user = await ApiService.getUser();

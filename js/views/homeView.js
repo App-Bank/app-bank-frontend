@@ -150,8 +150,6 @@ function renderHomeView(container) {
 
   // SECTION: Backend Data Synchronization
   async function syncHomeWithBackend() {
-    if (typeof ApiService === 'undefined') return;
-
     const needUser = !AppState.userName;
     const [accountRes, userRes] = await Promise.allSettled([
       ApiService.getAccount(),
@@ -169,7 +167,6 @@ function renderHomeView(container) {
         currentRawIban = account.iban;
         updateIbanDisplay();
       }
-      AppState.balance = balNum;
     } else {
       console.warn('[HomeView] Could not fetch account from backend:', accountRes.reason);
       if (balanceAmountEl) {

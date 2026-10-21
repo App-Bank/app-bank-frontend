@@ -7,7 +7,6 @@
   max-width: 430px;
   margin: 0 auto;
   padding: 24px 16px 36px;
-  box-sizing: border-box;
   min-height: 100vh;
   min-height: 100dvh;
 }

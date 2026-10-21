@@ -53,14 +53,6 @@ function renderConfirmView(container, data = {}) {
 
   BottomNavComponent.render(container.querySelector('#bottom-nav-container'), 'transfer');
 
-  const retryBtn = container.querySelector('#btn-retry');
-  if (retryBtn) {
-    retryBtn.addEventListener('click', (e) => {
-      e.preventDefault();
-      window.appRouter.navigate('/transfer');
-    });
-  }
-
   return () => {
     AppState.lastTransfer = null;
   };

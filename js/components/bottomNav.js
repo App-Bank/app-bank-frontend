@@ -25,7 +25,7 @@ const BottomNavComponent = {
   `,
 
   render(target, activePage = '') {
-    const el = typeof target === 'string' ? document.querySelector(target) : target;
+    const el = target;
     if (!el) return;
 
     el.innerHTML = this.template;

@@ -170,12 +170,6 @@ html, body {
   transition: opacity 0.15s ease;
 }
 
-.app-brand:visited,
-.app-brand:hover,
-.app-brand:active {
-  color: #c1c6d5;
-  text-decoration: none;
-}
 
 .logo-mark {
   width: 22px;
@@ -210,5 +204,4 @@ html, body {
   border-radius: 18px;
   box-shadow: 0 12px 30px -15px rgba(0, 0, 0, 0.6);
   width: 100%;
-  box-sizing: border-box;
 }

@@ -92,7 +92,7 @@ function initLogin(options = {}) {
       window.showToast('Accediendo a la cuenta...', 'info');
 
       try {
-        const handler = options.onSubmit || options.onSuccess;
+        const handler = options.onSubmit;
         if (typeof handler === 'function') {
           await handler({ email, password });
         }

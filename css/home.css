@@ -8,7 +8,6 @@
   flex-direction: column;
   position: relative;
   padding: 24px 16px 96px;
-  box-sizing: border-box;
 }
 
 .balance-amount, .box-value, .movement-amount, .iban-value {
@@ -315,7 +314,6 @@
   color: inherit;
   transition: transform 0.15s ease, border-color 0.15s ease;
   width: 100%;
-  box-sizing: border-box;
 }
 
 .movement-item:hover {

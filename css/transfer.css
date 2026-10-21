@@ -14,18 +14,16 @@
 }
 
 .transfer-form button,
-.quick-adds button,
 .btn-confirm { font: inherit; color: inherit; cursor: pointer; }
 .app-main.transfer svg { display: block; }
 
-.source-balance, .amount-field, .total-row strong, .total-row output, #recipient-iban { font-feature-settings: 'tnum' 1, 'cv05' 1; font-variant-numeric: tabular-nums lining-nums; }
+.source-balance, .amount-field, .total-row output, #recipient-iban { font-feature-settings: 'tnum' 1, 'cv05' 1; font-variant-numeric: tabular-nums lining-nums; }
 
 .app {
     width: 100%;
     max-width: 430px;
     margin: 0 auto;
     padding: 24px 16px 96px;
-    box-sizing: border-box;
 }
 
 .app-main.transfer,
@@ -78,21 +76,8 @@
 .step-head h2 { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
 
 /* SECTION: Recipient Step */
-.recipient { display: flex; align-items: flex-start; gap: var(--space-md); }
-.recipient-avatar {
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    flex: none;
-    border-radius: var(--r-full);
-    background: linear-gradient(135deg, var(--primary-container), var(--tertiary));
-    color: var(--surface-container-lowest);
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-}
-.recipient-fields { flex: 1; min-width: 0; display: grid; gap: var(--space-sm); }
+.recipient { width: 100%; }
+.recipient-fields { width: 100%; display: grid; gap: var(--space-sm); }
 
 .iban-field { display: flex; align-items: center; gap: var(--space-sm); }
 .iban-field .field-input { flex: 1; min-width: 0; }
@@ -125,6 +110,17 @@
 .transfer .field-input:focus {
     border-color: var(--cobalt);
     box-shadow: 0 0 0 3px rgba(3, 120, 230, 0.15);
+}
+.transfer .field-input[readonly] {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: var(--border-soft);
+    color: var(--on-surface-variant);
+    cursor: default;
+    user-select: none;
+}
+.transfer .field-input[readonly]:focus {
+    border-color: var(--border-soft);
+    box-shadow: none;
 }
 #recipient-iban { letter-spacing: 0.05em; }
 #recipient-iban.is-valid { border-color: rgba(3, 120, 230, 0.5); }
@@ -205,9 +201,103 @@
 }
 
 /* SECTION: Confirmation Step */
+.transfer-summary-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px;
+    border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-soft);
+    margin-bottom: var(--space-md);
+}
+
+.summary-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    font-size: 13.5px;
+}
+
+.summary-label {
+    color: var(--text-muted);
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.summary-value {
+    color: var(--on-surface);
+    font-weight: 500;
+    text-align: right;
+    word-break: break-word;
+}
+
+.summary-iban {
+    font-family: inherit;
+    font-feature-settings: 'tnum' 1, 'cv05' 1;
+    font-size: 12.5px;
+    color: var(--primary);
+    letter-spacing: 0.02em;
+}
+
+.summary-total-item {
+    margin-top: 4px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-soft);
+}
+
+.summary-total {
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    color: var(--primary) !important;
+    font-feature-settings: 'tnum' 1, 'cv05' 1;
+}
+
+.confirm-checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+    padding: 12px 14px;
+    border-radius: var(--r-md);
+    background: rgba(56, 189, 248, 0.06);
+    border: 1px solid rgba(56, 189, 248, 0.22);
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.confirm-checkbox-wrapper:hover {
+    background: rgba(56, 189, 248, 0.1);
+    border-color: rgba(56, 189, 248, 0.38);
+}
+
+.confirm-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    cursor: pointer;
+    user-select: none;
+}
+
+.confirm-checkbox {
+    width: 20px;
+    height: 20px;
+    accent-color: #38bdf8;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.checkbox-text {
+    font-size: 13.5px;
+    line-height: 1.35;
+    color: var(--on-surface);
+    font-weight: 500;
+}
+
 .total-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); }
 .total-row span { font-size: 14px; color: var(--on-surface-variant); }
-.total-row strong,
 .total-row output {
     font-size: 20px;
     font-weight: 700;
@@ -230,14 +320,22 @@
     font-weight: 700;
     letter-spacing: 0.01em;
     box-shadow: var(--glow-cobalt);
-    transition: transform 0.15s ease, box-shadow 0.2s ease;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
 a.btn-confirm { text-decoration: none; }
 .step-card p { overflow-wrap: anywhere; }
 .btn-confirm:hover { transform: translateY(-1px); box-shadow: 0 0 20px rgba(3, 120, 230, 0.5), var(--glow-cobalt); }
 .btn-confirm:active { transform: translateY(0); }
 .btn-confirm svg { width: 20px; height: 20px; }
-.btn-confirm.is-done { background: rgba(52, 211, 153, 0.9); box-shadow: 0 8px 24px -4px rgba(52, 211, 153, 0.3); }
+
+.btn-confirm:disabled,
+.btn-confirm[disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+    filter: grayscale(0.4);
+}
 
 @media (prefers-reduced-motion: reduce) {
     .step-card,
@@ -245,129 +343,6 @@ a.btn-confirm { text-decoration: none; }
     .concepto,
     .quick-adds button,
     .btn-confirm { animation: none !important; transition: none !important; }
-}
-/* ==========================================================================
-   SECTION: Confirmation Modal (Pestaña Emergente de Transferencia)
-   ========================================================================== */
-
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(11, 14, 20, 0.75); /* Oscurece el fondo */
-    backdrop-filter: blur(8px);        /* Efecto esmerilado translúcido */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-    box-sizing: border-box;
-    z-index: 1000;                     /* Se posiciona por encima de la navegación */
-}
-
-/* Reutiliza los estilos estructurales de tus tarjetas Aura (.card y .step-card) */
-.modal-card {
-    width: 100%;
-    max-width: 380px;
-    padding: var(--space-lg);
-    border-radius: var(--r-xl);
-    background: rgba(30, 30, 40, 0.95); /* Color de fondo adaptado al tema oscuro */
-    border: 1px solid var(--border-medium);
-    text-align: center;
-    box-shadow: var(--glow-cobalt);
-    animation: modalScaleIn 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.modal-card h3 {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--on-surface);
-    margin-bottom: var(--space-sm);
-    letter-spacing: -0.01em;
-}
-
-.modal-card p {
-    font-size: 14px;
-    color: var(--text-muted);
-    line-height: 1.5;
-    margin-bottom: var(--space-md);
-}
-
-/* Campo para introducir el código numérico */
-.code-input-container #verification-code {
-    width: 100%;
-    height: 52px;
-    text-align: center;
-    font-size: 24px;
-    font-weight: 700;
-    letter-spacing: 0.35em;
-    padding-left: 0.35em; /* Compensa el centrado por el espaciado de las letras */
-    border-radius: var(--r-md);
-    border: 1px solid var(--border-medium);
-    background: rgba(11, 14, 20, 0.8);
-    color: var(--primary); /* Resalta el código ingresado */
-    outline: none;
-    box-sizing: border-box;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    font-feature-settings: 'tnum' 1;
-}
-
-.code-input-container #verification-code:focus {
-    border-color: var(--cobalt);
-    box-shadow: 0 0 0 3px rgba(3, 120, 230, 0.15);
-}
-
-/* Acciones inferiores dispuestas en rejilla horizontal */
-.modal-actions {
-    display: grid;
-    grid-template-columns: 1fr 1.2fr;
-    gap: var(--space-sm);
-    margin-top: var(--space-lg);
-}
-
-/* Botón secundario para salir de la pestaña */
-.btn-secondary {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 48px;
-    border-radius: var(--r-lg);
-    border: 1px solid var(--border-medium);
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--on-surface);
-    font-size: 14px;
-    font-weight: 600;
-    transition: background 0.2s ease, border-color 0.2s ease;
-}
-
-.btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
-    border-color: var(--border-soft);
-}
-
-/* Ajuste del botón de confirmación para que encaje como acción del modal */
-.modal-card .btn-confirm {
-    height: 48px;
-    margin-top: 0;
-    font-size: 14px;
-}
-
-/* Animación de entrada fluida */
-@keyframes modalScaleIn {
-    from {
-        transform: scale(0.95);
-        opacity: 0;
-    }
-    to {
-        transform: scale(1);
-        opacity: 1;
-    }
-}
-
-/* Respetar preferencias de accesibilidad del sistema */
-@media (prefers-reduced-motion: reduce) {
-    .modal-card { animation: none; }
 }
 
 /* Tarjetas en estado de error (pantalla de confirmación fallida) */

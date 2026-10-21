@@ -1,7 +1,6 @@
 /* SECTION: Desktop Container Adaptation */
 @media (min-width: 768px) {
-  .mobile-app-container.is-history-view,
-  .mobile-app-container:has(.history-view) {
+  .mobile-app-container.is-history-view {
     max-width: 1060px;
     padding-inline: 32px;
   }
@@ -78,7 +77,6 @@
     border-radius: 14px;
     background: rgba(13, 17, 26, 0.75);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    box-sizing: border-box;
   }
 
   .filter-group-block {

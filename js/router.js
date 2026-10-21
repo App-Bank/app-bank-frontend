@@ -3,7 +3,6 @@ class Router {
   constructor(routes, containerId = 'app') {
     this.routes = routes || {};
     this.container = document.getElementById(containerId);
-    this.currentRoute = null;
     this.currentCleanup = null;
 
     window.addEventListener('hashchange', () => this.handleRouting());
@@ -43,7 +42,6 @@ class Router {
         this.currentCleanup = null;
       }
 
-      this.currentRoute = cleanPath;
       if (this.container) {
         this.container.className = `mobile-app-container is-${cleanPath.slice(1)}-view`;
       }

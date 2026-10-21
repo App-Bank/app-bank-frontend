@@ -18,28 +18,20 @@ function dayKey(d) {
 
 const TransactionService = {
   _cache: [],
-  _accountsMap: new Map(),
 
   // SECTION: Cache & State Reset
   reset() {
     this._cache = [];
-    this._accountsMap.clear();
-  },
-
-  clearCache() {
-    this.reset();
   },
 
   // SECTION: Query Transactions
   async getTransactions(params = {}) {
-    const needAccounts = this._accountsMap.size === 0;
     let currentAccountId = (typeof AppState !== 'undefined' && AppState.accountId != null) ? AppState.accountId : null;
 
-    const [rawActivities = [], rawTransfers = [], myAcc, accountsRes] = await Promise.all([
+    const [rawActivities = [], rawTransfers = [], myAcc] = await Promise.all([
       ApiService.getActivityHistory(),
       ApiService.getTransferHistory().catch(() => []),
-      currentAccountId == null ? ApiService.getAccount().catch(() => null) : null,
-      needAccounts ? ApiService.getAccounts().catch(() => []) : null
+      currentAccountId == null ? ApiService.getAccount().catch(() => null) : null
     ]);
 
     const transfersMap = new Map();
@@ -61,20 +53,6 @@ const TransactionService = {
       }
     }
 
-    if (Array.isArray(accountsRes)) {
-      accountsRes.forEach(acc => {
-        if (acc && acc.id != null) this._accountsMap.set(Number(acc.id), acc.iban);
-      });
-    }
-
-    if (Array.isArray(rawActivities)) {
-      rawActivities.forEach(act => {
-        if (act && act.account_id != null && act.account_iban) {
-          this._accountsMap.set(Number(act.account_id), act.account_iban);
-        }
-      });
-    }
-
     const now = new Date();
     const todayKeyStr = dayKey(now);
 
@@ -89,11 +67,7 @@ const TransactionService = {
       const tx = hasActivities ? transfersMap.get(Number(item.transfer_id)) : item;
       const conceptValue = (tx?.concept && tx.concept.trim()) || '';
 
-      let rawIban = item.account_iban || item.iban || null;
-      if (!rawIban && tx) {
-        const counterpartyId = isSender ? Number(tx.recipient_account_id) : Number(tx.sender_account_id);
-        rawIban = this._accountsMap.get(counterpartyId);
-      }
+      const rawIban = item.account_iban || item.iban || null;
       const displayIban = rawIban ? window.formatIban(rawIban) : 'No disponible';
 
       const amountNum = Math.abs(Number(item.amount) || 0);
@@ -109,8 +83,6 @@ const TransactionService = {
 
       return {
         id: `act-${item.id}`,
-        backendId: item.id,
-        transferId: item.transfer_id || item.id,
         concept: conceptValue || displayTitle,
         title: displayTitle,
         subtitle: displaySubtitle,
@@ -119,9 +91,7 @@ const TransactionService = {
         category: 'Transferencia',
         accountNumber: displayIban,
         date: dateRaw,
-        timestamp: d ? d.getTime() : null,
-        status: 'completed',
-        reference: `ACT-${String(item.id).padStart(6, '0')}`
+        timestamp: d ? d.getTime() : null
       };
     });
 
@@ -162,15 +132,7 @@ const TransactionService = {
 
   // SECTION: Query Single Item by ID
   getById(id) {
-    const sId = String(id);
-    return this._cache.find(item =>
-      String(item.id) === sId ||
-      String(item.backendId) === sId ||
-      (item.transferId != null && String(item.transferId) === sId) ||
-      `act-${item.backendId}` === sId ||
-      `tx-${item.backendId}` === sId ||
-      (item.transferId != null && `tx-${item.transferId}` === sId)
-    ) || null;
+    return this._cache.find(i => i.id === String(id)) || null;
   },
 
   // SECTION: Dynamic Grouping & Computation

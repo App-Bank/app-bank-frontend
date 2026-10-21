@@ -1,7 +1,6 @@
 /* SECTION: Desktop Container Adaptation */
 @media (min-width: 768px) {
-  .mobile-app-container.is-login-view,
-  .mobile-app-container:has(.login-view) {
+  .mobile-app-container.is-login-view {
     max-width: 100%;
     align-items: center;
     justify-content: center;

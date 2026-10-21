@@ -2,18 +2,14 @@
 const AppState = {
   user: null,
   userName: null,
-  isAuthenticated: false,
-  token: null,
   accountId: null,
   balance: null,
   lastTransfer: null
 };
 
 try {
-  AppState.token = sessionStorage.getItem('aura_token') || null;
   AppState.user = sessionStorage.getItem('aura_user') || null;
   AppState.userName = sessionStorage.getItem('aura_user_name') || null;
-  AppState.isAuthenticated = !!AppState.token;
 } catch (_) {}
 
 // SECTION: Global Sanitization Helper

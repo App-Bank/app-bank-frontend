@@ -1,7 +1,6 @@
 /* SECTION: Desktop Container Adaptation */
 @media (min-width: 768px) {
-  .mobile-app-container.is-dashboard-view,
-  .mobile-app-container:has(.app-container) {
+  .mobile-app-container.is-dashboard-view {
     max-width: 1060px;
     padding-inline: 32px;
   }

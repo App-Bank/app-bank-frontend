@@ -59,17 +59,6 @@ apiClient.interceptors.response.use(
 
 // SECTION: Backend API Service Client
 const ApiService = {
-  config: API_CONFIG,
-  client: apiClient,
-
-  getToken() {
-    try {
-      return sessionStorage.getItem('aura_token');
-    } catch (_) {
-      return null;
-    }
-  },
-
   setToken(token) {
     try {
       if (token) {
@@ -103,8 +92,6 @@ const ApiService = {
       Object.assign(AppState, {
         user: null,
         userName: null,
-        isAuthenticated: false,
-        token: null,
         accountId: null,
         balance: null,
         lastTransfer: null
@@ -129,20 +116,6 @@ const ApiService = {
     return response.data;
   },
 
-  async getAccounts() {
-    try {
-      const response = await apiClient.get('/accounts/');
-      return response.data;
-    } catch (_) {
-      try {
-        const myAcc = await this.getAccount();
-        return myAcc ? [myAcc] : [];
-      } catch (err) {
-        return [];
-      }
-    }
-  },
-
   async getAccount() {
     const response = await apiClient.get('/accounts/me');
     if (response.data && typeof AppState !== 'undefined') {
@@ -161,10 +134,6 @@ const ApiService = {
   async getActivityHistory(params = {}) {
     const response = await apiClient.get('/activity', { params });
     return response.data;
-  },
-
-  async getActivities(params = {}) {
-    return this.getActivityHistory(params);
   },
 
   async getTransferHistory() {
