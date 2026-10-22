@@ -1,11 +1,13 @@
 /* SECTION: Desktop Container Adaptation */
 @media (min-width: 768px) {
-  .mobile-app-container.is-transfer-view {
+  .mobile-app-container.is-transfer-view,
+  .mobile-app-container.is-confirm-view {
     max-width: 1060px;
     padding-inline: 32px;
   }
 
-  .mobile-app-container.is-transfer-view .app {
+  .mobile-app-container.is-transfer-view .app,
+  .mobile-app-container.is-confirm-view .app {
     max-width: 100%;
     padding: 32px 0 110px;
   }
@@ -186,5 +188,55 @@
 
   .btn-confirm:hover {
     transform: translateY(-2px);
+  }
+}
+
+/* SECTION: Desktop Confirm Form Grid (Importe arriba en grande, Destinatario y Concepto debajo) */
+@media (min-width: 768px) {
+  .mobile-app-container.is-confirm-view .transfer-form {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 24px 28px !important;
+    align-items: stretch !important;
+  }
+
+  .mobile-app-container.is-confirm-view .confirm-amount-card {
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+    min-height: auto !important;
+    padding: 32px 28px !important;
+  }
+
+  .mobile-app-container.is-confirm-view .confirm-amount-card .amount-field {
+    font-size: 58px !important;
+  }
+
+  .mobile-app-container.is-confirm-view .confirm-amount-card .amount-input .currency {
+    font-size: 38px !important;
+  }
+
+  .mobile-app-container.is-confirm-view .confirm-recipient-card {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    min-height: 220px;
+  }
+
+  .mobile-app-container.is-confirm-view .confirm-concept-card {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    min-height: 220px;
+  }
+
+  .mobile-app-container.is-confirm-view .transfer-form .btn-confirm {
+    grid-column: 1 / -1 !important;
+    grid-row: 3 !important;
+    width: 100% !important;
+    margin-top: 8px;
+  }
+
+  .mobile-app-container.is-confirm-view .step-card .recipient,
+  .mobile-app-container.is-confirm-view .step-card .amount-input,
+  .mobile-app-container.is-confirm-view .step-card .concepto {
+    margin-block: auto;
   }
 }

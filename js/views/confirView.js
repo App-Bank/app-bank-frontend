@@ -11,7 +11,7 @@ function renderConfirmView(container, data = {}) {
   const iban = (transferData.recipientIban || transferData.iban || '').replace(/\s+/g, '');
   const fullIban = window.formatIban(iban);
   const recipient = transferData.recipientName || transferData.name || 'Destinatario';
-  const amountText = window.formatCurrency(transferData.amount);
+  const fmtAmount = window.formatCurrency(transferData.amount, { noSymbol: true });
   const concept = transferData.concept || 'Transferencia';
   const errorMsg = transferData.message || 'No se pudo completar la operación';
 
@@ -27,20 +27,31 @@ function renderConfirmView(container, data = {}) {
 
       <main class="app-main transfer">
         <div class="transfer-form">
-          <section class="card step-card ${isError ? 'error-card' : ''}">
-            <div class="step-head"><span class="step-num" aria-hidden="true">1</span><h2>${isError ? 'Error' : 'Destinatario'}</h2></div>
-            <p class="source-balance">${esc(isError ? errorMsg : recipient)}</p>
-            ${(!isError && fullIban) ? `<p class="amount-note">${esc(fullIban)}</p>` : ''}
+          <section class="card step-card confirm-amount-card">
+            <div class="step-head"><h2>${isError ? 'Importe no enviado' : 'Importe'}</h2></div>
+            <div class="amount-input">
+              <input class="amount-field readonly-amount" type="text" readonly value="${esc(fmtAmount)}" aria-label="Importe de la transferencia" tabindex="-1">
+              <span class="currency" aria-hidden="true">€</span>
+            </div>
+            ${isError ? '<p class="amount-note">Operación no completada</p>' : ''}
           </section>
 
-          <section class="card step-card">
-            <div class="step-head"><span class="step-num" aria-hidden="true">2</span><h2>Importe</h2></div>
-            <div class="total-row"><span>Total ${isError ? 'a enviar' : 'enviado'}</span><output>${esc(amountText)}</output></div>
+          <section class="card step-card confirm-recipient-card ${isError ? 'error-card' : ''}">
+            <div class="step-head"><h2>${isError ? 'Error' : 'Destinatario'}</h2></div>
+            <div class="recipient">
+              <div class="recipient-fields">
+                <input class="field-input" type="text" readonly value="${esc(isError ? errorMsg : recipient)}" aria-label="${isError ? 'Detalle del error' : 'Nombre del destinatario'}" tabindex="-1">
+                ${(!isError && fullIban) ? `
+                <span class="iban-field">
+                  <input class="field-input" id="recipient-iban" type="text" readonly value="${esc(fullIban)}" aria-label="IBAN del destinatario" tabindex="-1">
+                </span>` : ''}
+              </div>
+            </div>
           </section>
 
-          <section class="card step-card">
-            <div class="step-head"><span class="step-num" aria-hidden="true">3</span><h2>Concepto</h2></div>
-            <p class="source-balance">${esc(concept)}</p>
+          <section class="card step-card confirm-concept-card">
+            <div class="step-head"><h2>Concepto</h2></div>
+            <input class="concepto" type="text" readonly value="${esc(concept)}" aria-label="Concepto de la transferencia" tabindex="-1">
           </section>
 
           <a href="#/transfer" id="btn-retry" class="btn-confirm">${isError ? 'Reintentar' : 'Nueva transferencia'}</a>

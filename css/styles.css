@@ -1,5 +1,6 @@
 /* SECTION: Theme Variables */
 :root {
+  color-scheme: dark;
   --bg-color: #0c1017;
   --bg-input: #131923;
   --bg-input-focus: #171f2c;

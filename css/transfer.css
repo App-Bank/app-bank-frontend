@@ -111,14 +111,16 @@
     border-color: var(--cobalt);
     box-shadow: 0 0 0 3px rgba(3, 120, 230, 0.15);
 }
-.transfer .field-input[readonly] {
+.transfer .field-input[readonly],
+.transfer .concepto[readonly] {
     background: rgba(255, 255, 255, 0.03);
     border-color: var(--border-soft);
     color: var(--on-surface-variant);
     cursor: default;
     user-select: none;
 }
-.transfer .field-input[readonly]:focus {
+.transfer .field-input[readonly]:focus,
+.transfer .concepto[readonly]:focus {
     border-color: var(--border-soft);
     box-shadow: none;
 }
@@ -155,6 +157,12 @@
     transition: border-color 0.2s ease;
 }
 .amount-field:focus { border-bottom-color: rgba(3, 120, 230, 0.6); }
+.amount-field.readonly-amount {
+    border: none !important;
+    cursor: default;
+    pointer-events: none;
+    width: auto !important;
+}
 @supports (field-sizing: content) {
     .amount-field { field-sizing: content; width: auto; }
 }
