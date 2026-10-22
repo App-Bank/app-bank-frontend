@@ -1,7 +1,6 @@
 // SECTION: Backend API Configuration
 const API_CONFIG = {
   baseUrl: 'http://127.0.0.1:8000',
-  defaultTimezoneId: 1
 };
 
 // SECTION: Axios Instance
@@ -146,7 +145,6 @@ const ApiService = {
       recipient_account_id: Number(transferData.recipient_account_id),
       amount: parseFloat(transferData.amount),
       concept: transferData.concept || 'Transferencia',
-      timezone_id: Number(transferData.timezone_id || API_CONFIG.defaultTimezoneId)
     });
     return response.data;
   }

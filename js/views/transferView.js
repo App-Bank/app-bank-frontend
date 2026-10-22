@@ -329,7 +329,6 @@ function renderTransferView(container) {
         recipient_account_id: recipientAccountId,
         amount: amountVal,
         concept: conceptVal || 'Transferencia',
-        timezone_id: 1
       });
 
       AppState.lastTransfer = {
