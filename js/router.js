@@ -45,6 +45,17 @@ class Router {
       if (this.container) {
         this.container.className = `mobile-app-container is-${cleanPath.slice(1)}-view`;
       }
+
+      // SECTION: Dynamic Document Title
+      const pageTitles = {
+        '/login': 'Login · AURA NEO-BANKING',
+        '/dashboard': 'Home · AURA NEO-BANKING',
+        '/transfer': 'Transferencia · AURA NEO-BANKING',
+        '/confirm': 'Confirmación · AURA NEO-BANKING',
+        '/history': 'Historial · AURA NEO-BANKING'
+      };
+      document.title = pageTitles[cleanPath] || 'AURA NEO-BANKING';
+
       const cleanupHook = handler(this.container);
       if (typeof cleanupHook === 'function') {
         this.currentCleanup = cleanupHook;

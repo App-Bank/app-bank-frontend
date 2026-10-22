@@ -35,12 +35,6 @@
     padding-bottom: 0;
   }
 
-  .login-avatar-circle {
-    width: 70px;
-    height: 70px;
-    margin: 0 auto 18px;
-    border-color: rgba(255, 255, 255, 0.08);
-  }
 
   .login-title {
     font-size: 28px;
