@@ -1,4 +1,3 @@
-// SECTION: Confirm View
 function renderConfirmView(container, data = {}) {
   const transferData = (data && (data.amount != null || data.error)) ? data : AppState.lastTransfer;
   if (!transferData) {

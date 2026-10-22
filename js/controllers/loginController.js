@@ -1,4 +1,3 @@
-// SECTION: Login Controller
 function initLogin(options = {}) {
   const form = document.getElementById('login-form');
   const emailInput = document.getElementById('email');
@@ -15,8 +14,7 @@ function initLogin(options = {}) {
 
   const btnSubmit = document.getElementById('btn-submit');
 
-  // SECTION: Helper to Toggle Field Error State
-  const setFieldError = (input, box, errorEl, message = '') => {
+    const setFieldError = (input, box, errorEl, message = '') => {
     const hasErr = Boolean(message);
     if (box) box.classList.toggle('has-error', hasErr);
     if (input) input.setAttribute('aria-invalid', String(hasErr));
@@ -27,8 +25,7 @@ function initLogin(options = {}) {
     return hasErr;
   };
 
-  // SECTION: Input Field Controls
-  const updateClearButton = () => {
+    const updateClearButton = () => {
     if (btnClearEmail && emailInput) {
       btnClearEmail.classList.toggle('is-hidden', emailInput.value.length === 0);
     }
@@ -65,8 +62,7 @@ function initLogin(options = {}) {
     });
   }
 
-  // SECTION: Form Validation & Authentication Handler
-  if (form) {
+    if (form) {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
 

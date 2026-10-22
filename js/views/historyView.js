@@ -1,4 +1,3 @@
-// SECTION: History View
 function renderHistoryView(container) {
   let currentSearch = '';
   let currentFilter = 'all';
@@ -96,8 +95,7 @@ function renderHistoryView(container) {
   const expIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>';
   const incIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>';
 
-  // SECTION: Transaction Timeline Rendering
-  async function loadTransactions() {
+    async function loadTransactions() {
     const requestId = ++currentSearchRequestId;
     timelineContainer.innerHTML = '<div class="history-empty-state"><span>Cargando movimientos...</span></div>';
 
@@ -170,8 +168,7 @@ function renderHistoryView(container) {
     if (itemElem) openTransactionModal(itemElem.getAttribute('data-id'));
   });
 
-  // SECTION: Transaction Details Modal Logic
-  let previousActiveElement = null;
+    let previousActiveElement = null;
 
   const handleModalKeyDown = (e) => {
     if (e.key === 'Escape') {
@@ -230,8 +227,7 @@ function renderHistoryView(container) {
     });
   }
 
-  // SECTION: Search and Filter Handlers
-  if (btnToggleFilters && filterOptionsContainer) {
+    if (btnToggleFilters && filterOptionsContainer) {
     btnToggleFilters.addEventListener('click', () => {
       const isHidden = filterOptionsContainer.classList.toggle('is-hidden');
       btnToggleFilters.classList.toggle('active', !isHidden);
@@ -283,8 +279,7 @@ function renderHistoryView(container) {
 
   loadTransactions();
 
-  // SECTION: Bottom Navigation Bar
-  BottomNavComponent.render(container.querySelector('#bottom-nav-container'), 'history');
+    BottomNavComponent.render(container.querySelector('#bottom-nav-container'), 'history');
 
   return () => {
     window.removeEventListener('keydown', handleModalKeyDown);

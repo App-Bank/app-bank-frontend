@@ -1,4 +1,3 @@
-/* SECTION: Desktop Container Adaptation */
 @media (min-width: 768px) {
   .mobile-app-container.is-transfer-view,
   .mobile-app-container.is-confirm-view {
@@ -13,7 +12,6 @@
   }
 }
 
-/* SECTION: Desktop Header */
 @media (min-width: 768px) {
   .app-header#top {
     gap: 18px;
@@ -49,7 +47,6 @@
   }
 }
 
-/* SECTION: Desktop Transfer Form Grid */
 @media (min-width: 768px) {
   .transfer-form {
     display: grid !important;
@@ -86,7 +83,6 @@
   }
 }
 
-/* SECTION: Desktop Card Details & Inputs */
 @media (min-width: 768px) {
   .step-card {
     display: flex;
@@ -191,7 +187,6 @@
   }
 }
 
-/* SECTION: Desktop Confirm Form Grid (Importe arriba en grande, Destinatario y Concepto debajo) */
 @media (min-width: 768px) {
   .mobile-app-container.is-confirm-view .transfer-form {
     display: grid !important;

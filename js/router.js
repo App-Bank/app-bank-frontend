@@ -1,4 +1,3 @@
-// SECTION: SPA Client-side Router
 class Router {
   constructor(routes, containerId = 'app') {
     this.routes = routes || {};
@@ -16,8 +15,7 @@ class Router {
     const rawHash = window.location.hash.slice(1) || '/login';
     const cleanPath = rawHash.startsWith('/') ? rawHash : `/${rawHash}`;
 
-    // SECTION: Authentication Guard
-    const token = sessionStorage.getItem('aura_token');
+        const token = sessionStorage.getItem('aura_token');
     const isAuthenticated = !!token;
 
     if (cleanPath !== '/login' && !isAuthenticated) {
@@ -46,8 +44,7 @@ class Router {
         this.container.className = `mobile-app-container is-${cleanPath.slice(1)}-view`;
       }
 
-      // SECTION: Dynamic Document Title
-      const pageTitles = {
+            const pageTitles = {
         '/login': 'Login · AURA NEO-BANKING',
         '/dashboard': 'Home · AURA NEO-BANKING',
         '/transfer': 'Transferencia · AURA NEO-BANKING',

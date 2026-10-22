@@ -354,6 +354,5 @@ function renderTransferView(container) {
 
   updateSummary();
 
-  // SECTION: Bottom Navigation Bar
-  BottomNavComponent.render($('#bottom-nav-container'), 'transfer');
+    BottomNavComponent.render($('#bottom-nav-container'), 'transfer');
 }

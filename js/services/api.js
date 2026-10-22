@@ -1,9 +1,7 @@
-// SECTION: Backend API Configuration
 const API_CONFIG = {
   baseUrl: 'http://127.0.0.1:8000',
 };
 
-// SECTION: Axios Instance
 const apiClient = axios.create({
   baseURL: API_CONFIG.baseUrl,
   headers: {
@@ -12,7 +10,6 @@ const apiClient = axios.create({
   timeout: 8000
 });
 
-// SECTION: Axios Request Interceptor
 apiClient.interceptors.request.use(
   (config) => {
     try {
@@ -26,7 +23,6 @@ apiClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// SECTION: Axios Response Interceptor
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -56,7 +52,6 @@ apiClient.interceptors.response.use(
   }
 );
 
-// SECTION: Backend API Service Client
 const ApiService = {
   setToken(token) {
     try {

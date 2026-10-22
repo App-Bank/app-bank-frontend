@@ -1,4 +1,3 @@
-/* SECTION: Desktop Container Adaptation */
 @media (min-width: 768px) {
   .mobile-app-container.is-history-view {
     max-width: 1060px;
@@ -11,7 +10,6 @@
   }
 }
 
-/* SECTION: Desktop Header */
 @media (min-width: 768px) {
   .history-header {
     gap: 18px;
@@ -30,7 +28,6 @@
   }
 }
 
-/* SECTION: Desktop Search & Filters */
 @media (min-width: 768px) {
   .history-search-container {
     gap: 16px;
@@ -107,7 +104,6 @@
   }
 }
 
-/* SECTION: Desktop Timeline & Items */
 @media (min-width: 768px) {
   .history-timeline {
     gap: 28px;
@@ -200,7 +196,6 @@
   }
 }
 
-/* SECTION: Desktop Modal Dialog */
 @media (min-width: 768px) {
   .transaction-modal {
     align-items: center;
@@ -257,7 +252,6 @@
   }
 }
 
-/* SECTION: Motion Preferences */
 @media (prefers-reduced-motion: reduce) {
   .history-item,
   .transaction-modal-sheet,

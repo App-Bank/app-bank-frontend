@@ -1,4 +1,3 @@
-// SECTION: Global Application State
 const AppState = {
   user: null,
   userName: null,
@@ -12,7 +11,6 @@ try {
   AppState.userName = sessionStorage.getItem('aura_user_name') || null;
 } catch (_) {}
 
-// SECTION: Global Sanitization Helper
 window.escapeHtml = function(str) {
   return String(str ?? '').replace(/[&<>"']/g, function(c) {
     return {
@@ -25,7 +23,6 @@ window.escapeHtml = function(str) {
   });
 };
 
-// SECTION: Global UI Helpers (Toast Notification)
 let appToastTimer = null;
 window.showToast = function(message, type = 'info') {
   const toast = document.getElementById('toast');
@@ -41,7 +38,6 @@ window.showToast = function(message, type = 'info') {
   }, 3200);
 };
 
-// SECTION: Global Formatters
 window.formatCurrency = function(amount, options = {}) {
   const num = Number(amount) || 0;
   const abs = Math.abs(num);
@@ -56,7 +52,6 @@ window.formatIban = function(iban) {
   return clean.match(/.{1,4}/g)?.join(' ') || clean;
 };
 
-// SECTION: SPA Application Bootstrapper
 function initSPA() {
   window.appRouter = new Router({
     '/login': renderLoginView,

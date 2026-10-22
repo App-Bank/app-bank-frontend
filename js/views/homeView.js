@@ -1,4 +1,3 @@
-// SECTION: Home View
 function renderHomeView(container) {
   const esc = window.escapeHtml;
   const displayName = AppState.userName || (AppState.user ? (AppState.user.split('@')[0].charAt(0).toUpperCase() + AppState.user.split('@')[0].slice(1)) : 'Usuario');
@@ -148,8 +147,7 @@ function renderHomeView(container) {
     });
   }
 
-  // SECTION: Backend Data Synchronization
-  async function syncHomeWithBackend() {
+    async function syncHomeWithBackend() {
     const needUser = !AppState.userName;
     const [accountRes, userRes] = await Promise.allSettled([
       ApiService.getAccount(),

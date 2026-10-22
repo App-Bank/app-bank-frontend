@@ -1,4 +1,3 @@
-// SECTION: Login View
 function renderLoginView(container) {
   container.innerHTML = `
     <div class="aurora" aria-hidden="true"></div>

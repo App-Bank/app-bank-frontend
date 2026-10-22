@@ -1,4 +1,3 @@
-// SECTION: Transaction Service
 function parseApiDate(dateStr) {
   if (!dateStr) return null;
   const hasTz = /[zZ]$|[+-]\d{2}:?\d{2}$/.test(dateStr);
@@ -19,13 +18,11 @@ function dayKey(d) {
 const TransactionService = {
   _cache: [],
 
-  // SECTION: Cache & State Reset
-  reset() {
+    reset() {
     this._cache = [];
   },
 
-  // SECTION: Query Transactions
-  async getTransactions(params = {}) {
+    async getTransactions(params = {}) {
     let currentAccountId = (typeof AppState !== 'undefined' && AppState.accountId != null) ? AppState.accountId : null;
 
     const [rawActivities = [], rawTransfers = [], myAcc] = await Promise.all([
@@ -130,13 +127,11 @@ const TransactionService = {
     return this.groupTransactions(filtered);
   },
 
-  // SECTION: Query Single Item by ID
-  getById(id) {
+    getById(id) {
     return this._cache.find(i => i.id === String(id)) || null;
   },
 
-  // SECTION: Dynamic Grouping & Computation
-  groupTransactions(items) {
+    groupTransactions(items) {
     const groupsMap = new Map();
     const now = new Date();
     const todayKeyStr = dayKey(now);
