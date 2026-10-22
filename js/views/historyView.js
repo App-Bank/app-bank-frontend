@@ -2,10 +2,10 @@ function renderHistoryView(container) {
   let currentSearch = '';
   let currentFilter = 'all';
   let currentPeriod = 'all';
+  let currentSearchRequestId = 0;
+  let searchDebounceTimer = null;
 
-  const formatAmount = (amount) => (typeof window.formatCurrency === 'function')
-    ? window.formatCurrency(amount, { includeSign: true })
-    : `${Number(amount) > 0 ? '+' : '-'}${Math.abs(Number(amount)).toFixed(2)} €`;
+  const formatAmount = (amount) => window.formatCurrency(amount, { includeSign: true });
 
   container.innerHTML = `
     <div class="aurora" aria-hidden="true"></div>
@@ -66,7 +66,7 @@ function renderHistoryView(container) {
             <div id="modal-tx-amount" class="modal-amount">0,00 €</div>
           </header>
           <dl class="modal-details-grid">
-            <div class="modal-detail-row" id="modal-tx-account-row"><dt class="modal-detail-label">Número de cuenta</dt><dd id="modal-tx-account" class="modal-detail-value">-</dd></div>
+            <div class="modal-detail-row"><dt class="modal-detail-label">Número de cuenta</dt><dd id="modal-tx-account" class="modal-detail-value">-</dd></div>
             <div class="modal-detail-row"><dt class="modal-detail-label">Concepto</dt><dd id="modal-tx-concept" class="modal-detail-value">-</dd></div>
             <div class="modal-detail-row"><dt class="modal-detail-label">Fecha y hora</dt><dd class="modal-detail-value"><time id="modal-tx-date">-</time></dd></div>
             <div class="modal-detail-row"><dt class="modal-detail-label">Estado</dt><dd class="modal-detail-value" style="color: #34d399;">● Completado</dd></div>
@@ -86,58 +86,81 @@ function renderHistoryView(container) {
   const filterOptionsContainer = container.querySelector('#filter-options-container');
   const txModal = container.querySelector('#transaction-modal');
   const btnCloseModal = container.querySelector('#btn-close-modal');
+  const modalTitle = container.querySelector('#modal-tx-title');
+  const modalAmount = container.querySelector('#modal-tx-amount');
+  const modalAccount = container.querySelector('#modal-tx-account');
+  const modalConcept = container.querySelector('#modal-tx-concept');
+  const modalDate = container.querySelector('#modal-tx-date');
 
   const expIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>';
   const incIcon = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>';
 
     async function loadTransactions() {
-    timelineContainer.innerHTML = '<div class="history-empty-state"><span>Cargando movimientos de la base de datos...</span></div>';
+    const requestId = ++currentSearchRequestId;
+    timelineContainer.innerHTML = '<div class="history-empty-state"><span>Cargando movimientos...</span></div>';
 
-    const groups = await TransactionService.getTransactions({
-      search: currentSearch,
-      filter: currentFilter,
-      period: currentPeriod
-    });
+    try {
+      const groups = await TransactionService.getTransactions({
+        search: currentSearch,
+        filter: currentFilter,
+        period: currentPeriod
+      });
 
-    if (!groups || groups.length === 0) {
-      timelineContainer.innerHTML = `
-        <div class="history-empty-state">
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-          <div class="history-empty-title">Sin movimientos en la base de datos</div>
-          <p class="history-empty-desc">No hay operaciones que coincidan con la búsqueda o la base de datos está vacía.</p>
-        </div>
-      `;
-      return;
-    }
+      if (requestId !== currentSearchRequestId) return;
 
-    timelineContainer.innerHTML = groups.map(group => {
-      const totalClass = group.total < 0 ? 'negative' : 'positive';
-      const itemsHtml = group.items.map(item => {
-        const formattedAmt = formatAmount(item.amount);
-        return `
-          <button type="button" class="history-item ${item.type}" data-id="${item.id}" aria-label="${item.title}: ${formattedAmt}">
-            <div class="history-item-left">
-              <div class="history-item-icon" aria-hidden="true">${item.type === 'expense' ? expIcon : incIcon}</div>
-              <div class="history-item-details">
-                <span class="history-item-title">${item.title}</span>
-                <span class="history-item-subtitle">${item.subtitle}</span>
+      if (!groups || groups.length === 0) {
+        timelineContainer.innerHTML = `
+          <div class="history-empty-state">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <div class="history-empty-title">Sin movimientos</div>
+            <p class="history-empty-desc">No hay operaciones que coincidan con la búsqueda.</p>
+          </div>
+        `;
+        return;
+      }
+
+      timelineContainer.innerHTML = groups.map(group => {
+        const totalClass = group.total < 0 ? 'negative' : 'positive';
+        const itemsHtml = group.items.map(item => {
+          const formattedAmt = formatAmount(item.amount);
+          const safeTitle = window.escapeHtml(item.title);
+          const safeSubtitle = window.escapeHtml(item.subtitle);
+          const safeAmt = window.escapeHtml(formattedAmt);
+
+          return `
+            <button type="button" class="history-item ${item.type}" data-id="${window.escapeHtml(item.id)}" aria-label="${safeTitle}: ${safeAmt}">
+              <div class="history-item-left">
+                <div class="history-item-icon" aria-hidden="true">${item.type === 'expense' ? expIcon : incIcon}</div>
+                <div class="history-item-details">
+                  <span class="history-item-title">${safeTitle}</span>
+                  <span class="history-item-subtitle">${safeSubtitle}</span>
+                </div>
               </div>
-            </div>
-            <div class="history-item-amount">${formattedAmt}</div>
-          </button>
+              <div class="history-item-amount">${safeAmt}</div>
+            </button>
+          `;
+        }).join('');
+
+        return `
+          <article class="history-group">
+            <header class="history-group-header">
+              <h2 class="history-group-title">${window.escapeHtml(group.groupLabel)}</h2>
+              <span class="history-group-total ${totalClass}">${formatAmount(group.total)}</span>
+            </header>
+            <div class="history-items-list">${itemsHtml}</div>
+          </article>
         `;
       }).join('');
-
-      return `
-        <article class="history-group">
-          <header class="history-group-header">
-            <h2 class="history-group-title">${group.groupLabel}</h2>
-            <span class="history-group-total ${totalClass}">${formatAmount(group.total)}</span>
-          </header>
-          <div class="history-items-list">${itemsHtml}</div>
-        </article>
+    } catch (err) {
+      if (requestId !== currentSearchRequestId) return;
+      timelineContainer.innerHTML = `
+        <div class="history-empty-state error">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          <div class="history-empty-title" style="color: #f87171;">Error al cargar movimientos</div>
+          <p class="history-empty-desc">${window.escapeHtml(err.message || 'Error de conexión con el backend.')}</p>
+        </div>
       `;
-    }).join('');
+    }
   }
 
   timelineContainer.addEventListener('click', (e) => {
@@ -145,45 +168,56 @@ function renderHistoryView(container) {
     if (itemElem) openTransactionModal(itemElem.getAttribute('data-id'));
   });
 
-  timelineContainer.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      const itemElem = e.target.closest('.history-item');
-      if (itemElem) {
-        e.preventDefault();
-        openTransactionModal(itemElem.getAttribute('data-id'));
-      }
-    }
-  });
+    let previousActiveElement = null;
 
-    function openTransactionModal(txId) {
-    const item = (typeof TransactionService !== 'undefined' && typeof TransactionService.getById === 'function')
-      ? TransactionService.getById(txId)
-      : null;
+  const handleModalKeyDown = (e) => {
+    if (e.key === 'Escape') {
+      closeTransactionModal();
+    }
+  };
+
+  function openTransactionModal(txId) {
+    const item = TransactionService.getById(txId);
     if (!item) return;
 
-    container.querySelector('#modal-tx-title').textContent = item.title;
-    const amountElem = container.querySelector('#modal-tx-amount');
-    amountElem.textContent = formatAmount(item.amount);
-    amountElem.style.color = item.type === 'expense' ? '#f87171' : '#34d399';
+    previousActiveElement = document.activeElement;
 
-    container.querySelector('#modal-tx-account').textContent = item.accountNumber || `ES91 2100 0418 4502 000${(item.id || '0000').slice(-4)}`;
-    container.querySelector('#modal-tx-concept').textContent = item.concept || item.title || (item.category || '-');
-    const dateObj = new Date(item.date);
-    const dateElem = container.querySelector('#modal-tx-date');
-    if (dateElem) {
-      dateElem.textContent = dateObj.toLocaleDateString('es-ES', {
-        day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
-      });
-      dateElem.setAttribute('datetime', !isNaN(dateObj.getTime()) ? dateObj.toISOString() : '');
+    if (modalTitle) modalTitle.textContent = item.title;
+    if (modalAmount) {
+      modalAmount.textContent = formatAmount(item.amount);
+      modalAmount.style.color = item.type === 'expense' ? '#f87171' : '#34d399';
     }
 
-    txModal.classList.add('show');
-    txModal.setAttribute('aria-hidden', 'false');
+    if (modalAccount) modalAccount.textContent = item.accountNumber || 'No disponible';
+    if (modalConcept) modalConcept.textContent = item.concept || item.title || (item.category || '-');
+    const dateObj = item.timestamp ? new Date(item.timestamp) : null;
+    if (modalDate) {
+      modalDate.textContent = dateObj
+        ? dateObj.toLocaleString('es-ES', {
+            day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+          })
+        : 'Fecha no disponible';
+      modalDate.setAttribute('datetime', dateObj ? dateObj.toISOString() : '');
+    }
+
+    if (txModal) {
+      txModal.classList.add('show');
+      txModal.setAttribute('aria-hidden', 'false');
+    }
+    if (btnCloseModal) btnCloseModal.focus();
+    window.addEventListener('keydown', handleModalKeyDown);
   }
 
   function closeTransactionModal() {
-    txModal.classList.remove('show');
-    txModal.setAttribute('aria-hidden', 'true');
+    if (txModal) {
+      txModal.classList.remove('show');
+      txModal.setAttribute('aria-hidden', 'true');
+    }
+    window.removeEventListener('keydown', handleModalKeyDown);
+    if (previousActiveElement && typeof previousActiveElement.focus === 'function') {
+      previousActiveElement.focus();
+    }
+    previousActiveElement = null;
   }
 
   if (btnCloseModal) btnCloseModal.addEventListener('click', closeTransactionModal);
@@ -192,12 +226,6 @@ function renderHistoryView(container) {
       if (e.target === txModal) closeTransactionModal();
     });
   }
-
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && txModal && txModal.classList.contains('show')) {
-      closeTransactionModal();
-    }
-  });
 
     if (btnToggleFilters && filterOptionsContainer) {
     btnToggleFilters.addEventListener('click', () => {
@@ -211,7 +239,10 @@ function renderHistoryView(container) {
     const handleSearch = () => {
       currentSearch = searchInput.value;
       if (btnClearSearch) btnClearSearch.classList.toggle('is-hidden', currentSearch.length === 0);
-      loadTransactions();
+      if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+      searchDebounceTimer = setTimeout(() => {
+        loadTransactions();
+      }, 300);
     };
     searchInput.addEventListener('input', handleSearch);
     searchInput.addEventListener('search', handleSearch);
@@ -223,6 +254,7 @@ function renderHistoryView(container) {
       currentSearch = '';
       btnClearSearch.classList.add('is-hidden');
       if (searchInput) searchInput.focus();
+      if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
       loadTransactions();
     });
   }
@@ -232,11 +264,10 @@ function renderHistoryView(container) {
     chips.forEach(chip => {
       chip.addEventListener('click', () => {
         chips.forEach(c => {
-          c.classList.remove('active');
-          c.setAttribute('aria-pressed', 'false');
+          const isActive = c === chip;
+          c.classList.toggle('active', isActive);
+          c.setAttribute('aria-pressed', String(isActive));
         });
-        chip.classList.add('active');
-        chip.setAttribute('aria-pressed', 'true');
         onSelect(chip);
         loadTransactions();
       });
@@ -248,7 +279,10 @@ function renderHistoryView(container) {
 
   loadTransactions();
 
-    if (typeof BottomNavComponent !== 'undefined') {
-    BottomNavComponent.render('#bottom-nav-container', 'history');
-  }
+    BottomNavComponent.render(container.querySelector('#bottom-nav-container'), 'history');
+
+  return () => {
+    window.removeEventListener('keydown', handleModalKeyDown);
+    if (searchDebounceTimer) clearTimeout(searchDebounceTimer);
+  };
 }

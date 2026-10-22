@@ -1,0 +1,130 @@
+@media (min-width: 768px) {
+  .mobile-app-container.is-dashboard-view {
+    max-width: 1060px;
+    padding-inline: 32px;
+  }
+
+  .app-container {
+    max-width: 100%;
+    padding: 32px 0 110px;
+  }
+}
+
+@media (min-width: 768px) {
+  .app-header {
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+
+  .app-top {
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .user-welcome h1 {
+    font-size: 32px;
+    line-height: 40px;
+  }
+
+  .current-date {
+    font-size: 14px;
+    margin-top: 4px;
+  }
+
+  .btn-logout {
+    padding: 7px 14px;
+    font-size: 13px;
+  }
+}
+
+@media (min-width: 768px) {
+  .app-container .app-main {
+    display: grid !important;
+    grid-template-columns: 1.15fr 0.85fr !important;
+    grid-template-areas:
+      "account movements"
+      "metrics movements" !important;
+    gap: 24px 28px !important;
+    align-items: start !important;
+  }
+
+  .account-section {
+    grid-area: account;
+  }
+
+  .metrics-section {
+    grid-area: metrics;
+  }
+
+  .movements-section {
+    grid-area: movements;
+  }
+}
+
+@media (min-width: 768px) {
+  .position-card {
+    padding: 26px 24px;
+    border-radius: 20px;
+  }
+
+  .iban-center-wrapper {
+    margin-bottom: 18px;
+  }
+
+  .balance-amount {
+    font-size: 42px;
+  }
+
+  .balance-decimals {
+    font-size: 26px;
+  }
+
+  .balance-subtitle {
+    margin-bottom: 22px;
+  }
+
+  .metrics-grid {
+    gap: 14px !important;
+  }
+
+  .metric-box {
+    padding: 16px 14px;
+    border-radius: 16px;
+    gap: 6px;
+  }
+
+  .box-label {
+    font-size: 12px;
+  }
+
+  .box-value {
+    font-size: 18px;
+  }
+
+  .movements-list {
+    gap: 12px;
+  }
+
+  .movement-item {
+    padding: 16px 18px;
+    border-radius: 16px;
+  }
+
+  .movement-item:hover {
+    transform: translateY(-2px);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+
+  .movement-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .movement-item,
+  .btn-logout {
+    transition: none !important;
+  }
+}

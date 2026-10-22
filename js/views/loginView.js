@@ -1,18 +1,8 @@
 function renderLoginView(container) {
   container.innerHTML = `
+    <div class="aurora" aria-hidden="true"></div>
     <section class="login-view" aria-labelledby="login-heading">
       <header class="login-header">
-        <div class="login-avatar-circle" role="img" aria-label="Logo Aura Neo-Banking">
-          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-            <rect x="3" y="3" width="18" height="18" rx="4"></rect>
-            <circle cx="12" cy="12" r="4"></circle>
-            <line x1="12" y1="8" x2="12" y2="9"></line>
-            <line x1="12" y1="15" x2="12" y2="16"></line>
-            <line x1="8" y1="12" x2="9" y2="12"></line>
-            <line x1="15" y1="12" x2="16" y2="12"></line>
-          </svg>
-        </div>
-
         <h1 id="login-heading" class="login-title">Inicia sesión</h1>
         <p id="login-subheading" class="login-subtitle">Ingresa tus credenciales para acceder</p>
       </header>
@@ -43,8 +33,8 @@ function renderLoginView(container) {
                 id="email" 
                 name="email" 
                 class="field-input" 
-                value="admin@admin.com" 
-                placeholder="admin@admin.com"
+                value="" 
+                placeholder="tu@correo.com"
                 autocomplete="username"
                 autocapitalize="none"
                 autocorrect="off"
@@ -84,8 +74,8 @@ function renderLoginView(container) {
                 id="password" 
                 name="password" 
                 class="field-input" 
-                value="admin" 
-                placeholder="admin"
+                value="" 
+                placeholder="Tu contraseña"
                 autocomplete="current-password"
                 autocapitalize="none"
                 autocorrect="off"
@@ -136,16 +126,28 @@ function renderLoginView(container) {
   `;
 
   initLogin({
-    onSuccess: (data) => {
-      if (typeof AppState !== 'undefined') {
-        AppState.user = data.email;
-        AppState.isAuthenticated = true;
+    onSubmit: async (data) => {
+      try {
+        await ApiService.login(data.email, data.password);
+      } catch (err) {
+        if (err.message && err.message.toLowerCase().includes('incorrect')) {
+          throw new Error('Correo o contraseña incorrectos');
+        }
+        throw err;
       }
-      if (window.appRouter) {
-        window.appRouter.navigate('/dashboard');
-      } else {
-        window.location.hash = '#/dashboard';
-      }
+
+      AppState.user = data.email;
+      try {
+        sessionStorage.setItem('aura_user', data.email);
+        const user = await ApiService.getUser();
+        if (user && user.name) {
+          AppState.userName = user.name;
+          sessionStorage.setItem('aura_user_name', user.name);
+        }
+      } catch (_) {}
+
+      window.showToast('¡Inicio de sesión exitoso!', 'success');
+      window.appRouter.navigate('/dashboard');
     }
   });
 }

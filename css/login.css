@@ -6,7 +6,6 @@
   max-width: 430px;
   margin: 0 auto;
   padding: 24px 16px 36px;
-  box-sizing: border-box;
   min-height: 100vh;
   min-height: 100dvh;
 }
@@ -20,24 +19,6 @@
   padding-bottom: 30px;
 }
 
-.login-avatar-circle {
-  width: 76px;
-  height: 76px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #19212d, #10151f);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  margin: 28px auto 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 
-    inset 0 1px 2px rgba(255, 255, 255, 0.15),
-    0 10px 24px rgba(0, 0, 0, 0.5);
-}
-
-.login-avatar-circle svg {
-  color: #94a3b8;
-}
 
 .login-title {
   font-size: 27px;
@@ -117,6 +98,7 @@
 
 .field-input {
   flex: 1;
+  height: 100%;
   background: transparent;
   border: none;
   outline: none;
@@ -130,6 +112,22 @@
 .field-input::placeholder {
   color: #4b5563;
   font-weight: 400;
+}
+
+.field-input:-webkit-autofill,
+.field-input:-webkit-autofill:hover,
+.field-input:-webkit-autofill:focus,
+.field-input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-input) inset !important;
+  box-shadow: 0 0 0 1000px var(--bg-input) inset !important;
+  -webkit-text-fill-color: var(--text-white) !important;
+  caret-color: var(--text-white) !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.field-input-box:focus-within .field-input:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--bg-input-focus) inset !important;
+  box-shadow: 0 0 0 1000px var(--bg-input-focus) inset !important;
 }
 
 .field-btn-action {

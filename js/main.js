@@ -13,6 +13,7 @@
     'views/homeView.js',
     'views/transferView.js',
     'views/historyView.js',
+    'views/confirView.js',
     'router.js',
     'app.js'
   ];

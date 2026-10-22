@@ -10,21 +10,19 @@
     --space-lg: 1.5rem;
 
     --glow-cobalt: 0 8px 24px -4px rgba(3, 120, 230, 0.25);
-
-    --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
 }
 
-button { font: inherit; color: inherit; cursor: pointer; }
-svg { display: block; }
+.transfer-form button,
+.btn-confirm { font: inherit; color: inherit; cursor: pointer; }
+.app-main.transfer svg { display: block; }
 
-.source-balance, .amount-field, .total-row strong, .total-row output, #recipient-iban { font-feature-settings: 'tnum' 1, 'cv05' 1; font-variant-numeric: tabular-nums lining-nums; }
+.source-balance, .amount-field, .total-row output, #recipient-iban { font-feature-settings: 'tnum' 1, 'cv05' 1; font-variant-numeric: tabular-nums lining-nums; }
 
 .app {
     width: 100%;
     max-width: 430px;
     margin: 0 auto;
     padding: 24px 16px 96px;
-    box-sizing: border-box;
 }
 
 .app-main.transfer,
@@ -76,21 +74,8 @@ svg { display: block; }
 }
 .step-head h2 { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
 
-.recipient { display: flex; align-items: flex-start; gap: var(--space-md); }
-.recipient-avatar {
-    display: grid;
-    place-items: center;
-    width: 44px;
-    height: 44px;
-    flex: none;
-    border-radius: var(--r-full);
-    background: linear-gradient(135deg, var(--primary-container), var(--tertiary));
-    color: var(--surface-container-lowest);
-    font-size: 14px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-}
-.recipient-fields { flex: 1; min-width: 0; display: grid; gap: var(--space-sm); }
+.recipient { width: 100%; }
+.recipient-fields { width: 100%; display: grid; gap: var(--space-sm); }
 
 .iban-field { display: flex; align-items: center; gap: var(--space-sm); }
 .iban-field .field-input { flex: 1; min-width: 0; }
@@ -124,6 +109,19 @@ svg { display: block; }
     border-color: var(--cobalt);
     box-shadow: 0 0 0 3px rgba(3, 120, 230, 0.15);
 }
+.transfer .field-input[readonly],
+.transfer .concepto[readonly] {
+    background: rgba(255, 255, 255, 0.03);
+    border-color: var(--border-soft);
+    color: var(--on-surface-variant);
+    cursor: default;
+    user-select: none;
+}
+.transfer .field-input[readonly]:focus,
+.transfer .concepto[readonly]:focus {
+    border-color: var(--border-soft);
+    box-shadow: none;
+}
 #recipient-iban { letter-spacing: 0.05em; }
 #recipient-iban.is-valid { border-color: rgba(3, 120, 230, 0.5); }
 
@@ -149,13 +147,19 @@ svg { display: block; }
     color: var(--on-surface);
     text-align: center;
     outline: none;
-    font-family: var(--font);
+    font-family: var(--font-family);
     font-size: 44px;
     font-weight: 700;
     letter-spacing: -0.03em;
     transition: border-color 0.2s ease;
 }
 .amount-field:focus { border-bottom-color: rgba(3, 120, 230, 0.6); }
+.amount-field.readonly-amount {
+    border: none !important;
+    cursor: default;
+    pointer-events: none;
+    width: auto !important;
+}
 @supports (field-sizing: content) {
     .amount-field { field-sizing: content; width: auto; }
 }
@@ -200,9 +204,103 @@ svg { display: block; }
     box-shadow: 0 0 0 3px rgba(3, 120, 230, 0.15);
 }
 
+.transfer-summary-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 14px;
+    border-radius: var(--r-md);
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-soft);
+    margin-bottom: var(--space-md);
+}
+
+.summary-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    font-size: 13.5px;
+}
+
+.summary-label {
+    color: var(--text-muted);
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.summary-value {
+    color: var(--on-surface);
+    font-weight: 500;
+    text-align: right;
+    word-break: break-word;
+}
+
+.summary-iban {
+    font-family: inherit;
+    font-feature-settings: 'tnum' 1, 'cv05' 1;
+    font-size: 12.5px;
+    color: var(--primary);
+    letter-spacing: 0.02em;
+}
+
+.summary-total-item {
+    margin-top: 4px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-soft);
+}
+
+.summary-total {
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    color: var(--primary) !important;
+    font-feature-settings: 'tnum' 1, 'cv05' 1;
+}
+
+.confirm-checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+    padding: 12px 14px;
+    border-radius: var(--r-md);
+    background: rgba(56, 189, 248, 0.06);
+    border: 1px solid rgba(56, 189, 248, 0.22);
+    cursor: pointer;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.confirm-checkbox-wrapper:hover {
+    background: rgba(56, 189, 248, 0.1);
+    border-color: rgba(56, 189, 248, 0.38);
+}
+
+.confirm-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    cursor: pointer;
+    user-select: none;
+}
+
+.confirm-checkbox {
+    width: 20px;
+    height: 20px;
+    accent-color: #38bdf8;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.checkbox-text {
+    font-size: 13.5px;
+    line-height: 1.35;
+    color: var(--on-surface);
+    font-weight: 500;
+}
+
 .total-row { display: flex; align-items: center; justify-content: space-between; gap: var(--space-md); }
 .total-row span { font-size: 14px; color: var(--on-surface-variant); }
-.total-row strong,
 .total-row output {
     font-size: 20px;
     font-weight: 700;
@@ -225,13 +323,36 @@ svg { display: block; }
     font-weight: 700;
     letter-spacing: 0.01em;
     box-shadow: var(--glow-cobalt);
-    transition: transform 0.15s ease, box-shadow 0.2s ease;
+    transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
+a.btn-confirm { text-decoration: none; }
+.step-card p { overflow-wrap: anywhere; }
 .btn-confirm:hover { transform: translateY(-1px); box-shadow: 0 0 20px rgba(3, 120, 230, 0.5), var(--glow-cobalt); }
 .btn-confirm:active { transform: translateY(0); }
 .btn-confirm svg { width: 20px; height: 20px; }
-.btn-confirm.is-done { background: rgba(52, 211, 153, 0.9); box-shadow: 0 8px 24px -4px rgba(52, 211, 153, 0.3); }
+
+.btn-confirm:disabled,
+.btn-confirm[disabled] {
+    opacity: 0.45;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+    filter: grayscale(0.4);
+}
 
 @media (prefers-reduced-motion: reduce) {
-    * { animation: none !important; transition: none !important; }
+    .step-card,
+    .transfer .field-input,
+    .concepto,
+    .quick-adds button,
+    .btn-confirm { animation: none !important; transition: none !important; }
+}
+
+.error-card {
+    border-color: rgba(248, 113, 113, 0.55);
+}
+
+.error-card .step-num {
+    background: #f87171;
+    color: #0c1017;
 }

@@ -2,15 +2,9 @@ class Router {
   constructor(routes, containerId = 'app') {
     this.routes = routes || {};
     this.container = document.getElementById(containerId);
-    this.currentRoute = null;
+    this.currentCleanup = null;
 
     window.addEventListener('hashchange', () => this.handleRouting());
-
-    if (document.readyState !== 'loading') {
-      this.handleRouting();
-    } else {
-      window.addEventListener('DOMContentLoaded', () => this.handleRouting());
-    }
   }
 
   navigate(path) {
@@ -20,14 +14,52 @@ class Router {
   handleRouting() {
     const rawHash = window.location.hash.slice(1) || '/login';
     const cleanPath = rawHash.startsWith('/') ? rawHash : `/${rawHash}`;
-    const handler = this.routes[cleanPath] || this.routes['/login'];
+
+        const token = sessionStorage.getItem('aura_token');
+    const isAuthenticated = !!token;
+
+    if (cleanPath !== '/login' && !isAuthenticated) {
+      this.navigate('/login');
+      return;
+    }
+
+    if (cleanPath === '/login' && isAuthenticated) {
+      this.navigate('/dashboard');
+      return;
+    }
+
+    const handler = this.routes[cleanPath];
 
     if (handler && typeof handler === 'function') {
-      this.currentRoute = cleanPath;
-      handler(this.container);
+      if (typeof this.currentCleanup === 'function') {
+        try {
+          this.currentCleanup();
+        } catch (err) {
+          console.warn('[Router] View cleanup error:', err);
+        }
+        this.currentCleanup = null;
+      }
+
+      if (this.container) {
+        this.container.className = `mobile-app-container is-${cleanPath.slice(1)}-view`;
+      }
+
+            const pageTitles = {
+        '/login': 'Login · AURA NEO-BANKING',
+        '/dashboard': 'Home · AURA NEO-BANKING',
+        '/transfer': 'Transferencia · AURA NEO-BANKING',
+        '/confirm': 'Confirmación · AURA NEO-BANKING',
+        '/history': 'Historial · AURA NEO-BANKING'
+      };
+      document.title = pageTitles[cleanPath] || 'AURA NEO-BANKING';
+
+      const cleanupHook = handler(this.container);
+      if (typeof cleanupHook === 'function') {
+        this.currentCleanup = cleanupHook;
+      }
     } else {
-      console.warn(`Route not found: ${cleanPath}. Redirecting to /login`);
-      this.navigate('/login');
+      console.warn(`Route not found: ${cleanPath}. Redirecting...`);
+      this.navigate(isAuthenticated ? '/dashboard' : '/login');
     }
   }
 }

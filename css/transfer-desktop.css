@@ -1,0 +1,237 @@
+@media (min-width: 768px) {
+  .mobile-app-container.is-transfer-view,
+  .mobile-app-container.is-confirm-view {
+    max-width: 1060px;
+    padding-inline: 32px;
+  }
+
+  .mobile-app-container.is-transfer-view .app,
+  .mobile-app-container.is-confirm-view .app {
+    max-width: 100%;
+    padding: 32px 0 110px;
+  }
+}
+
+@media (min-width: 768px) {
+  .app-header#top {
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+
+  .app-header#top .app-top {
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+
+  .app-header#top .screen-title {
+    font-size: 32px;
+    line-height: 40px;
+    letter-spacing: -0.5px;
+  }
+
+  .source-account {
+    padding: 16px 24px;
+    border-radius: 16px;
+    background: rgba(18, 24, 34, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .source-account p {
+    font-size: 14.5px;
+  }
+
+  .source-balance span {
+    font-size: 16px;
+  }
+}
+
+@media (min-width: 768px) {
+  .transfer-form {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 24px 28px !important;
+    align-items: stretch !important;
+  }
+
+  .transfer-form .step-card:nth-of-type(1) {
+    grid-column: 1;
+    grid-row: 1;
+  }
+
+  .transfer-form .step-card:nth-of-type(2) {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .transfer-form .step-card:nth-of-type(3) {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .transfer-form .step-card:nth-of-type(4) {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .transfer-form .btn-confirm {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    width: 100%;
+    margin-top: 0;
+  }
+}
+
+@media (min-width: 768px) {
+  .step-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    padding: 24px 28px;
+    border-radius: 20px;
+    background: rgba(18, 24, 34, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    transition: border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .transfer-form .step-card:nth-of-type(1) .recipient,
+  .transfer-form .step-card:nth-of-type(3) .concepto,
+  .transfer-form .step-card:nth-of-type(4) .total-row {
+    margin-block: auto;
+  }
+
+  .step-card:hover {
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+
+  .step-head {
+    margin-bottom: 18px;
+  }
+
+  .step-head h2 {
+    font-size: 16px;
+    font-weight: 600;
+  }
+
+  .step-num {
+    width: 26px;
+    height: 26px;
+    font-size: 13px;
+  }
+
+
+  .recipient-fields {
+    gap: 12px;
+  }
+
+  .transfer .field-input {
+    height: 48px;
+    font-size: 15px;
+    border-radius: 12px;
+  }
+
+  .amount-input {
+    margin-top: 10px;
+  }
+
+  .amount-field {
+    font-size: 48px;
+  }
+
+  .amount-input .currency {
+    font-size: 32px;
+  }
+
+  .quick-adds {
+    margin-top: 22px;
+    gap: 12px;
+  }
+
+  .quick-adds button {
+    height: 46px;
+    font-size: 14.5px;
+    border-radius: 12px;
+  }
+
+  .concepto {
+    height: 48px;
+    font-size: 15px;
+    border-radius: 12px;
+  }
+
+  .total-row {
+    padding: 6px 0;
+  }
+
+  .total-row span {
+    font-size: 15px;
+  }
+
+  .total-row output {
+    font-size: 26px;
+  }
+
+  .btn-confirm {
+    height: 58px;
+    font-size: 16px;
+    border-radius: 16px;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+  }
+
+  .btn-confirm:hover {
+    transform: translateY(-2px);
+  }
+}
+
+@media (min-width: 768px) {
+  .mobile-app-container.is-confirm-view .transfer-form {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 24px 28px !important;
+    align-items: stretch !important;
+  }
+
+  .mobile-app-container.is-confirm-view .confirm-amount-card {
+    grid-column: 1 / -1 !important;
+    grid-row: 1 !important;
+    min-height: auto !important;
+    padding: 32px 28px !important;
+  }
+
+  .mobile-app-container.is-confirm-view .confirm-amount-card .amount-field {
+    font-size: 58px !important;
+  }
+
+  .mobile-app-container.is-confirm-view .confirm-amount-card .amount-input .currency {
+    font-size: 38px !important;
+  }
+
+  .mobile-app-container.is-confirm-view .confirm-recipient-card {
+    grid-column: 1 !important;
+    grid-row: 2 !important;
+    min-height: 220px;
+  }
+
+  .mobile-app-container.is-confirm-view .confirm-concept-card {
+    grid-column: 2 !important;
+    grid-row: 2 !important;
+    min-height: 220px;
+  }
+
+  .mobile-app-container.is-confirm-view .transfer-form .btn-confirm {
+    grid-column: 1 / -1 !important;
+    grid-row: 3 !important;
+    width: 100% !important;
+    margin-top: 8px;
+  }
+
+  .mobile-app-container.is-confirm-view .step-card .recipient,
+  .mobile-app-container.is-confirm-view .step-card .amount-input,
+  .mobile-app-container.is-confirm-view .step-card .concepto {
+    margin-block: auto;
+  }
+}

@@ -1,102 +1,148 @@
 const API_CONFIG = {
   baseUrl: 'http://127.0.0.1:8000',
-  defaultUserId: 1,
-  defaultAccountId: 1,
-  defaultTimezoneId: 1
 };
 
-const ApiService = {
-  config: API_CONFIG,
+const apiClient = axios.create({
+  baseURL: API_CONFIG.baseUrl,
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  timeout: 8000
+});
 
-  getClient() {
-    if (typeof axios !== 'undefined') {
-      return axios.create({
-        baseURL: this.config.baseUrl,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        timeout: 8000
+apiClient.interceptors.request.use(
+  (config) => {
+    try {
+      const token = sessionStorage.getItem('aura_token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (_) {}
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+apiClient.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      ApiService.resetClientState();
+
+      if (window.location.hash && !window.location.hash.includes('login')) {
+        if (typeof window.showToast === 'function') {
+          window.showToast('Sesión expirada. Por favor, inicia sesión.', 'error');
+        }
+        if (window.appRouter) {
+          window.appRouter.navigate('/login');
+        } else {
+          window.location.hash = '#/login';
+        }
+      }
+    }
+
+    const data = error.response?.data;
+    const errorDetail = (typeof data?.detail === 'string')
+      ? data.detail
+      : Array.isArray(data?.detail)
+        ? data.detail.map(d => d.msg || d.message || JSON.stringify(d)).join(', ')
+        : data?.message || error.message || 'Error de conexión con el backend';
+
+    return Promise.reject(new Error(errorDetail));
+  }
+);
+
+const ApiService = {
+  setToken(token) {
+    try {
+      if (token) {
+        sessionStorage.setItem('aura_token', token);
+      } else {
+        sessionStorage.removeItem('aura_token');
+      }
+    } catch (_) {}
+  },
+
+  async login(email, password) {
+    this.resetClientState();
+    const response = await apiClient.post('/auth/login', {
+      email: (email || '').trim(),
+      password: password || ''
+    });
+    const data = response.data;
+    if (data && data.access_token) {
+      this.setToken(data.access_token);
+    }
+    return data;
+  },
+
+  resetClientState() {
+    this.setToken(null);
+    try {
+      sessionStorage.removeItem('aura_user');
+      sessionStorage.removeItem('aura_user_name');
+    } catch (_) {}
+    if (typeof AppState !== 'undefined') {
+      Object.assign(AppState, {
+        user: null,
+        userName: null,
+        accountId: null,
+        balance: null,
+        lastTransfer: null
       });
     }
-    return null;
-  },
-
-  async request(method, endpoint, data = null, options = {}) {
-    const client = this.getClient();
-    const url = `${this.config.baseUrl}${endpoint}`;
-
-    if (client) {
-      try {
-        const response = await client({
-          method,
-          url: endpoint,
-          data,
-          ...options
-        });
-        return response.data;
-      } catch (error) {
-        const errorDetail = error.response?.data?.detail 
-          || error.response?.data?.message 
-          || error.message 
-          || 'Error de conexión con el backend';
-        console.warn(`[Axios API Error] ${method.toUpperCase()} ${endpoint}:`, errorDetail);
-        throw new Error(errorDetail);
-      }
-    }
-
-    try {
-      const fetchOptions = {
-        method: method.toUpperCase(),
-        headers: {
-          'Content-Type': 'application/json',
-          ...(options.headers || {})
-        }
-      };
-      if (data && ['POST', 'PUT', 'PATCH'].includes(fetchOptions.method)) {
-        fetchOptions.body = JSON.stringify(data);
-      }
-      const res = await fetch(url, fetchOptions);
-      if (!res.ok) {
-        let errBody = null;
-        try { errBody = await res.json(); } catch (_) { errBody = { detail: res.statusText }; }
-        throw new Error((errBody && (errBody.detail || errBody.message)) || `Error ${res.status}`);
-      }
-      if (res.status === 204) return null;
-      return await res.json();
-    } catch (err) {
-      console.warn(`[API Fallback Error] ${method.toUpperCase()} ${url}:`, err.message);
-      throw err;
+    if (typeof TransactionService !== 'undefined') {
+      TransactionService.reset?.();
     }
   },
 
-  async getUser(userId = API_CONFIG.defaultUserId) {
-    return this.request('get', `/user/${userId}`);
+  logout() {
+    this.resetClientState();
+    if (window.appRouter) {
+      window.appRouter.navigate('/login');
+    } else {
+      window.location.hash = '#/login';
+    }
   },
 
-  async getAccounts() {
-    return this.request('get', '/accounts/');
+  async getUser() {
+    const response = await apiClient.get('/user/me');
+    return response.data;
   },
 
-  async getAccount(accountId = API_CONFIG.defaultAccountId) {
-    return this.request('get', `/accounts/${accountId}`);
+  async getAccount() {
+    const response = await apiClient.get('/accounts/me');
+    if (response.data && typeof AppState !== 'undefined') {
+      AppState.accountId = response.data.id != null ? Number(response.data.id) : null;
+      AppState.balance = Number(response.data.balance) || 0;
+    }
+    return response.data;
+  },
+
+  async getAccountByIban(iban) {
+    const clean = (iban || '').replace(/\s+/g, '').toUpperCase();
+    const response = await apiClient.get(`/transfers/accounts/${clean}`);
+    return response.data;
+  },
+
+  async getActivityHistory(params = {}) {
+    const response = await apiClient.get('/activity', { params });
+    return response.data;
   },
 
   async getTransferHistory() {
-    return this.request('get', '/transfers/history');
+    const response = await apiClient.get('/transfers/history');
+    return response.data;
   },
 
   async createTransfer(transferData) {
-    return this.request('post', '/transfers/', {
+    const response = await apiClient.post('/transfers/', {
       recipient_account_id: Number(transferData.recipient_account_id),
       amount: parseFloat(transferData.amount),
       concept: transferData.concept || 'Transferencia',
-      timezone_id: Number(transferData.timezone_id || API_CONFIG.defaultTimezoneId)
     });
+    return response.data;
   }
 };
 
 window.ApiService = ApiService;
-
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = ApiService;
-}

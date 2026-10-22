@@ -13,24 +13,28 @@ function initLogin(options = {}) {
   const eyeHide = document.getElementById('eye-hide');
 
   const btnSubmit = document.getElementById('btn-submit');
-  const showToast = (msg, type) => {
-    if (typeof window.showToast === 'function') window.showToast(msg, type);
+
+    const setFieldError = (input, box, errorEl, message = '') => {
+    const hasErr = Boolean(message);
+    if (box) box.classList.toggle('has-error', hasErr);
+    if (input) input.setAttribute('aria-invalid', String(hasErr));
+    if (errorEl) {
+      errorEl.textContent = message;
+      errorEl.classList.toggle('is-visible', hasErr);
+    }
+    return hasErr;
   };
 
-    function updateClearButton() {
-    if (!btnClearEmail || !emailInput) return;
-    if (emailInput.value.length > 0) {
-      btnClearEmail.classList.remove('is-hidden');
-    } else {
-      btnClearEmail.classList.add('is-hidden');
+    const updateClearButton = () => {
+    if (btnClearEmail && emailInput) {
+      btnClearEmail.classList.toggle('is-hidden', emailInput.value.length === 0);
     }
-  }
+  };
 
   if (emailInput && btnClearEmail) {
     emailInput.addEventListener('input', () => {
       updateClearButton();
-      if (emailBox) emailBox.classList.remove('has-error');
-      if (emailError) emailError.classList.remove('is-visible');
+      setFieldError(emailInput, emailBox, emailError, '');
     });
 
     btnClearEmail.addEventListener('click', () => {
@@ -44,66 +48,36 @@ function initLogin(options = {}) {
 
   if (btnTogglePassword && passwordInput) {
     btnTogglePassword.addEventListener('click', () => {
-      const isPassword = passwordInput.type === 'password';
-
-      if (isPassword) {
-        passwordInput.type = 'text';
-        if (eyeShow) eyeShow.classList.add('is-hidden');
-        if (eyeHide) eyeHide.classList.remove('is-hidden');
-        btnTogglePassword.setAttribute('aria-label', 'Ocultar contraseña');
-        btnTogglePassword.setAttribute('aria-pressed', 'true');
-      } else {
-        passwordInput.type = 'password';
-        if (eyeShow) eyeShow.classList.remove('is-hidden');
-        if (eyeHide) eyeHide.classList.add('is-hidden');
-        btnTogglePassword.setAttribute('aria-label', 'Mostrar contraseña');
-        btnTogglePassword.setAttribute('aria-pressed', 'false');
-      }
+      const isPass = passwordInput.type === 'password';
+      passwordInput.type = isPass ? 'text' : 'password';
+      if (eyeShow) eyeShow.classList.toggle('is-hidden', isPass);
+      if (eyeHide) eyeHide.classList.toggle('is-hidden', !isPass);
+      btnTogglePassword.setAttribute('aria-label', isPass ? 'Ocultar contraseña' : 'Mostrar contraseña');
+      btnTogglePassword.setAttribute('aria-pressed', String(isPass));
       passwordInput.focus();
     });
 
     passwordInput.addEventListener('input', () => {
-      if (passwordBox) passwordBox.classList.remove('has-error');
-      if (passwordError) passwordError.classList.remove('is-visible');
+      setFieldError(passwordInput, passwordBox, passwordError, '');
     });
   }
 
     if (form) {
-    form.addEventListener('submit', (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const email = emailInput ? emailInput.value.trim() : '';
       const password = passwordInput ? passwordInput.value : '';
 
-      let hasErrors = false;
-
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!email || !emailRegex.test(email)) {
-        if (emailBox) emailBox.classList.add('has-error');
-        if (emailInput) emailInput.setAttribute('aria-invalid', 'true');
-        if (emailError) {
-          emailError.textContent = !email ? 'Por favor, ingresa tu correo.' : 'El correo no tiene un formato válido.';
-          emailError.classList.add('is-visible');
-        }
-        hasErrors = true;
-      } else {
-        if (emailInput) emailInput.setAttribute('aria-invalid', 'false');
-      }
+      const emailMsg = !email ? 'Por favor, ingresa tu correo.' : (!emailRegex.test(email) ? 'El correo no tiene un formato válido.' : '');
+      const passMsg = (!password || !password.trim()) ? 'Por favor, ingresa tu contraseña.' : '';
 
-      if (!password || password.length < 3) {
-        if (passwordBox) passwordBox.classList.add('has-error');
-        if (passwordInput) passwordInput.setAttribute('aria-invalid', 'true');
-        if (passwordError) {
-          passwordError.textContent = !password ? 'Por favor, ingresa tu contraseña.' : 'Mínimo 3 caracteres.';
-          passwordError.classList.add('is-visible');
-        }
-        hasErrors = true;
-      } else {
-        if (passwordInput) passwordInput.setAttribute('aria-invalid', 'false');
-      }
+      const hasEmailErr = setFieldError(emailInput, emailBox, emailError, emailMsg);
+      const hasPassErr = setFieldError(passwordInput, passwordBox, passwordError, passMsg);
 
-      if (hasErrors) {
-        showToast('Verifica tus credenciales', 'error');
+      if (hasEmailErr || hasPassErr) {
+        window.showToast('Verifica tus credenciales', 'error');
         return;
       }
 
@@ -111,19 +85,21 @@ function initLogin(options = {}) {
       if (emailInput) emailInput.disabled = true;
       if (passwordInput) passwordInput.disabled = true;
 
-      showToast('Accediendo a la cuenta...', 'info');
+      window.showToast('Accediendo a la cuenta...', 'info');
 
-      setTimeout(() => {
+      try {
+        const handler = options.onSubmit;
+        if (typeof handler === 'function') {
+          await handler({ email, password });
+        }
+      } catch (err) {
+        console.error('[LoginController] Authentication error:', err);
+        window.showToast(err.message || 'Error de autenticación', 'error');
+      } finally {
         btnSubmit.classList.remove('is-loading');
         if (emailInput) emailInput.disabled = false;
         if (passwordInput) passwordInput.disabled = false;
-
-        showToast('¡Inicio de sesión exitoso!', 'success');
-
-        if (typeof options.onSuccess === 'function') {
-          options.onSuccess({ email });
-        }
-      }, 1200);
+      }
     });
   }
 }

@@ -1,7 +1,26 @@
 const AppState = {
   user: null,
-  isAuthenticated: false,
-  balance: null
+  userName: null,
+  accountId: null,
+  balance: null,
+  lastTransfer: null
+};
+
+try {
+  AppState.user = sessionStorage.getItem('aura_user') || null;
+  AppState.userName = sessionStorage.getItem('aura_user_name') || null;
+} catch (_) {}
+
+window.escapeHtml = function(str) {
+  return String(str ?? '').replace(/[&<>"']/g, function(c) {
+    return {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;'
+    }[c];
+  });
 };
 
 let appToastTimer = null;
@@ -21,17 +40,10 @@ window.showToast = function(message, type = 'info') {
 
 window.formatCurrency = function(amount, options = {}) {
   const num = Number(amount) || 0;
-  const absVal = Math.abs(num).toLocaleString('es-ES', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-  });
-  if (options.noSymbol) {
-    return options.includeSign ? `${num > 0 ? '+' : '-'}${absVal}` : absVal;
-  }
-  if (options.includeSign) {
-    return `${num > 0 ? '+' : '-'}${absVal} €`;
-  }
-  return `${absVal} €`;
+  const abs = Math.abs(num);
+  const formatted = abs.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const sign = abs < 0.005 ? '' : (num < 0 ? '-' : (options.includeSign ? '+' : ''));
+  return `${sign}${formatted}${options.noSymbol ? '' : ' €'}`;
 };
 
 window.formatIban = function(iban) {
@@ -45,8 +57,10 @@ function initSPA() {
     '/login': renderLoginView,
     '/dashboard': renderHomeView,
     '/transfer': renderTransferView,
+    '/confirm': renderConfirmView,
     '/history': renderHistoryView
   }, 'app');
+  window.appRouter.handleRouting();
 }
 
 if (document.readyState === 'loading') {

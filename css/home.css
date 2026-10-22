@@ -7,7 +7,6 @@
   flex-direction: column;
   position: relative;
   padding: 24px 16px 96px;
-  box-sizing: border-box;
 }
 
 .balance-amount, .box-value, .movement-amount, .iban-value {
@@ -66,7 +65,7 @@
   margin-top: 3px;
 }
 
-.app-main {
+.app-container .app-main {
   display: flex !important;
   flex-direction: column !important;
   gap: 22px !important;
@@ -94,33 +93,23 @@
 }
 
 .position-card {
-  padding: 20px;
+  padding: 24px 20px 22px;
 }
 
-.card-header {
+.iban-center-wrapper {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.position-label {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-  text-transform: uppercase;
+  justify-content: center;
+  margin-bottom: 14px;
 }
 
 .iban-container {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 4px 10px;
+  padding: 3px 8px 3px 10px;
   border-radius: 8px;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   font-size: 12px;
 }
 
@@ -139,7 +128,7 @@
   border: none;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 4px;
+  padding: 2px;
   font-size: 16px;
   line-height: 1;
   display: flex;
@@ -152,10 +141,18 @@
   color: var(--on-surface);
 }
 
+.btn-icon svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
 .balance-display {
   display: flex;
   align-items: baseline;
+  justify-content: center;
   gap: 3px;
+  text-align: center;
 }
 
 .balance-amount {
@@ -184,10 +181,12 @@
   color: var(--text-muted);
   margin-top: 6px;
   margin-bottom: 18px;
+  text-align: center;
 }
 
 .metrics-pills {
   display: flex;
+  justify-content: center;
   gap: 8px;
   flex-wrap: wrap;
 }
@@ -225,34 +224,34 @@
 
 .metrics-grid {
   display: grid !important;
-  grid-template-columns: 1fr 1fr !important;
-  gap: 12px !important;
+  grid-template-columns: repeat(3, 1fr) !important;
+  gap: 8px !important;
   width: 100% !important;
 }
 
 .metric-box {
-  background: linear-gradient(180deg, rgba(39, 42, 49, 0.75), rgba(28, 32, 38, 0.75));
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border-soft);
-  border-top-color: var(--border-medium);
-  padding: 16px;
+  padding: 12px 10px;
   border-radius: 14px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  min-width: 0;
 }
 
 .box-label {
-  font-size: 13px;
+  font-size: 11px;
   font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .box-value {
-  font-size: 18px;
+  font-size: clamp(12px, 3.6vw, 15px);
   font-weight: 700;
   letter-spacing: -0.01em;
+  white-space: nowrap;
 }
 
 .box-income .box-label {
@@ -269,6 +268,14 @@
 
 .box-expense .box-value {
   color: var(--neg);
+}
+
+.box-position .box-label {
+  color: #38bdf8;
+}
+
+.box-position .box-value {
+  color: #38bdf8;
 }
 
 .see-all {
@@ -291,11 +298,6 @@
 }
 
 .movement-item {
-  background: linear-gradient(180deg, rgba(39, 42, 49, 0.75), rgba(28, 32, 38, 0.75));
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--border-soft);
-  border-top-color: var(--border-medium);
   padding: 14px 16px;
   border-radius: 14px;
   display: flex;
@@ -306,7 +308,6 @@
   color: inherit;
   transition: transform 0.15s ease, border-color 0.15s ease;
   width: 100%;
-  box-sizing: border-box;
 }
 
 .movement-item:hover {
